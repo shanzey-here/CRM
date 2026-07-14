@@ -88,7 +88,7 @@ CREATE TYPE assignment_role AS ENUM (
 -- Returns NULL for super-admins (is_super_admin = true, tenant_id absent).
 -- Why JWT? Avoids DB lookup on every RLS check → no recursion, no perf hit.
 -- app_metadata is server-writable only → tamper-proof from client side.
-CREATE OR REPLACE FUNCTION auth.current_tenant_id()
+CREATE OR REPLACE FUNCTION public.current_tenant_id()
 RETURNS uuid
 LANGUAGE sql
 STABLE
@@ -102,7 +102,7 @@ AS $$
 $$;
 
 -- C2. Resolve the current user's tenant role from JWT app_metadata.
-CREATE OR REPLACE FUNCTION auth.current_user_role()
+CREATE OR REPLACE FUNCTION public.current_user_role()
 RETURNS text
 LANGUAGE sql
 STABLE
@@ -113,7 +113,7 @@ AS $$
 $$;
 
 -- C3. Check if the current user is a platform super-admin.
-CREATE OR REPLACE FUNCTION auth.is_super_admin()
+CREATE OR REPLACE FUNCTION public.is_super_admin()
 RETURNS boolean
 LANGUAGE sql
 STABLE
@@ -900,111 +900,111 @@ ALTER TABLE payments FORCE ROW LEVEL SECURITY;
 -- M1. tenants
 -- =============================
 CREATE POLICY super_admin_all ON tenants FOR ALL
-  USING (auth.is_super_admin() = true)
-  WITH CHECK (auth.is_super_admin() = true);
+  USING (public.is_super_admin() = true)
+  WITH CHECK (public.is_super_admin() = true);
 
 CREATE POLICY tenant_member_select ON tenants FOR SELECT
-  USING (id = auth.current_tenant_id());
+  USING (id = public.current_tenant_id());
 
 -- =============================
 -- M2. users
 -- =============================
 CREATE POLICY super_admin_all ON users FOR ALL
-  USING (auth.is_super_admin() = true)
-  WITH CHECK (auth.is_super_admin() = true);
+  USING (public.is_super_admin() = true)
+  WITH CHECK (public.is_super_admin() = true);
 
 -- tenant_admin / dispatcher: full CRUD within tenant
 CREATE POLICY admin_dispatcher_select ON users FOR SELECT
   USING (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   );
 CREATE POLICY admin_dispatcher_insert ON users FOR INSERT
   WITH CHECK (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   );
 CREATE POLICY admin_dispatcher_update ON users FOR UPDATE
   USING (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   )
   WITH CHECK (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   );
 CREATE POLICY admin_dispatcher_delete ON users FOR DELETE
   USING (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   );
 
 -- crew: read all users in own tenant (for team context)
 CREATE POLICY crew_select ON users FOR SELECT
   USING (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() = 'crew'
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() = 'crew'
   );
 
 -- customer: read own user record only
 CREATE POLICY customer_select ON users FOR SELECT
   USING (
     id = auth.uid()
-    AND auth.current_user_role() = 'customer'
+    AND public.current_user_role() = 'customer'
   );
 
 -- =============================
 -- M3. tenant_settings
 -- =============================
 CREATE POLICY super_admin_all ON tenant_settings FOR ALL
-  USING (auth.is_super_admin() = true)
-  WITH CHECK (auth.is_super_admin() = true);
+  USING (public.is_super_admin() = true)
+  WITH CHECK (public.is_super_admin() = true);
 
 CREATE POLICY admin_dispatcher_all ON tenant_settings FOR ALL
   USING (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   )
   WITH CHECK (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   );
 
 CREATE POLICY crew_select ON tenant_settings FOR SELECT
   USING (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() = 'crew'
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() = 'crew'
   );
 
 -- =============================
 -- M4. tenant_modules
 -- =============================
 CREATE POLICY super_admin_all ON tenant_modules FOR ALL
-  USING (auth.is_super_admin() = true)
-  WITH CHECK (auth.is_super_admin() = true);
+  USING (public.is_super_admin() = true)
+  WITH CHECK (public.is_super_admin() = true);
 
 CREATE POLICY admin_select ON tenant_modules FOR SELECT
   USING (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   );
 
 -- =============================
 -- M5. domain_events
 -- =============================
 CREATE POLICY super_admin_all ON domain_events FOR ALL
-  USING (auth.is_super_admin() = true)
-  WITH CHECK (auth.is_super_admin() = true);
+  USING (public.is_super_admin() = true)
+  WITH CHECK (public.is_super_admin() = true);
 
 CREATE POLICY admin_dispatcher_select ON domain_events FOR SELECT
   USING (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   );
 CREATE POLICY admin_dispatcher_insert ON domain_events FOR INSERT
   WITH CHECK (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   );
 
 -- =============================
@@ -1012,45 +1012,45 @@ CREATE POLICY admin_dispatcher_insert ON domain_events FOR INSERT
 -- (internal system table — no direct user access, managed by trigger)
 -- =============================
 CREATE POLICY super_admin_all ON tenant_invoice_sequences FOR ALL
-  USING (auth.is_super_admin() = true)
-  WITH CHECK (auth.is_super_admin() = true);
+  USING (public.is_super_admin() = true)
+  WITH CHECK (public.is_super_admin() = true);
 
 -- =============================
 -- M7. addresses
 -- =============================
 CREATE POLICY super_admin_all ON addresses FOR ALL
-  USING (auth.is_super_admin() = true)
-  WITH CHECK (auth.is_super_admin() = true);
+  USING (public.is_super_admin() = true)
+  WITH CHECK (public.is_super_admin() = true);
 
 CREATE POLICY admin_dispatcher_all ON addresses FOR ALL
   USING (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   )
   WITH CHECK (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   );
 
 CREATE POLICY crew_select ON addresses FOR SELECT
   USING (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() = 'crew'
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() = 'crew'
   );
 
 -- customer: read addresses linked to their leads
 CREATE POLICY customer_select ON addresses FOR SELECT
   USING (
-    auth.current_user_role() = 'customer'
-    AND tenant_id = auth.current_tenant_id()
+    public.current_user_role() = 'customer'
+    AND tenant_id = public.current_tenant_id()
     AND id IN (
       SELECT l.origin_address_id FROM leads l
       JOIN contacts c ON c.id = l.contact_id AND c.tenant_id = l.tenant_id
-      WHERE c.user_id = auth.uid() AND c.tenant_id = auth.current_tenant_id()
+      WHERE c.user_id = auth.uid() AND c.tenant_id = public.current_tenant_id()
       UNION
       SELECT l.destination_address_id FROM leads l
       JOIN contacts c ON c.id = l.contact_id AND c.tenant_id = l.tenant_id
-      WHERE c.user_id = auth.uid() AND c.tenant_id = auth.current_tenant_id()
+      WHERE c.user_id = auth.uid() AND c.tenant_id = public.current_tenant_id()
     )
   );
 
@@ -1058,36 +1058,36 @@ CREATE POLICY customer_select ON addresses FOR SELECT
 -- M8. contacts
 -- =============================
 CREATE POLICY super_admin_all ON contacts FOR ALL
-  USING (auth.is_super_admin() = true)
-  WITH CHECK (auth.is_super_admin() = true);
+  USING (public.is_super_admin() = true)
+  WITH CHECK (public.is_super_admin() = true);
 
 CREATE POLICY admin_dispatcher_all ON contacts FOR ALL
   USING (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   )
   WITH CHECK (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   );
 
 -- crew: read contacts that have leads assigned to them
 CREATE POLICY crew_select ON contacts FOR SELECT
   USING (
-    auth.current_user_role() = 'crew'
-    AND tenant_id = auth.current_tenant_id()
+    public.current_user_role() = 'crew'
+    AND tenant_id = public.current_tenant_id()
     AND id IN (
       SELECT contact_id FROM leads
       WHERE assigned_to = auth.uid()
-        AND tenant_id = auth.current_tenant_id()
+        AND tenant_id = public.current_tenant_id()
     )
   );
 
 -- customer: read own contact record (contacts.user_id = auth.uid())
 CREATE POLICY customer_select ON contacts FOR SELECT
   USING (
-    auth.current_user_role() = 'customer'
-    AND tenant_id = auth.current_tenant_id()
+    public.current_user_role() = 'customer'
+    AND tenant_id = public.current_tenant_id()
     AND user_id = auth.uid()
   );
 
@@ -1095,36 +1095,36 @@ CREATE POLICY customer_select ON contacts FOR SELECT
 -- M9. leads
 -- =============================
 CREATE POLICY super_admin_all ON leads FOR ALL
-  USING (auth.is_super_admin() = true)
-  WITH CHECK (auth.is_super_admin() = true);
+  USING (public.is_super_admin() = true)
+  WITH CHECK (public.is_super_admin() = true);
 
 CREATE POLICY admin_dispatcher_all ON leads FOR ALL
   USING (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   )
   WITH CHECK (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   );
 
 -- crew: read leads assigned to them
 CREATE POLICY crew_select ON leads FOR SELECT
   USING (
-    auth.current_user_role() = 'crew'
-    AND tenant_id = auth.current_tenant_id()
+    public.current_user_role() = 'crew'
+    AND tenant_id = public.current_tenant_id()
     AND assigned_to = auth.uid()
   );
 
 -- customer: read leads on their own contact record
 CREATE POLICY customer_select ON leads FOR SELECT
   USING (
-    auth.current_user_role() = 'customer'
-    AND tenant_id = auth.current_tenant_id()
+    public.current_user_role() = 'customer'
+    AND tenant_id = public.current_tenant_id()
     AND contact_id IN (
       SELECT id FROM contacts
       WHERE user_id = auth.uid()
-        AND tenant_id = auth.current_tenant_id()
+        AND tenant_id = public.current_tenant_id()
     )
   );
 
@@ -1132,34 +1132,34 @@ CREATE POLICY customer_select ON leads FOR SELECT
 -- M10. activities
 -- =============================
 CREATE POLICY super_admin_all ON activities FOR ALL
-  USING (auth.is_super_admin() = true)
-  WITH CHECK (auth.is_super_admin() = true);
+  USING (public.is_super_admin() = true)
+  WITH CHECK (public.is_super_admin() = true);
 
 CREATE POLICY admin_dispatcher_all ON activities FOR ALL
   USING (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   )
   WITH CHECK (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   );
 
 -- crew: read activities on leads assigned to them
 CREATE POLICY crew_select ON activities FOR SELECT
   USING (
-    auth.current_user_role() = 'crew'
-    AND tenant_id = auth.current_tenant_id()
+    public.current_user_role() = 'crew'
+    AND tenant_id = public.current_tenant_id()
     AND (
       lead_id IN (
         SELECT id FROM leads
         WHERE assigned_to = auth.uid()
-          AND tenant_id = auth.current_tenant_id()
+          AND tenant_id = public.current_tenant_id()
       )
       OR contact_id IN (
         SELECT contact_id FROM leads
         WHERE assigned_to = auth.uid()
-          AND tenant_id = auth.current_tenant_id()
+          AND tenant_id = public.current_tenant_id()
       )
     )
   );
@@ -1167,12 +1167,12 @@ CREATE POLICY crew_select ON activities FOR SELECT
 -- customer: read activities on their own contact
 CREATE POLICY customer_select ON activities FOR SELECT
   USING (
-    auth.current_user_role() = 'customer'
-    AND tenant_id = auth.current_tenant_id()
+    public.current_user_role() = 'customer'
+    AND tenant_id = public.current_tenant_id()
     AND contact_id IN (
       SELECT id FROM contacts
       WHERE user_id = auth.uid()
-        AND tenant_id = auth.current_tenant_id()
+        AND tenant_id = public.current_tenant_id()
     )
   );
 
@@ -1180,37 +1180,37 @@ CREATE POLICY customer_select ON activities FOR SELECT
 -- M11. tasks
 -- =============================
 CREATE POLICY super_admin_all ON tasks FOR ALL
-  USING (auth.is_super_admin() = true)
-  WITH CHECK (auth.is_super_admin() = true);
+  USING (public.is_super_admin() = true)
+  WITH CHECK (public.is_super_admin() = true);
 
 CREATE POLICY admin_dispatcher_all ON tasks FOR ALL
   USING (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   )
   WITH CHECK (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   );
 
 -- crew: read tasks assigned to them
 CREATE POLICY crew_select ON tasks FOR SELECT
   USING (
-    auth.current_user_role() = 'crew'
-    AND tenant_id = auth.current_tenant_id()
+    public.current_user_role() = 'crew'
+    AND tenant_id = public.current_tenant_id()
     AND assigned_to = auth.uid()
   );
 
 -- crew: update tasks assigned to them (e.g. mark complete)
 CREATE POLICY crew_update ON tasks FOR UPDATE
   USING (
-    auth.current_user_role() = 'crew'
-    AND tenant_id = auth.current_tenant_id()
+    public.current_user_role() = 'crew'
+    AND tenant_id = public.current_tenant_id()
     AND assigned_to = auth.uid()
   )
   WITH CHECK (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() = 'crew'
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() = 'crew'
     AND assigned_to = auth.uid()
   );
 
@@ -1218,80 +1218,80 @@ CREATE POLICY crew_update ON tasks FOR UPDATE
 -- M12. inventory_items
 -- =============================
 CREATE POLICY super_admin_all ON inventory_items FOR ALL
-  USING (auth.is_super_admin() = true)
-  WITH CHECK (auth.is_super_admin() = true);
+  USING (public.is_super_admin() = true)
+  WITH CHECK (public.is_super_admin() = true);
 
 CREATE POLICY admin_dispatcher_all ON inventory_items FOR ALL
   USING (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   )
   WITH CHECK (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   );
 
 CREATE POLICY crew_select ON inventory_items FOR SELECT
   USING (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() = 'crew'
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() = 'crew'
   );
 
 -- =============================
 -- M13. pricing_settings
 -- =============================
 CREATE POLICY super_admin_all ON pricing_settings FOR ALL
-  USING (auth.is_super_admin() = true)
-  WITH CHECK (auth.is_super_admin() = true);
+  USING (public.is_super_admin() = true)
+  WITH CHECK (public.is_super_admin() = true);
 
 CREATE POLICY admin_dispatcher_all ON pricing_settings FOR ALL
   USING (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   )
   WITH CHECK (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   );
 
 -- =============================
 -- M14. quotes
 -- =============================
 CREATE POLICY super_admin_all ON quotes FOR ALL
-  USING (auth.is_super_admin() = true)
-  WITH CHECK (auth.is_super_admin() = true);
+  USING (public.is_super_admin() = true)
+  WITH CHECK (public.is_super_admin() = true);
 
 CREATE POLICY admin_dispatcher_all ON quotes FOR ALL
   USING (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   )
   WITH CHECK (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   );
 
 -- crew: read quotes on leads assigned to them
 CREATE POLICY crew_select ON quotes FOR SELECT
   USING (
-    auth.current_user_role() = 'crew'
-    AND tenant_id = auth.current_tenant_id()
+    public.current_user_role() = 'crew'
+    AND tenant_id = public.current_tenant_id()
     AND lead_id IN (
       SELECT id FROM leads
       WHERE assigned_to = auth.uid()
-        AND tenant_id = auth.current_tenant_id()
+        AND tenant_id = public.current_tenant_id()
     )
   );
 
 -- customer: read quotes on their own contact
 CREATE POLICY customer_select ON quotes FOR SELECT
   USING (
-    auth.current_user_role() = 'customer'
-    AND tenant_id = auth.current_tenant_id()
+    public.current_user_role() = 'customer'
+    AND tenant_id = public.current_tenant_id()
     AND contact_id IN (
       SELECT id FROM contacts
       WHERE user_id = auth.uid()
-        AND tenant_id = auth.current_tenant_id()
+        AND tenant_id = public.current_tenant_id()
     )
   );
 
@@ -1299,42 +1299,42 @@ CREATE POLICY customer_select ON quotes FOR SELECT
 -- M15. quote_inventory
 -- =============================
 CREATE POLICY super_admin_all ON quote_inventory FOR ALL
-  USING (auth.is_super_admin() = true)
-  WITH CHECK (auth.is_super_admin() = true);
+  USING (public.is_super_admin() = true)
+  WITH CHECK (public.is_super_admin() = true);
 
 CREATE POLICY admin_dispatcher_all ON quote_inventory FOR ALL
   USING (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   )
   WITH CHECK (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   );
 
 -- crew: read via quote (quotes they can see)
 CREATE POLICY crew_select ON quote_inventory FOR SELECT
   USING (
-    auth.current_user_role() = 'crew'
-    AND tenant_id = auth.current_tenant_id()
+    public.current_user_role() = 'crew'
+    AND tenant_id = public.current_tenant_id()
     AND quote_id IN (
       SELECT q.id FROM quotes q
       JOIN leads l ON l.id = q.lead_id AND l.tenant_id = q.tenant_id
       WHERE l.assigned_to = auth.uid()
-        AND q.tenant_id = auth.current_tenant_id()
+        AND q.tenant_id = public.current_tenant_id()
     )
   );
 
 -- customer: read via quote (quotes on their contact)
 CREATE POLICY customer_select ON quote_inventory FOR SELECT
   USING (
-    auth.current_user_role() = 'customer'
-    AND tenant_id = auth.current_tenant_id()
+    public.current_user_role() = 'customer'
+    AND tenant_id = public.current_tenant_id()
     AND quote_id IN (
       SELECT q.id FROM quotes q
       JOIN contacts c ON c.id = q.contact_id AND c.tenant_id = q.tenant_id
       WHERE c.user_id = auth.uid()
-        AND q.tenant_id = auth.current_tenant_id()
+        AND q.tenant_id = public.current_tenant_id()
     )
   );
 
@@ -1342,40 +1342,40 @@ CREATE POLICY customer_select ON quote_inventory FOR SELECT
 -- M16. quote_line_items
 -- =============================
 CREATE POLICY super_admin_all ON quote_line_items FOR ALL
-  USING (auth.is_super_admin() = true)
-  WITH CHECK (auth.is_super_admin() = true);
+  USING (public.is_super_admin() = true)
+  WITH CHECK (public.is_super_admin() = true);
 
 CREATE POLICY admin_dispatcher_all ON quote_line_items FOR ALL
   USING (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   )
   WITH CHECK (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   );
 
 CREATE POLICY crew_select ON quote_line_items FOR SELECT
   USING (
-    auth.current_user_role() = 'crew'
-    AND tenant_id = auth.current_tenant_id()
+    public.current_user_role() = 'crew'
+    AND tenant_id = public.current_tenant_id()
     AND quote_id IN (
       SELECT q.id FROM quotes q
       JOIN leads l ON l.id = q.lead_id AND l.tenant_id = q.tenant_id
       WHERE l.assigned_to = auth.uid()
-        AND q.tenant_id = auth.current_tenant_id()
+        AND q.tenant_id = public.current_tenant_id()
     )
   );
 
 CREATE POLICY customer_select ON quote_line_items FOR SELECT
   USING (
-    auth.current_user_role() = 'customer'
-    AND tenant_id = auth.current_tenant_id()
+    public.current_user_role() = 'customer'
+    AND tenant_id = public.current_tenant_id()
     AND quote_id IN (
       SELECT q.id FROM quotes q
       JOIN contacts c ON c.id = q.contact_id AND c.tenant_id = q.tenant_id
       WHERE c.user_id = auth.uid()
-        AND q.tenant_id = auth.current_tenant_id()
+        AND q.tenant_id = public.current_tenant_id()
     )
   );
 
@@ -1383,40 +1383,40 @@ CREATE POLICY customer_select ON quote_line_items FOR SELECT
 -- M17. jobs
 -- =============================
 CREATE POLICY super_admin_all ON jobs FOR ALL
-  USING (auth.is_super_admin() = true)
-  WITH CHECK (auth.is_super_admin() = true);
+  USING (public.is_super_admin() = true)
+  WITH CHECK (public.is_super_admin() = true);
 
 CREATE POLICY admin_dispatcher_all ON jobs FOR ALL
   USING (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   )
   WITH CHECK (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   );
 
 -- crew: read jobs where they have an assignment
 CREATE POLICY crew_select ON jobs FOR SELECT
   USING (
-    auth.current_user_role() = 'crew'
-    AND tenant_id = auth.current_tenant_id()
+    public.current_user_role() = 'crew'
+    AND tenant_id = public.current_tenant_id()
     AND id IN (
       SELECT job_id FROM job_crew_assignments
       WHERE user_id = auth.uid()
-        AND tenant_id = auth.current_tenant_id()
+        AND tenant_id = public.current_tenant_id()
     )
   );
 
 -- customer: read jobs on their own contact
 CREATE POLICY customer_select ON jobs FOR SELECT
   USING (
-    auth.current_user_role() = 'customer'
-    AND tenant_id = auth.current_tenant_id()
+    public.current_user_role() = 'customer'
+    AND tenant_id = public.current_tenant_id()
     AND contact_id IN (
       SELECT id FROM contacts
       WHERE user_id = auth.uid()
-        AND tenant_id = auth.current_tenant_id()
+        AND tenant_id = public.current_tenant_id()
     )
   );
 
@@ -1424,47 +1424,47 @@ CREATE POLICY customer_select ON jobs FOR SELECT
 -- M18. vehicles
 -- =============================
 CREATE POLICY super_admin_all ON vehicles FOR ALL
-  USING (auth.is_super_admin() = true)
-  WITH CHECK (auth.is_super_admin() = true);
+  USING (public.is_super_admin() = true)
+  WITH CHECK (public.is_super_admin() = true);
 
 CREATE POLICY admin_dispatcher_all ON vehicles FOR ALL
   USING (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   )
   WITH CHECK (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   );
 
 CREATE POLICY crew_select ON vehicles FOR SELECT
   USING (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() = 'crew'
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() = 'crew'
   );
 
 -- =============================
 -- M19. job_crew_assignments
 -- =============================
 CREATE POLICY super_admin_all ON job_crew_assignments FOR ALL
-  USING (auth.is_super_admin() = true)
-  WITH CHECK (auth.is_super_admin() = true);
+  USING (public.is_super_admin() = true)
+  WITH CHECK (public.is_super_admin() = true);
 
 CREATE POLICY admin_dispatcher_all ON job_crew_assignments FOR ALL
   USING (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   )
   WITH CHECK (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   );
 
 -- crew: read own assignments only
 CREATE POLICY crew_select ON job_crew_assignments FOR SELECT
   USING (
-    auth.current_user_role() = 'crew'
-    AND tenant_id = auth.current_tenant_id()
+    public.current_user_role() = 'crew'
+    AND tenant_id = public.current_tenant_id()
     AND user_id = auth.uid()
   );
 
@@ -1472,52 +1472,52 @@ CREATE POLICY crew_select ON job_crew_assignments FOR SELECT
 -- M20. job_vehicle_assignments
 -- =============================
 CREATE POLICY super_admin_all ON job_vehicle_assignments FOR ALL
-  USING (auth.is_super_admin() = true)
-  WITH CHECK (auth.is_super_admin() = true);
+  USING (public.is_super_admin() = true)
+  WITH CHECK (public.is_super_admin() = true);
 
 CREATE POLICY admin_dispatcher_all ON job_vehicle_assignments FOR ALL
   USING (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   )
   WITH CHECK (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   );
 
 -- crew: read all vehicle assignments in tenant (for scheduling awareness)
 CREATE POLICY crew_select ON job_vehicle_assignments FOR SELECT
   USING (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() = 'crew'
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() = 'crew'
   );
 
 -- =============================
 -- M21. invoices
 -- =============================
 CREATE POLICY super_admin_all ON invoices FOR ALL
-  USING (auth.is_super_admin() = true)
-  WITH CHECK (auth.is_super_admin() = true);
+  USING (public.is_super_admin() = true)
+  WITH CHECK (public.is_super_admin() = true);
 
 CREATE POLICY admin_dispatcher_all ON invoices FOR ALL
   USING (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   )
   WITH CHECK (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   );
 
 -- customer: read invoices on their own contact
 CREATE POLICY customer_select ON invoices FOR SELECT
   USING (
-    auth.current_user_role() = 'customer'
-    AND tenant_id = auth.current_tenant_id()
+    public.current_user_role() = 'customer'
+    AND tenant_id = public.current_tenant_id()
     AND contact_id IN (
       SELECT id FROM contacts
       WHERE user_id = auth.uid()
-        AND tenant_id = auth.current_tenant_id()
+        AND tenant_id = public.current_tenant_id()
     )
   );
 
@@ -1525,29 +1525,29 @@ CREATE POLICY customer_select ON invoices FOR SELECT
 -- M22. invoice_line_items
 -- =============================
 CREATE POLICY super_admin_all ON invoice_line_items FOR ALL
-  USING (auth.is_super_admin() = true)
-  WITH CHECK (auth.is_super_admin() = true);
+  USING (public.is_super_admin() = true)
+  WITH CHECK (public.is_super_admin() = true);
 
 CREATE POLICY admin_dispatcher_all ON invoice_line_items FOR ALL
   USING (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   )
   WITH CHECK (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   );
 
 -- customer: read line items on their own invoices
 CREATE POLICY customer_select ON invoice_line_items FOR SELECT
   USING (
-    auth.current_user_role() = 'customer'
-    AND tenant_id = auth.current_tenant_id()
+    public.current_user_role() = 'customer'
+    AND tenant_id = public.current_tenant_id()
     AND invoice_id IN (
       SELECT i.id FROM invoices i
       JOIN contacts c ON c.id = i.contact_id AND c.tenant_id = i.tenant_id
       WHERE c.user_id = auth.uid()
-        AND i.tenant_id = auth.current_tenant_id()
+        AND i.tenant_id = public.current_tenant_id()
     )
   );
 
@@ -1555,29 +1555,29 @@ CREATE POLICY customer_select ON invoice_line_items FOR SELECT
 -- M23. payment_schedules
 -- =============================
 CREATE POLICY super_admin_all ON payment_schedules FOR ALL
-  USING (auth.is_super_admin() = true)
-  WITH CHECK (auth.is_super_admin() = true);
+  USING (public.is_super_admin() = true)
+  WITH CHECK (public.is_super_admin() = true);
 
 CREATE POLICY admin_dispatcher_all ON payment_schedules FOR ALL
   USING (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   )
   WITH CHECK (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   );
 
 -- customer: read schedules on their own invoices
 CREATE POLICY customer_select ON payment_schedules FOR SELECT
   USING (
-    auth.current_user_role() = 'customer'
-    AND tenant_id = auth.current_tenant_id()
+    public.current_user_role() = 'customer'
+    AND tenant_id = public.current_tenant_id()
     AND invoice_id IN (
       SELECT i.id FROM invoices i
       JOIN contacts c ON c.id = i.contact_id AND c.tenant_id = i.tenant_id
       WHERE c.user_id = auth.uid()
-        AND i.tenant_id = auth.current_tenant_id()
+        AND i.tenant_id = public.current_tenant_id()
     )
   );
 
@@ -1585,29 +1585,29 @@ CREATE POLICY customer_select ON payment_schedules FOR SELECT
 -- M24. payments
 -- =============================
 CREATE POLICY super_admin_all ON payments FOR ALL
-  USING (auth.is_super_admin() = true)
-  WITH CHECK (auth.is_super_admin() = true);
+  USING (public.is_super_admin() = true)
+  WITH CHECK (public.is_super_admin() = true);
 
 CREATE POLICY admin_dispatcher_all ON payments FOR ALL
   USING (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   )
   WITH CHECK (
-    tenant_id = auth.current_tenant_id()
-    AND auth.current_user_role() IN ('tenant_admin', 'dispatcher')
+    tenant_id = public.current_tenant_id()
+    AND public.current_user_role() IN ('tenant_admin', 'dispatcher')
   );
 
 -- customer: read payments on their own invoices
 CREATE POLICY customer_select ON payments FOR SELECT
   USING (
-    auth.current_user_role() = 'customer'
-    AND tenant_id = auth.current_tenant_id()
+    public.current_user_role() = 'customer'
+    AND tenant_id = public.current_tenant_id()
     AND invoice_id IN (
       SELECT i.id FROM invoices i
       JOIN contacts c ON c.id = i.contact_id AND c.tenant_id = i.tenant_id
       WHERE c.user_id = auth.uid()
-        AND i.tenant_id = auth.current_tenant_id()
+        AND i.tenant_id = public.current_tenant_id()
     )
   );
 
