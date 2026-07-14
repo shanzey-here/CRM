@@ -15,6 +15,8 @@
 --   - Assert row counts match expected isolation boundaries
 -- =============================================================================
 
+CREATE SCHEMA IF NOT EXISTS tests;
+
 -- Helper: simulate a JWT for a given user by setting the request.jwt.claims
 -- This mimics what PostgREST does when a user makes an authenticated request.
 CREATE OR REPLACE FUNCTION tests.set_jwt_claims(
@@ -102,14 +104,14 @@ DECLARE
 
   -- Entity IDs
   v_contact_a uuid := 'caaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
-  v_contact_b uuid := 'cbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb';
-  v_lead_a uuid := 'laaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
+  v_contact_b uuid := 'cbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb';
+  v_lead_a uuid := '0aaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
   v_address_a_origin uuid := 'adaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
   v_address_a_dest uuid := 'adaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaab';
-  v_quote_a uuid := 'qaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
-  v_job_a uuid := 'jaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
-  v_vehicle_a uuid := 'vaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
-  v_invoice_a uuid := 'iaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
+  v_quote_a uuid := '0aaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
+  v_job_a uuid := '0aaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
+  v_vehicle_a uuid := '0aaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
+  v_invoice_a uuid := '0aaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
   v_contact_b_id uuid := 'cbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb';
   v_count bigint;
 BEGIN
@@ -396,7 +398,7 @@ SELECT tests.assert_raises(
                                       scheduled_start, scheduled_end)
     VALUES (
       'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-      'jaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+      '0aaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
       '33333333-3333-3333-3333-333333333333',
       'driver',
       '2026-08-01 10:00:00+00',
@@ -412,8 +414,8 @@ SELECT tests.assert_raises(
                                          scheduled_start, scheduled_end)
     VALUES (
       'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-      'jaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-      'vaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+      '0aaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+      '0aaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
       '2026-08-01 10:00:00+00',
       '2026-08-01 14:00:00+00'
     );
@@ -432,7 +434,7 @@ BEGIN
   -- The first invoice was already created in test data setup.
   -- Check it got INV-00001
   SELECT invoice_number INTO v_number_1 FROM invoices
-  WHERE id = 'iaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
+  WHERE id = '0aaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
 
   IF v_number_1 = 'INV-00001' THEN
     RAISE NOTICE 'PASS: Invoice sequencing — first invoice is INV-00001';
@@ -445,7 +447,7 @@ BEGIN
                         issued_at, due_date, created_by)
   VALUES (
     'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-    'jaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+    '0aaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
     'caaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
     'draft', 500.00, 100.00, 600.00,
     '2026-07-16', '2026-07-30',
@@ -533,7 +535,10 @@ $$;
 -- DROP FUNCTION IF EXISTS tests.assert_raises;
 -- DROP SCHEMA IF EXISTS tests;
 
-RAISE NOTICE '══════════════════════════════════════════';
-RAISE NOTICE 'All isolation tests completed.';
-RAISE NOTICE 'Review PASS/FAIL output above.';
-RAISE NOTICE '══════════════════════════════════════════';
+DO $$
+BEGIN
+  RAISE NOTICE '══════════════════════════════════════════';
+  RAISE NOTICE 'All isolation tests completed.';
+  RAISE NOTICE 'Review PASS/FAIL output above.';
+  RAISE NOTICE '══════════════════════════════════════════';
+END $$;
