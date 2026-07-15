@@ -38,7 +38,10 @@ export async function updateSession(request: NextRequest) {
   const path = request.nextUrl.pathname
 
   // Public paths that don't require authentication
-  const isPublicPath = path.startsWith('/login') || path.startsWith('/auth') || path === '/'
+  // /api/public is the public, unauthenticated lead-capture endpoint —
+  // it enforces its own tenant resolution/rate-limiting/validation in code
+  // instead of relying on a session, so it must never be redirected here.
+  const isPublicPath = path.startsWith('/login') || path.startsWith('/auth') || path === '/' || path.startsWith('/api/public')
 
   // Redirect unauthenticated users trying to access protected paths
   if (!user && !isPublicPath) {
