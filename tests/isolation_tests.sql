@@ -572,7 +572,37 @@ BEGIN
 END;
 $$;
 
+-- =============================================================================
+-- TEST: Domain Event Bus
+-- =============================================================================
+DO $$
+DECLARE
+  v_tenant_a uuid := 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
+  v_admin_a uuid := '11111111-1111-1111-1111-111111111111';
+  v_super_admin uuid := '99999999-9999-9999-9999-999999999999';
+  v_event_id uuid;
+  v_count bigint;
+BEGIN
+  RAISE NOTICE '--- Domain Event Bus Tests ---';
 
+  -- 1. Valid event emission by a Tenant
+  PERFORM tests.set_jwt_claims(v_admin_a, v_tenant_a, 'tenant_admin');
+  v_event_id := public.emit_domain_event('test.event', 'test_module', '{"key": "value"}'::jsonb);
+  
+  SELECT count(*) INTO v_count FROM domain_events WHERE id = v_event_id AND tenant_id = v_tenant_a;
+  PERFORM tests.assert_count('Tenant Admin A can emit and log domain events', v_count, 1);
+
+  -- 2. Null tenant context fails loudly
+  PERFORM tests.set_jwt_claims(v_super_admin, NULL, NULL, true);
+  
+  -- The function should throw an exception because tenant_id is NULL
+  PERFORM tests.assert_raises(
+    'Emitting an event without a tenant context should fail loudly',
+    $sql$ SELECT public.emit_domain_event('test.fail', 'test_module') $sql$
+  );
+
+END;
+$$;
 
 -- =============================================================================
 -- CLEANUP — remove test data (run as superuser / service_role)
