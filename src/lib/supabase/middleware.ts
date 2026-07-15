@@ -47,22 +47,50 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // Redirect authenticated users away from the login page
-  if (user && path.startsWith('/login')) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/dashboard'
-    return NextResponse.redirect(url)
+  // Determine user's correct dashboard path based on role
+  let correctDashboard = '/';
+  if (user) {
+    const appMetadata = user.app_metadata || {};
+    if (appMetadata.is_super_admin) {
+      correctDashboard = '/super-admin';
+    } else if (appMetadata.tenant_role === 'tenant_admin') {
+      correctDashboard = '/admin';
+    } else if (appMetadata.tenant_role === 'dispatcher') {
+      correctDashboard = '/office';
+    } else if (appMetadata.tenant_role === 'crew') {
+      correctDashboard = '/crew';
+    }
   }
 
-  // Optional: Add basic role-gated routing.
-  // We read the tenant_role from the user's app_metadata (set by our Edge Function)
-  // If they are not super admin, they shouldn't access /admin
-  if (user && path.startsWith('/admin')) {
-    const isSuperAdmin = user.app_metadata?.is_super_admin === true
-    if (!isSuperAdmin) {
-      const url = request.nextUrl.clone()
-      url.pathname = '/dashboard'
-      return NextResponse.redirect(url)
+  // Redirect authenticated users away from login, home, or the old generic dashboard
+  if (user && (path === '/login' || path === '/dashboard' || path === '/')) {
+    // Prevent infinite loop if correctDashboard is '/'
+    if (correctDashboard !== '/') {
+      const url = request.nextUrl.clone();
+      url.pathname = correctDashboard;
+      return NextResponse.redirect(url);
+    }
+  }
+
+  // Strictly enforce RBAC for the dashboard routes
+  if (user) {
+    const isSuperAdminRoute = path.startsWith('/super-admin');
+    const isAdminRoute = path.startsWith('/admin');
+    const isOfficeRoute = path.startsWith('/office');
+    const isCrewRoute = path.startsWith('/crew');
+
+    const appMetadata = user.app_metadata || {};
+    
+    // If they are on a route meant for a different role, redirect them to their correct dashboard
+    if (
+      (isSuperAdminRoute && !appMetadata.is_super_admin) ||
+      (isAdminRoute && appMetadata.tenant_role !== 'tenant_admin') ||
+      (isOfficeRoute && appMetadata.tenant_role !== 'dispatcher') ||
+      (isCrewRoute && appMetadata.tenant_role !== 'crew')
+    ) {
+      const url = request.nextUrl.clone();
+      url.pathname = correctDashboard;
+      return NextResponse.redirect(url);
     }
   }
 
