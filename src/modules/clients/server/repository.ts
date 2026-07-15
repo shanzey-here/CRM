@@ -16,6 +16,11 @@ export interface PaginationOptions {
   offset?: number
 }
 
+export interface ContactFilterOptions extends PaginationOptions {
+  searchQuery?: string
+  type?: 'residential' | 'commercial'
+}
+
 // ============================================================================
 // CONTACTS REPOSITORY
 // ============================================================================
@@ -23,21 +28,30 @@ export interface PaginationOptions {
 export async function getContacts(
   supabase: SupabaseClient<Database>,
   tenantId: string,
-  options?: PaginationOptions
-): Promise<{ data: Contact[] | null; error: Error | null }> {
+  options?: ContactFilterOptions
+): Promise<{ data: Contact[] | null; count: number | null; error: Error | null }> {
   let query = supabase
     .from('contacts')
-    .select('*')
+    .select('*', { count: 'exact' })
     .eq('tenant_id', tenantId) // Explicit tenant scoping
     .order('created_at', { ascending: false })
+
+  if (options?.type) {
+    query = query.eq('type', options.type)
+  }
+
+  if (options?.searchQuery) {
+    // Basic ilike search across name and email
+    query = query.or(`first_name.ilike.%${options.searchQuery}%,last_name.ilike.%${options.searchQuery}%,email.ilike.%${options.searchQuery}%`)
+  }
 
   if (options?.limit !== undefined) {
     const offset = options.offset || 0
     query = query.range(offset, offset + options.limit - 1)
   }
 
-  const { data, error } = await query
-  return { data, error }
+  const { data, count, error } = await query
+  return { data, count, error }
 }
 
 export async function getContactById(
