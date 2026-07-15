@@ -1,13 +1,26 @@
 -- =============================================================================
 -- Phase 0 — Tenant Isolation & RLS Tests
 -- =============================================================================
--- Run against a local Supabase instance AFTER applying the migration.
+-- Run after applying migrations, against either a local Supabase instance or
+-- a shared/hosted project. This script assumes there is NO `supabase db
+-- reset` to fall back on: it scopes every DELETE to its own hardcoded test
+-- fixture IDs (never a bare `DELETE FROM <table>;`), cleans up any previous
+-- run's leftovers before seeding, and cleans up everything it created at the
+-- end unconditionally (see the CLEANUP block near the bottom).
+--
+-- Do NOT run this file in single-transaction mode (e.g. `psql -1`) — if an
+-- unexpected error aborts the transaction, the final cleanup block would be
+-- aborted too. The default `psql -f` / `supabase db query --linked -f`
+-- behavior (continue past a failed statement) is required for the bottom
+-- cleanup to reliably run even after a genuine script bug.
+--
 -- These tests verify the security wall holds by attempting cross-tenant
 -- and cross-role access and asserting it fails.
 --
 -- Prerequisites:
 --   1. Migration 00001_phase0_foundations.sql has been applied
 --   2. Run via: psql -f tests/isolation_tests.sql
+--      or:      supabase db query --linked -f tests/isolation_tests.sql
 --
 -- Strategy:
 --   - Create test data (two tenants, users in each, contacts, leads, etc.)
@@ -115,10 +128,21 @@ DECLARE
   v_contact_b_id uuid := 'cbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb';
   v_count bigint;
 BEGIN
-  -- Cleanup previous test runs
+  -- Cleanup previous test runs — scoped to this fixture's own IDs only.
+  -- This script runs against a shared, non-resettable database, so it must
+  -- never touch a table without a WHERE clause naming its own test rows.
   DELETE FROM public.tenants WHERE id IN (v_tenant_a, v_tenant_b);
   DELETE FROM public.users WHERE id = v_super_admin;
-  DELETE FROM audit.logs;
+  -- audit.logs.tenant_id has no FK to tenants (by design, to preserve
+  -- history past tenant deletion — see 00003_phase0_audit_logs.sql), so the
+  -- cascade from the tenant delete above won't reach it. Scope explicitly to
+  -- rows this fixture could have produced: tenant-tagged rows, plus the two
+  -- cases where the trigger itself nulls tenant_id (the super-admin's own
+  -- user-insert audit row, and the tenant-delete audit row).
+  DELETE FROM audit.logs
+  WHERE tenant_id IN (v_tenant_a, v_tenant_b)
+     OR (table_name = 'users' AND COALESCE(new_data->>'id', old_data->>'id') = v_super_admin::text)
+     OR (table_name = 'tenants' AND COALESCE(old_data->>'id', new_data->>'id') IN (v_tenant_a::text, v_tenant_b::text));
 
   -- ─────────────────────────────────────────────────────────────────────
   -- ─────────────────────────────────────────────────────────────────────
@@ -302,6 +326,35 @@ BEGIN
   -- Crew should see only their own crew assignments
   SELECT count(*) INTO v_count FROM job_crew_assignments;
   PERFORM tests.assert_count('Crew role: crew sees only own crew assignments', v_count, 1);
+END;
+$$;
+
+
+-- =============================================================================
+-- TEST 4B: Crew role limitation — crew sees only leads assigned to them
+-- =============================================================================
+DO $$
+DECLARE v_count bigint;
+BEGIN
+  -- Impersonate crew member in tenant A — lead_a is assigned_to crew_a in setup
+  PERFORM tests.set_jwt_claims(
+    '33333333-3333-3333-3333-333333333333'::uuid,
+    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'::uuid,
+    'crew'
+  );
+
+  SELECT count(*) INTO v_count FROM leads;
+  PERFORM tests.assert_count('Crew role: crew sees only leads assigned to them', v_count, 1);
+
+  -- Impersonate crew member in tenant B — no leads are assigned to them
+  PERFORM tests.set_jwt_claims(
+    '66666666-6666-6666-6666-666666666666'::uuid,
+    'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'::uuid,
+    'crew'
+  );
+
+  SELECT count(*) INTO v_count FROM leads;
+  PERFORM tests.assert_count('Crew role: crew with no assigned leads sees none', v_count, 0);
 END;
 $$;
 
@@ -605,37 +658,35 @@ END;
 $$;
 
 -- =============================================================================
--- CLEANUP — remove test data (run as superuser / service_role)
+-- CLEANUP — remove test data (runs unconditionally, every invocation)
 -- =============================================================================
--- Uncomment below to clean up after testing:
---
--- DELETE FROM payments;
--- DELETE FROM payment_schedules;
--- DELETE FROM invoice_line_items;
--- DELETE FROM invoices;
--- DELETE FROM job_vehicle_assignments;
--- DELETE FROM job_crew_assignments;
--- DELETE FROM vehicles;
--- DELETE FROM jobs;
--- DELETE FROM quote_line_items;
--- DELETE FROM quote_inventory;
--- DELETE FROM quotes;
--- DELETE FROM tasks;
--- DELETE FROM activities;
--- DELETE FROM leads;
--- DELETE FROM contacts;
--- DELETE FROM addresses;
--- DELETE FROM tenant_invoice_sequences;
--- DELETE FROM domain_events;
--- DELETE FROM tenant_modules;
--- DELETE FROM tenant_settings;
--- DELETE FROM users;
--- DELETE FROM tenants;
---
--- DROP FUNCTION IF EXISTS tests.set_jwt_claims;
--- DROP FUNCTION IF EXISTS tests.assert_count;
--- DROP FUNCTION IF EXISTS tests.assert_raises;
--- DROP SCHEMA IF EXISTS tests;
+-- This script runs against a shared, non-resettable database — there is no
+-- `supabase db reset` fallback — so it must leave the database exactly as it
+-- found it. Every table besides audit.logs cascades from tenants.id
+-- ON DELETE CASCADE (see 00001_phase0_foundations.sql), so deleting the two
+-- test tenants clears contacts, leads, quotes, jobs, invoices, payments,
+-- addresses, domain_events, etc. in one statement — no need to enumerate
+-- every child table by hand. audit.logs is scoped explicitly (see the
+-- pre-run cleanup above for why). tests.* helper functions/schema are left
+-- in place — they're not test data, and are idempotently recreated
+-- (CREATE OR REPLACE) at the top of every run.
+DO $$
+DECLARE
+  v_tenant_a uuid := 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
+  v_tenant_b uuid := 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb';
+  v_super_admin uuid := '99999999-9999-9999-9999-999999999999';
+BEGIN
+  DELETE FROM audit.logs
+  WHERE tenant_id IN (v_tenant_a, v_tenant_b)
+     OR (table_name = 'users' AND COALESCE(new_data->>'id', old_data->>'id') = v_super_admin::text)
+     OR (table_name = 'tenants' AND COALESCE(old_data->>'id', new_data->>'id') IN (v_tenant_a::text, v_tenant_b::text));
+
+  DELETE FROM public.tenants WHERE id IN (v_tenant_a, v_tenant_b);
+  DELETE FROM public.users WHERE id = v_super_admin;
+
+  RAISE NOTICE 'Cleanup complete — all test fixture data removed.';
+END;
+$$;
 
 DO $$
 BEGIN
