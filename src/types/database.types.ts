@@ -172,6 +172,55 @@ export type Database = {
           },
         ]
       }
+      contact_addresses: {
+        Row: {
+          address_id: string
+          contact_id: string
+          created_at: string
+          id: string
+          label: string | null
+          tenant_id: string
+        }
+        Insert: {
+          address_id: string
+          contact_id: string
+          created_at?: string
+          id?: string
+          label?: string | null
+          tenant_id: string
+        }
+        Update: {
+          address_id?: string
+          contact_id?: string
+          created_at?: string
+          id?: string
+          label?: string | null
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_addresses_address_fk"
+            columns: ["address_id", "tenant_id"]
+            isOneToOne: false
+            referencedRelation: "addresses"
+            referencedColumns: ["id", "tenant_id"]
+          },
+          {
+            foreignKeyName: "contact_addresses_contact_fk"
+            columns: ["contact_id", "tenant_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id", "tenant_id"]
+          },
+          {
+            foreignKeyName: "contact_addresses_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contacts: {
         Row: {
           alt_phone: string | null

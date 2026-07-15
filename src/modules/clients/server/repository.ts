@@ -10,6 +10,7 @@ import {
 // Define the precise database types for return values
 export type Contact = Database['public']['Tables']['contacts']['Row']
 export type Address = Database['public']['Tables']['addresses']['Row']
+export type ContactAddress = Database['public']['Tables']['contact_addresses']['Row']
 
 export interface PaginationOptions {
   limit?: number
@@ -182,4 +183,49 @@ export async function updateAddress(
     .single()
 
   return { data, error }
+}
+
+// ============================================================================
+// CONTACT ADDRESSES REPOSITORY
+// ============================================================================
+
+export async function getContactAddresses(
+  supabase: SupabaseClient<Database>,
+  tenantId: string,
+  contactId: string
+): Promise<{ data: (ContactAddress & { addresses: Address | null })[] | null; error: Error | null }> {
+  const { data, error } = await supabase
+    .from('contact_addresses')
+    .select(`
+      *,
+      addresses (*)
+    `)
+    .eq('tenant_id', tenantId)
+    .eq('contact_id', contactId)
+    .order('created_at', { ascending: false })
+
+  // We explicitly cast the returned joined data
+  return { 
+    data: data as (ContactAddress & { addresses: Address | null })[] | null, 
+    error 
+  }
+}
+
+export async function linkContactAddress(
+  supabase: SupabaseClient<Database>,
+  tenantId: string,
+  contactId: string,
+  addressId: string,
+  label?: string
+): Promise<{ error: Error | null }> {
+  const { error } = await supabase
+    .from('contact_addresses')
+    .insert([{ 
+      tenant_id: tenantId, 
+      contact_id: contactId, 
+      address_id: addressId,
+      label 
+    }])
+
+  return { error }
 }
