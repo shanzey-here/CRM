@@ -1,29 +1,38 @@
-import { createClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
+import { createClient } from '@/utils/supabase/server'
+import { redirect } from 'next/navigation'
+import { TenantList } from './components/tenant-list'
+import { CreateTenantDialog } from './components/create-tenant-dialog'
 
 export default async function SuperAdminDashboard() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const supabase = await createClient()
 
-  if (!user) {
-    redirect('/login');
+  // 1. Secondary Server Guard (Middleware handles primary routing)
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user || user.app_metadata.is_super_admin !== true) {
+    redirect('/login')
   }
 
-  // The proxy.ts middleware already ensures that only users with is_super_admin=true can get here,
-  // but it's good practice to display the claims for verification.
-  const appMetadata = user.app_metadata || {};
-
   return (
-    <div className="p-8">
-      <h1 className="text-3xl font-bold mb-4 text-purple-600">Super Admin Dashboard</h1>
-      <p className="mb-8 text-gray-600">Platform-wide management and global settings.</p>
-      
-      <div className="bg-gray-100 p-4 rounded-md">
-        <h2 className="font-semibold mb-2">Your Verified Claims:</h2>
-        <pre className="text-sm bg-white p-4 rounded shadow-inner">
-          {JSON.stringify(appMetadata, null, 2)}
-        </pre>
+    <div className="min-h-screen bg-slate-950 text-slate-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-5 border-b border-slate-800">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-white">Platform Tenants</h1>
+            <p className="text-slate-400 mt-1">Manage and oversee all workspaces in the system.</p>
+          </div>
+          <div className="shrink-0">
+            <CreateTenantDialog />
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="space-y-6">
+          <TenantList />
+        </div>
+
       </div>
     </div>
-  );
+  )
 }
