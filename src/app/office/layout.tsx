@@ -1,4 +1,4 @@
-﻿import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 
 export default async function OfficeLayout({ children }: { children: React.ReactNode }) {
@@ -13,7 +13,8 @@ export default async function OfficeLayout({ children }: { children: React.React
   // 2. Strict Role Guard
   // The `/office` route is strictly for tenant staff.
   const appMetadata = user.app_metadata || {}
-  const role = appMetadata.role
+  // The custom_access_token_hook injects 'tenant_role' (not 'role') into app_metadata
+  const role = (appMetadata.tenant_role ?? appMetadata.role) as string | undefined
   const tenantId = appMetadata.tenant_id
 
   if (!tenantId) {
