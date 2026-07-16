@@ -202,6 +202,10 @@ async function main() {
 
     const appMeta: Record<string, unknown> = {}
     if (account.isSuperAdmin) appMeta.is_super_admin = true
+    if ('role' in account && account.role && !account.isSuperAdmin) {
+      appMeta.tenant_role = account.role
+      appMeta.tenant_id = tenantId
+    }
 
     const { data: created, error } = await supabase.auth.admin.createUser({
       email: account.email,
