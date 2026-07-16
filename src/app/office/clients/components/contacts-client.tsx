@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { Contact } from '@/modules/clients/server/repository'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -96,7 +96,7 @@ export default function ContactsClient({
           
           <Select 
             value={currentType} 
-            onValueChange={(val) => applyFilters(undefined, val, undefined)}
+            onValueChange={(val) => applyFilters(undefined, val ?? undefined, undefined)}
           >
             <SelectTrigger className="w-[180px] bg-slate-50 border-slate-200">
               <SelectValue placeholder="Contact Type" />
