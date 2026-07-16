@@ -1683,24 +1683,15 @@ export type Database = {
       current_tenant_id: { Args: never; Returns: string }
       current_user_role: { Args: never; Returns: string }
       custom_access_token_hook: { Args: { event: Json }; Returns: Json }
-      emit_domain_event:
-        | {
-            Args: {
-              p_event_type: string
-              p_payload?: Json
-              p_source_module: string
-            }
-            Returns: string
-          }
-        | {
-            Args: {
-              p_event_type: string
-              p_payload?: Json
-              p_source_module: string
-              p_tenant_id?: string
-            }
-            Returns: string
-          }
+      emit_domain_event: {
+        Args: {
+          p_event_type: string
+          p_payload?: Json
+          p_source_module: string
+          p_tenant_id?: string
+        }
+        Returns: string
+      }
       generate_invoice_number: {
         Args: { p_tenant_id: string }
         Returns: string

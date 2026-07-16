@@ -55,3 +55,18 @@ export const publicLeadSubmissionSchema = z.object({
 })
 
 export type PublicLeadSubmissionInput = z.infer<typeof publicLeadSubmissionSchema>
+
+// ============================================================================
+// LEAD DETAILS EDIT (excludes stage, contact_id, addresses — read-only)
+// ============================================================================
+// Partial schema for editing lead metadata without touching stage/contact/addresses.
+// Stage changes go through updateLeadStage action exclusively (the Kanban board uses it).
+export const updateLeadDetailsSchema = z.object({
+  notes: z.string().optional().nullable(),
+  preferred_move_date: z.string().optional().nullable(),
+  estimated_volume: z.number().optional().nullable(),
+  assigned_to: z.string().uuid().optional().nullable(),
+  source: z.string().optional().nullable(),
+})
+
+export type UpdateLeadDetailsInput = z.infer<typeof updateLeadDetailsSchema>

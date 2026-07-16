@@ -86,15 +86,16 @@ CREATE POLICY admin_dispatcher_select ON public_lead_submission_log FOR SELECT
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- C. emit_domain_event() — add an optional p_tenant_id override, honored only
--- for service_role callers. CREATE OR REPLACE with a new trailing DEFAULT
--- parameter is backward compatible: every existing 3-argument call site
--- (emitEvent() in src/utils/supabase/event-bus.ts, isolation_tests.sql)
--- keeps working unchanged. The current_user check means an authenticated
--- tenant user can never spoof another tenant's tenant_id via this override —
--- only a service-role connection (which already bypasses RLS everywhere)
+-- for service_role callers. Drop old 3-param version and create 4-param version.
+-- All existing 3-argument call sites (emitEvent() in src/utils/supabase/event-bus.ts,
+-- isolation_tests.sql) keep working unchanged. The current_user check means an
+-- authenticated tenant user can never spoof another tenant's tenant_id via this
+-- override — only a service-role connection (which already bypasses RLS everywhere)
 -- can use it.
 -- ─────────────────────────────────────────────────────────────────────────────
-CREATE OR REPLACE FUNCTION public.emit_domain_event(
+DROP FUNCTION IF EXISTS public.emit_domain_event(text, text, jsonb);
+
+CREATE FUNCTION public.emit_domain_event(
   p_event_type text,
   p_source_module text,
   p_payload jsonb DEFAULT '{}'::jsonb,

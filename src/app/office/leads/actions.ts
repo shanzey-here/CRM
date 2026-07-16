@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { updateLead } from '@/modules/leads/server/repository'
 import { emitEvent } from '@/utils/supabase/event-bus'
+import { updateLeadDetailsSchema } from '@/modules/leads/schemas'
 import { z } from 'zod'
 
 // ============================================================================
@@ -99,4 +100,52 @@ export async function updateLeadStage(
   revalidatePath('/office/leads')
 
   return { success: true }
+}
+
+export async function updateLeadDetailsAction(
+  leadId: string,
+  payload: unknown
+): Promise<{ success: boolean; error?: string; data?: any }> {
+  // 1. Auth check
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { success: false, error: 'Unauthorized' }
+  }
+
+  const tenantId = user.app_metadata?.tenant_id as string | undefined
+  if (!tenantId) {
+    return { success: false, error: 'No tenant context' }
+  }
+
+  // 2. Validate payload against updateLeadDetailsSchema (excludes stage intentionally)
+  const parseResult = updateLeadDetailsSchema.safeParse(payload)
+  if (!parseResult.success) {
+    return { success: false, error: 'Validation failed', data: parseResult.error.issues }
+  }
+
+  // 3. Validate lead UUID
+  const uuidResult = z.string().uuid().safeParse(leadId)
+  if (!uuidResult.success) {
+    return { success: false, error: 'Invalid lead ID format' }
+  }
+
+  // 4. Update the lead (tenant-scoped query ensures cross-tenant safety)
+  const { data: updatedLead, error: updateError } = await updateLead(
+    supabase,
+    tenantId,
+    leadId,
+    parseResult.data as any
+  )
+
+  if (updateError || !updatedLead) {
+    return { success: false, error: 'Lead not found or update failed' }
+  }
+
+  // 5. Invalidate detail page and list
+  revalidatePath(`/office/leads/${leadId}`)
+  revalidatePath('/office/leads')
+
+  return { success: true, data: updatedLead }
 }
