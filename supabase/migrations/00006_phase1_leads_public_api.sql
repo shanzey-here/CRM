@@ -16,7 +16,7 @@
 CREATE TABLE tenant_form_keys (
   id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id     uuid NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
-  key           text NOT NULL UNIQUE DEFAULT encode(gen_random_bytes(24), 'hex'), -- 192 bits, non-guessable
+  key           text NOT NULL UNIQUE DEFAULT encode(extensions.gen_random_bytes(24), 'hex'), -- 192 bits, non-guessable
   label         text,
   is_active     boolean NOT NULL DEFAULT true,
   last_used_at  timestamptz,

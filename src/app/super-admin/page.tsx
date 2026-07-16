@@ -1,4 +1,4 @@
-import { createClient } from '@/utils/supabase/server'
+﻿import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { TenantList } from './components/tenant-list'
 import { CreateTenantDialog } from './components/create-tenant-dialog'

@@ -1,6 +1,6 @@
-'use server'
+﻿'use server'
 
-import { createClient } from '@/utils/supabase/server'
+import { createClient } from '@/lib/supabase/server'
 import { updateContact } from '@/modules/clients/server/repository'
 import { UpdateContactInput, updateContactSchema } from '@/modules/clients/schemas'
 import { revalidatePath } from 'next/cache'

@@ -64,6 +64,7 @@ export function EditContactForm({ contact }: { contact: Contact }) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
+      {/* @ts-expect-error Radix UI type mismatch with React 19 */}
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="gap-2">
           <Edit2 className="h-4 w-4" /> Edit Profile

@@ -1,4 +1,4 @@
-import { getTenants } from '../actions'
+﻿import { getTenants } from '../actions'
 
 export async function TenantList() {
   const tenants = await getTenants()

@@ -1,4 +1,4 @@
-import { createClient } from '@/utils/supabase/server'
+﻿import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { getContacts, ContactFilterOptions } from '@/modules/clients/server/repository'
 import ContactsClient from './components/contacts-client'

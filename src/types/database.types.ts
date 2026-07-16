@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -1026,6 +1026,38 @@ export type Database = {
           },
         ]
       }
+      public_lead_submission_log: {
+        Row: {
+          created_at: string
+          id: string
+          ip_address: string
+          outcome: string
+          tenant_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ip_address: string
+          outcome: string
+          tenant_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ip_address?: string
+          outcome?: string
+          tenant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "public_lead_submission_log_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       quote_inventory: {
         Row: {
           created_at: string
@@ -1334,6 +1366,47 @@ export type Database = {
           },
         ]
       }
+      tenant_form_keys: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          key: string
+          label: string | null
+          last_used_at: string | null
+          tenant_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          key?: string
+          label?: string | null
+          last_used_at?: string | null
+          tenant_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          key?: string
+          label?: string | null
+          last_used_at?: string | null
+          tenant_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_form_keys_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tenant_invoice_sequences: {
         Row: {
           created_at: string
@@ -1610,14 +1683,24 @@ export type Database = {
       current_tenant_id: { Args: never; Returns: string }
       current_user_role: { Args: never; Returns: string }
       custom_access_token_hook: { Args: { event: Json }; Returns: Json }
-      emit_domain_event: {
-        Args: {
-          p_event_type: string
-          p_payload?: Json
-          p_source_module: string
-        }
-        Returns: string
-      }
+      emit_domain_event:
+        | {
+            Args: {
+              p_event_type: string
+              p_payload?: Json
+              p_source_module: string
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              p_event_type: string
+              p_payload?: Json
+              p_source_module: string
+              p_tenant_id?: string
+            }
+            Returns: string
+          }
       generate_invoice_number: {
         Args: { p_tenant_id: string }
         Returns: string

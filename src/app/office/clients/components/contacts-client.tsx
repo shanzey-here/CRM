@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { Contact } from '@/modules/clients/server/repository'
 import { useRouter, useSearchParams } from 'next/navigation'
