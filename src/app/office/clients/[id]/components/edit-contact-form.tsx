@@ -109,7 +109,7 @@ export function EditContactForm({ contact }: { contact: Contact }) {
               <Label>Client Type</Label>
               <Select 
                 value={typeValue} 
-                onValueChange={(val: 'residential' | 'commercial') => setValue('type', val)}
+                onValueChange={(val) => { if (val) setValue('type', val as 'residential' | 'commercial') }}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select type" />
