@@ -1,7 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { getLeads } from '@/modules/leads/server/repository'
-import { KanbanBoard, KANBAN_STAGES } from './components/kanban-board'
+import { KanbanBoard } from './components/kanban-board'
+import { KANBAN_STAGES } from './constants'
 import type { KanbanStage } from './actions'
 
 export const metadata = {

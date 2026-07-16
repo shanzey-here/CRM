@@ -14,19 +14,8 @@ import { useState, useTransition, useCallback } from 'react'
 import { KanbanColumn } from './kanban-column'
 import { LeadCard } from './lead-card'
 import { updateLeadStage, type KanbanStage } from '../actions'
+import { KANBAN_STAGES } from '../constants'
 import type { Lead } from '@/modules/leads/server/repository'
-
-// ============================================================================
-// KANBAN STAGES — only the 5 active stages appear on the board.
-// 'completed' and 'archived' are intentionally excluded.
-// ============================================================================
-export const KANBAN_STAGES: { id: KanbanStage; label: string; color: string }[] = [
-  { id: 'inquiry',           label: 'Inquiry',            color: '#6366f1' },
-  { id: 'survey_scheduled',  label: 'Survey Scheduled',   color: '#f59e0b' },
-  { id: 'quote_sent',        label: 'Quote Sent',         color: '#3b82f6' },
-  { id: 'follow_up',         label: 'Follow Up',          color: '#ec4899' },
-  { id: 'confirmed_booking', label: 'Confirmed Booking',  color: '#10b981' },
-]
 
 interface KanbanBoardProps {
   initialLeads: Lead[]
