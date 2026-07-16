@@ -9,6 +9,33 @@ export default async function Home() {
     redirect('/login')
   }
 
+  // Route based on JWT claims set by custom_access_token_hook
+  const appMetadata = user.app_metadata || {}
+  const isSuperAdmin = appMetadata.is_super_admin === true
+  const tenantRole = appMetadata.tenant_role ?? appMetadata.role
+  const tenantId = appMetadata.tenant_id
+
+  // Super admin goes to super-admin dashboard
+  if (isSuperAdmin) {
+    redirect('/super-admin')
+  }
+
+  // If user has a tenant role + tenant, route to the appropriate dashboard
+  if (tenantRole && tenantId) {
+    switch (tenantRole) {
+      case 'tenant_admin':
+      case 'dispatcher':
+        redirect('/office/leads')
+      case 'crew':
+        redirect('/crew')
+      case 'customer':
+        redirect('/customer')
+      default:
+        break
+    }
+  }
+
+  // Fallback: account pending (no role/tenant assigned yet)
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50">
       <div className="p-8 bg-white rounded-lg shadow-sm border max-w-md text-center">
