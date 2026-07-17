@@ -38,10 +38,10 @@ export async function updateSession(request: NextRequest) {
   const path = request.nextUrl.pathname
 
   // Public paths that don't require authentication
-  // /api/public is the public, unauthenticated lead-capture endpoint —
-  // it enforces its own tenant resolution/rate-limiting/validation in code
-  // instead of relying on a session, so it must never be redirected here.
-  const isPublicPath = path.startsWith('/login') || path.startsWith('/auth') || path === '/' || path.startsWith('/api/public')
+  // /api/public is the public, unauthenticated lead-capture endpoint.
+  // /proposal is the public proposal page (non-guessable token-based access).
+  // Both enforce their own tenant resolution in code instead of relying on session.
+  const isPublicPath = path.startsWith('/login') || path.startsWith('/auth') || path === '/' || path.startsWith('/api/public') || path.startsWith('/proposal')
 
   // Redirect unauthenticated users trying to access protected paths
   if (!user && !isPublicPath) {
