@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
-import { updateLead } from '@/modules/leads/server/repository'
+import { updateLead, getLeadById } from '@/modules/leads/server/repository'
 import { emitEvent } from '@/utils/supabase/event-bus'
 import { updateLeadDetailsSchema } from '@/modules/leads/schemas'
 import { z } from 'zod'
@@ -131,7 +131,7 @@ export async function updateLeadDetailsAction(
     return { success: false, error: 'Invalid lead ID format' }
   }
 
-  const { data: oldLead } = await getLead(supabase, tenantId, leadId)
+  const { data: oldLead } = await getLeadById(supabase, tenantId, leadId)
   if (!oldLead) {
     return { success: false, error: 'Lead not found' }
   }
@@ -149,14 +149,14 @@ export async function updateLeadDetailsAction(
   }
 
   const changes: string[] = []
-  if (oldLead.move_date !== updatedLead.move_date) {
-    changes.push(`Move date changed from ${oldLead.move_date || 'none'} to ${updatedLead.move_date || 'none'}`)
+  if (oldLead.preferred_move_date !== updatedLead.preferred_move_date) {
+    changes.push(`Move date changed from ${oldLead.preferred_move_date || 'none'} to ${updatedLead.preferred_move_date || 'none'}.`)
   }
-  if (oldLead.volume_cft !== updatedLead.volume_cft) {
-    changes.push(`Volume changed from ${oldLead.volume_cft || 'none'} to ${updatedLead.volume_cft || 'none'} cft`)
+  if (oldLead.estimated_volume !== updatedLead.estimated_volume) {
+    changes.push(`Estimated volume changed from ${oldLead.estimated_volume || 'none'} to ${updatedLead.estimated_volume || 'none'} cft.`)
   }
   if (oldLead.notes !== updatedLead.notes) {
-    changes.push('Notes were updated')
+    changes.push('Internal notes updated.')
   }
 
   // Emit the lead.updated event so the activity timeline can pick it up

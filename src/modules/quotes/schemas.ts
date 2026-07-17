@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { ROOMS } from '../inventory/schemas'
+import { INVENTORY_ROOMS } from '../inventory/schemas'
 
 export const insertQuoteSchema = z.object({
   lead_id: z.string().uuid().optional(),
