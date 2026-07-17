@@ -2,8 +2,10 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound, redirect } from 'next/navigation'
 import { getLeadById } from '@/modules/leads/server/repository'
 import { getContactById, getAddressById } from '@/modules/clients/server/repository'
+import { getTimeline } from '@/modules/activities/server/repository'
 import { EditLeadForm } from './components/edit-lead-form'
 import { StageControl } from './components/stage-control'
+import { TimelineView } from '../components/timeline-view'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
@@ -66,7 +68,10 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
     assignedToUser = userData
   }
 
-  // 6. Determine stage badge + control
+  // 6. Fetch Timeline
+  const { data: timelineItems } = await getTimeline(supabase, tenantId, { leadId: lead.id })
+
+  // 7. Determine stage badge + control
   const stageConfig = KANBAN_STAGES.find((s) => s.id === lead.stage)
   const isEditableStage = KANBAN_STAGES.some((s) => s.id === lead.stage)
 
@@ -273,15 +278,17 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
             </CardContent>
           </Card>
 
-          {/* Activity Timeline Placeholder */}
+          {/* Activity Timeline */}
           <Card className="shadow-sm border-slate-200">
             <CardHeader className="bg-slate-50/50 pb-4">
               <CardTitle className="text-lg">Activity Timeline</CardTitle>
             </CardHeader>
             <CardContent className="pt-4">
-              <div className="text-center py-8 text-slate-500 text-sm border-2 border-dashed border-slate-200 rounded-lg">
-                Coming soon
-              </div>
+              <TimelineView 
+                items={timelineItems || []} 
+                leadId={lead.id} 
+                currentUserId={user.id} 
+              />
             </CardContent>
           </Card>
         </div>

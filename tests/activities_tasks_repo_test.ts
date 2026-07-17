@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { Database } from '@/types/database.types'
-import { getActivities, createActivity, updateActivityNote } from '../src/modules/activities/server/repository'
+import { getActivities, createActivity, updateActivityNote, getTimeline } from '../src/modules/activities/server/repository'
 import { getTasks, createTask, updateTask } from '../src/modules/tasks/server/repository'
 
 // We use the service_role key to bypass RLS in the repository functions,
@@ -101,6 +101,21 @@ async function runTests() {
   if (taskUpdateErr || !updatedTask) throw new Error(`Failed to update task: ${taskUpdateErr?.message}`)
   if (updatedTask.status !== 'completed') throw new Error('Task update did not persist')
   console.log('✅ updateTask works')
+
+  // 9. Fetch Timeline
+  const { data: timelineA, error: timelineErr } = await getTimeline(supabase, TENANT_A, { contactId: CONTACT_A })
+  if (timelineErr) throw timelineErr
+  if (!timelineA || timelineA.length < 2) throw new Error('Timeline did not fetch both activities and tasks')
+  
+  const hasActivity = timelineA.some(t => t.type === 'activity' && t.content === 'Updated repo note')
+  const hasTask = timelineA.some(t => t.type === 'task' && t.content === 'Test repo task')
+  if (!hasActivity || !hasTask) throw new Error('Timeline missing expected items')
+  console.log('✅ getTimeline correctly unifies activities and tasks')
+
+  // 10. Fetch Timeline for Tenant B
+  const { data: timelineB } = await getTimeline(supabase, TENANT_B, { contactId: CONTACT_A })
+  if (timelineB && timelineB.length > 0) throw new Error('Tenant B can see Tenant A timeline - isolation breach!')
+  console.log('✅ getTimeline strictly isolates by tenant_id')
 
   } finally {
     // Cleanup

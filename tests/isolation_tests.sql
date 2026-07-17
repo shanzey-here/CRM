@@ -749,6 +749,49 @@ END;
 $$;
 
 
+DO $$
+DECLARE
+  v_tenant_a uuid := 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
+  v_admin_a uuid := '11111111-1111-1111-1111-111111111111';
+  v_contact_a uuid := 'caaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
+  v_lead_a uuid := '1aaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
+  v_event_id uuid := gen_random_uuid();
+  v_act_count int;
+BEGIN
+  RAISE NOTICE '--- Activity Timeline Trigger Tests ---';
+
+  PERFORM tests.set_jwt_claims(v_admin_a, v_tenant_a, 'tenant_admin');
+
+  -- Create a mock lead
+  INSERT INTO leads (id, tenant_id, contact_id, status, stage, move_date)
+  VALUES (v_lead_a, v_tenant_a, v_contact_a, 'new', 'lead_new', '2025-01-01')
+  ON CONFLICT DO NOTHING;
+
+  -- 1. Insert a domain event manually (bypassing the TS helper)
+  INSERT INTO domain_events (id, tenant_id, event_type, source, payload)
+  VALUES (v_event_id, v_tenant_a, 'lead.stage_changed', 'crm', jsonb_build_object('lead_id', v_lead_a, 'old_stage', 'lead_new', 'new_stage', 'lead_contacted'));
+
+  -- The trigger should have instantly created an activity
+  SELECT count(*) INTO v_act_count FROM activities WHERE source_event_id = v_event_id;
+  IF v_act_count != 1 THEN
+    RAISE EXCEPTION 'FAIL: Trigger did not create an activity from the domain event (Count: %)', v_act_count;
+  END IF;
+  RAISE NOTICE 'PASS: Trigger automatically creates activity on domain event insert';
+
+  -- 2. Idempotency test: Re-process the event via the backfill function
+  PERFORM public.process_domain_event_for_activities(v_event_id);
+  
+  -- Count should still be exactly 1
+  SELECT count(*) INTO v_act_count FROM activities WHERE source_event_id = v_event_id;
+  IF v_act_count != 1 THEN
+    RAISE EXCEPTION 'FAIL: Idempotency failed. Re-processing created duplicate activities.';
+  END IF;
+  RAISE NOTICE 'PASS: Event processing is idempotent';
+
+END;
+$$;
+
+
 -- =============================================================================
 -- CLEANUP — remove test data (runs unconditionally, every invocation)
 -- =============================================================================

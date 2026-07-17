@@ -1,7 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound, redirect } from 'next/navigation'
 import { getContactById, getContactAddresses } from '@/modules/clients/server/repository'
+import { getTimeline } from '@/modules/activities/server/repository'
 import { EditContactForm } from './components/edit-contact-form'
+import { TimelineView } from '../components/timeline-view'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
@@ -33,6 +35,9 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
 
   // 3. Fetch Linked Addresses
   const { data: addressLinks } = await getContactAddresses(supabase, tenantId, id)
+
+  // 4. Fetch Timeline
+  const { data: timelineItems } = await getTimeline(supabase, tenantId, { contactId: id })
 
   return (
     <div className="p-8 max-w-5xl mx-auto space-y-6">
@@ -198,6 +203,19 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
             </CardContent>
           </Card>
 
+          {/* Activity Timeline */}
+          <Card className="shadow-sm border-slate-200">
+            <CardHeader className="bg-slate-50/50 pb-4">
+              <CardTitle className="text-lg">Activity Timeline</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-4">
+              <TimelineView 
+                items={timelineItems || []} 
+                contactId={contact.id} 
+                currentUserId={user.id} 
+              />
+            </CardContent>
+          </Card>
         </div>
 
       </div>

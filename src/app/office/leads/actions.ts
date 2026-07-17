@@ -143,6 +143,11 @@ export async function updateLeadDetailsAction(
     return { success: false, error: 'Lead not found or update failed' }
   }
 
+  // Emit the lead.updated event so the activity timeline can pick it up
+  await emitEvent(supabase, 'lead.updated', 'crm', {
+    lead_id: leadId,
+  })
+
   // 5. Invalidate detail page and list
   revalidatePath(`/office/leads/${leadId}`)
   revalidatePath('/office/leads')
