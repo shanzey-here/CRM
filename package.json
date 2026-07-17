@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:isolation": "tsx tests/clients_repo_test.ts && tsx tests/leads_repo_test.ts && tsx tests/activities_tasks_repo_test.ts && tsx tests/inventory_repo_test.ts && tsx tests/quotes_repo_test.ts",
+    "test:isolation": "tsx tests/clients_repo_test.ts && tsx tests/leads_repo_test.ts && tsx tests/activities_tasks_repo_test.ts && tsx tests/inventory_repo_test.ts && tsx tests/quotes_repo_test.ts && tsx tests/routing_cache_test.ts",
     "test:public-api": "tsx tests/leads_public_api_test.ts",
     "test:kanban": "tsx tests/leads_kanban_isolation_test.ts"
   },
@@ -16,6 +16,7 @@
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
+    "@googlemaps/google-maps-services-js": "^3.4.2",
     "@hookform/resolvers": "^5.4.0",
     "@supabase/ssr": "^0.12.1",
     "@supabase/supabase-js": "^2.110.3",

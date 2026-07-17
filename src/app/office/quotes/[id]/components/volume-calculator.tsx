@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Plus, Minus, Box, Save, Info } from 'lucide-react'
-import { ROOMS } from '@/modules/inventory/schemas'
+import { INVENTORY_ROOMS } from '@/modules/inventory/schemas'
 import { saveQuoteInventoryAction } from '../../actions'
 
 type CatalogItem = {
@@ -73,7 +73,7 @@ export function VolumeCalculator({
   })
 
   // Group catalog by room
-  const catalogByRoom = ROOMS.reduce((acc, room) => {
+  const catalogByRoom = INVENTORY_ROOMS.reduce((acc, room) => {
     acc[room] = catalog.filter(c => c.room === room)
     return acc
   }, {} as Record<string, CatalogItem[]>)
@@ -82,7 +82,8 @@ export function VolumeCalculator({
     if (quote.status !== 'draft') return // strict mutability UI guard
     
     setSelections(prev => {
-      const existing = prev[item.id || (item as Selection).inventory_item_id]
+      const itemId = 'id' in item ? item.id : (item as Selection).inventory_item_id
+      const existing = prev[itemId]
       const currentQty = existing?.quantity || 0
       const newQty = Math.max(0, currentQty + delta)
       
@@ -149,7 +150,7 @@ export function VolumeCalculator({
             <CardDescription>Select items to calculate volume</CardDescription>
           </CardHeader>
           <CardContent className="pt-4 space-y-8">
-            {ROOMS.map(room => {
+            {INVENTORY_ROOMS.map(room => {
               const roomItems = catalogByRoom[room] || []
               if (roomItems.length === 0) return null
 

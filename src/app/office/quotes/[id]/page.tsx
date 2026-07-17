@@ -2,7 +2,11 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound, redirect } from 'next/navigation'
 import { getQuoteById, getQuoteInventory } from '@/modules/quotes/server/repository'
 import { getActiveInventoryItems } from '@/modules/inventory/server/repository'
+import { getLeadById } from '@/modules/leads/server/repository'
+import { getAddressById } from '@/modules/clients/server/repository'
+import { getRouteDetails } from '@/modules/quotes/server/routing'
 import { VolumeCalculator } from './components/volume-calculator'
+import { RouteSummary } from './components/route-summary'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
@@ -27,7 +31,38 @@ export default async function QuoteWorkspacePage({ params }: { params: Promise<{
     notFound()
   }
 
-  // 3. Fetch Quote Inventory (existing selections)
+  // 3. Fetch Lead & Addresses & Route Calculation
+  let originAddress = null
+  let destinationAddress = null
+  let routeCalc = { distanceMeters: null, durationSeconds: null, source: 'error' as const }
+  let originString = ''
+  let destinationString = ''
+
+  if (quote.lead_id) {
+    const { data: lead } = await getLeadById(supabase, tenantId, quote.lead_id)
+    if (lead) {
+      if (lead.origin_address_id) {
+        const { data } = await getAddressById(supabase, tenantId, lead.origin_address_id)
+        originAddress = data
+        if (data) {
+          originString = [data.line_1, data.city, data.postcode].filter(Boolean).join(', ')
+        }
+      }
+      if (lead.destination_address_id) {
+        const { data } = await getAddressById(supabase, tenantId, lead.destination_address_id)
+        destinationAddress = data
+        if (data) {
+          destinationString = [data.line_1, data.city, data.postcode].filter(Boolean).join(', ')
+        }
+      }
+
+      if (originAddress && destinationAddress) {
+        routeCalc = await getRouteDetails(supabase, tenantId, originAddress, destinationAddress)
+      }
+    }
+  }
+
+  // 4. Fetch Quote Inventory (existing selections)
   const { data: selectedInventory } = await getQuoteInventory(supabase, tenantId, id)
 
   // 4. Fetch the master catalog
@@ -64,6 +99,16 @@ export default async function QuoteWorkspacePage({ params }: { params: Promise<{
           </div>
         </div>
       </div>
+
+      <RouteSummary
+        quoteId={quote.id}
+        quoteStatus={quote.status}
+        originString={originString}
+        destinationString={destinationString}
+        initialCalculation={routeCalc}
+        savedDistanceMiles={quote.travel_distance_miles}
+        savedTimeMinutes={quote.travel_time_minutes}
+      />
 
       <VolumeCalculator 
         quote={quote}

@@ -54,3 +54,36 @@ export async function saveQuoteInventoryAction(quoteId: string, payload: unknown
   revalidatePath(`/office/quotes/${quoteId}`)
   return { success: true }
 }
+
+export async function saveQuoteRouteAction(quoteId: string, payload: { travel_distance_miles: number, travel_time_minutes: number }) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user || !user.app_metadata.tenant_id) {
+    return { success: false, error: 'Unauthorized' }
+  }
+
+  const tenantId = user.app_metadata.tenant_id
+
+  // Enforce quote is draft
+  const { data: quote } = await supabase.from('quotes').select('status').eq('id', quoteId).eq('tenant_id', tenantId).single()
+  if (!quote || quote.status !== 'draft') {
+    return { success: false, error: 'Quote is not in draft status' }
+  }
+
+  const { error } = await supabase
+    .from('quotes')
+    .update({
+      travel_distance_miles: payload.travel_distance_miles,
+      travel_time_minutes: payload.travel_time_minutes
+    })
+    .eq('id', quoteId)
+    .eq('tenant_id', tenantId)
+
+  if (error) {
+    return { success: false, error: error.message }
+  }
+
+  revalidatePath(`/office/quotes/${quoteId}`)
+  return { success: true }
+}
