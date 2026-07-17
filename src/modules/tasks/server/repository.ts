@@ -34,7 +34,7 @@ export async function getTasks(
 export async function createTask(
   supabase: SupabaseClient<Database>,
   tenantId: string,
-  payload: InsertTaskInput
+  payload: InsertTaskInput & { created_by?: string }
 ): Promise<{ data: Task | null; error: Error | null }> {
   const { data, error } = await supabase
     .from('tasks')

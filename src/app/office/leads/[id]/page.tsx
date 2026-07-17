@@ -5,7 +5,7 @@ import { getContactById, getAddressById } from '@/modules/clients/server/reposit
 import { getTimeline } from '@/modules/activities/server/repository'
 import { EditLeadForm } from './components/edit-lead-form'
 import { StageControl } from './components/stage-control'
-import { TimelineView } from '../components/timeline-view'
+import { TimelineView } from '../../components/timeline-view'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
@@ -71,7 +71,11 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
   // 6. Fetch Timeline
   const { data: timelineItems } = await getTimeline(supabase, tenantId, { leadId: lead.id })
 
-  // 7. Determine stage badge + control
+  // 7. Fetch Tenant Staff for assignments
+  const { getTenantStaff } = await import('@/modules/users/server/repository')
+  const { data: tenantStaff } = await getTenantStaff(supabase, tenantId)
+
+  // 8. Determine stage badge + control
   const stageConfig = KANBAN_STAGES.find((s) => s.id === lead.stage)
   const isEditableStage = KANBAN_STAGES.some((s) => s.id === lead.stage)
 
@@ -288,6 +292,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
                 items={timelineItems || []} 
                 leadId={lead.id} 
                 currentUserId={user.id} 
+                tenantStaff={tenantStaff || []}
               />
             </CardContent>
           </Card>

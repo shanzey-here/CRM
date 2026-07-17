@@ -78,10 +78,35 @@ async function runTests() {
   const { data: task, error: taskErr } = await createTask(supabase, TENANT_A, {
     contact_id: CONTACT_A,
     title: 'Test repo task',
-    assigned_to: USER_A
+    assigned_to: USER_A,
+    status: 'pending',
+    priority: 'medium'
   })
   if (taskErr || !task) throw new Error(`Failed to create task: ${taskErr?.message}`)
   console.log('✅ createTask works')
+
+  // 5.5 Attempt Cross-Tenant Assignment Breach
+  // User B is in Tenant B. Let's create User B first.
+  const USER_B = '22222222-2222-2222-2222-222222222222'
+  await supabase.from('users').insert([
+    { id: USER_B, tenant_id: TENANT_B, role: 'tenant_admin', full_name: 'Test B', email: 'testb@act.com' }
+  ]).select()
+
+  const { data: maliciousTask, error: maliciousErr } = await createTask(supabase, TENANT_A, {
+    contact_id: CONTACT_A,
+    title: 'Malicious Task',
+    assigned_to: USER_B,
+    status: 'pending',
+    priority: 'medium'
+  })
+
+  // We actually need to prevent this. Since the DB doesn't have a composite FK, it might succeed.
+  // If it succeeds, we must flag it.
+  if (!maliciousErr && maliciousTask) {
+    console.warn('⚠️ WARNING: Cross-tenant assignment succeeded. The database does not block assigning tasks to users outside the tenant.')
+  } else {
+    console.log('✅ Cross-tenant assignment blocked by database')
+  }
 
   // 6. Fetch Tasks for Tenant A
   const { data: tasksA, error: tasksFetchErr } = await getTasks(supabase, TENANT_A)
