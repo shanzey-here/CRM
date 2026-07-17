@@ -8,17 +8,23 @@ import { Textarea } from '@/components/ui/textarea'
 import { Timeline, TimelineItem, TimelineIcon, TimelineContent, TimelineTime, TimelineTitle, TimelineDescription } from '@/components/ui/timeline'
 import { MessageSquare, RefreshCcw, CheckCircle2, User, FileEdit } from 'lucide-react'
 
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { CreateTaskForm } from './create-task-form'
+import { TenantUser } from '@/modules/users/server/repository'
+
 interface TimelineViewProps {
   items: TimelineItemType[]
   contactId?: string
   leadId?: string
   currentUserId: string
+  tenantStaff: TenantUser[]
 }
 
-export function TimelineView({ items, contactId, leadId, currentUserId }: TimelineViewProps) {
+export function TimelineView({ items, contactId, leadId, currentUserId, tenantStaff }: TimelineViewProps) {
   const [noteContent, setNoteContent] = useState('')
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState('note')
 
   const handleAddNote = () => {
     if (!noteContent.trim()) return
@@ -49,26 +55,41 @@ export function TimelineView({ items, contactId, leadId, currentUserId }: Timeli
 
   return (
     <div className="space-y-6">
-      {/* Add Note Form */}
-      <div className="space-y-3 bg-slate-50/50 p-4 rounded-lg border border-slate-100">
-        <Textarea 
-          placeholder="Add a note to the timeline..." 
-          value={noteContent}
-          onChange={(e) => setNoteContent(e.target.value)}
-          className="min-h-[80px] bg-white resize-none"
-          disabled={isPending}
-        />
-        {error && <p className="text-sm text-red-500">{error}</p>}
-        <div className="flex justify-end">
-          <Button 
-            size="sm" 
-            onClick={handleAddNote}
-            disabled={!noteContent.trim() || isPending}
-          >
-            {isPending ? 'Saving...' : 'Add Note'}
-          </Button>
-        </div>
-      </div>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="mb-4">
+          <TabsTrigger value="note">Add Note</TabsTrigger>
+          <TabsTrigger value="task">Create Task</TabsTrigger>
+        </TabsList>
+        <TabsContent value="note">
+          <div className="space-y-3 bg-slate-50/50 p-4 rounded-lg border border-slate-100">
+            <Textarea 
+              placeholder="Add a note to the timeline..." 
+              value={noteContent}
+              onChange={(e) => setNoteContent(e.target.value)}
+              className="min-h-[80px] bg-white resize-none"
+              disabled={isPending}
+            />
+            {error && <p className="text-sm text-red-500">{error}</p>}
+            <div className="flex justify-end">
+              <Button 
+                size="sm" 
+                onClick={handleAddNote}
+                disabled={!noteContent.trim() || isPending}
+              >
+                {isPending ? 'Saving...' : 'Add Note'}
+              </Button>
+            </div>
+          </div>
+        </TabsContent>
+        <TabsContent value="task">
+          <CreateTaskForm 
+            contactId={contactId} 
+            leadId={leadId} 
+            tenantStaff={tenantStaff} 
+            onSuccess={() => setActiveTab('note')}
+          />
+        </TabsContent>
+      </Tabs>
 
       {/* Timeline */}
       {items.length === 0 ? (

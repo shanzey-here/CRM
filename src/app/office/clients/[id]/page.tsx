@@ -3,7 +3,7 @@ import { notFound, redirect } from 'next/navigation'
 import { getContactById, getContactAddresses } from '@/modules/clients/server/repository'
 import { getTimeline } from '@/modules/activities/server/repository'
 import { EditContactForm } from './components/edit-contact-form'
-import { TimelineView } from '../components/timeline-view'
+import { TimelineView } from '../../components/timeline-view'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
@@ -38,6 +38,10 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
 
   // 4. Fetch Timeline
   const { data: timelineItems } = await getTimeline(supabase, tenantId, { contactId: id })
+
+  // 5. Fetch Tenant Staff for assignments
+  const { getTenantStaff } = await import('@/modules/users/server/repository')
+  const { data: tenantStaff } = await getTenantStaff(supabase, tenantId)
 
   return (
     <div className="p-8 max-w-5xl mx-auto space-y-6">
@@ -213,6 +217,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
                 items={timelineItems || []} 
                 contactId={contact.id} 
                 currentUserId={user.id} 
+                tenantStaff={tenantStaff || []}
               />
             </CardContent>
           </Card>

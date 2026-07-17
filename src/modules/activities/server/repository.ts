@@ -30,7 +30,7 @@ export async function getActivities(
 export async function createActivity(
   supabase: SupabaseClient<Database>,
   tenantId: string,
-  payload: InsertActivityInput
+  payload: InsertActivityInput & { created_by?: string; source_event_id?: string }
 ): Promise<{ data: Activity | null; error: Error | null }> {
   const { data, error } = await supabase
     .from('activities')
