@@ -131,6 +131,11 @@ export async function updateLeadDetailsAction(
     return { success: false, error: 'Invalid lead ID format' }
   }
 
+  const { data: oldLead } = await getLead(supabase, tenantId, leadId)
+  if (!oldLead) {
+    return { success: false, error: 'Lead not found' }
+  }
+
   // 4. Update the lead (tenant-scoped query ensures cross-tenant safety)
   const { data: updatedLead, error: updateError } = await updateLead(
     supabase,
@@ -143,10 +148,24 @@ export async function updateLeadDetailsAction(
     return { success: false, error: 'Lead not found or update failed' }
   }
 
+  const changes: string[] = []
+  if (oldLead.move_date !== updatedLead.move_date) {
+    changes.push(`Move date changed from ${oldLead.move_date || 'none'} to ${updatedLead.move_date || 'none'}`)
+  }
+  if (oldLead.volume_cft !== updatedLead.volume_cft) {
+    changes.push(`Volume changed from ${oldLead.volume_cft || 'none'} to ${updatedLead.volume_cft || 'none'} cft`)
+  }
+  if (oldLead.notes !== updatedLead.notes) {
+    changes.push('Notes were updated')
+  }
+
   // Emit the lead.updated event so the activity timeline can pick it up
-  await emitEvent(supabase, 'lead.updated', 'crm', {
-    lead_id: leadId,
-  })
+  if (changes.length > 0) {
+    await emitEvent(supabase, 'lead.updated', 'crm', {
+      lead_id: leadId,
+      changes,
+    })
+  }
 
   // 5. Invalidate detail page and list
   revalidatePath(`/office/leads/${leadId}`)
