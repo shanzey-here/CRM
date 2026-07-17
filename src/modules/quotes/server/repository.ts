@@ -86,3 +86,79 @@ export async function saveQuoteInventory(
 
   return { success: true }
 }
+
+export async function generateQuotePublicToken(
+  supabase: SupabaseClient<Database>,
+  tenantId: string,
+  quoteId: string
+) {
+  const { data: quote, error: fetchError } = await supabase
+    .from('quotes')
+    .select('public_token')
+    .eq('tenant_id', tenantId)
+    .eq('id', quoteId)
+    .single()
+
+  if (fetchError) {
+    return { success: false, error: fetchError.message }
+  }
+
+  if (quote.public_token) {
+    return { success: true, token: quote.public_token }
+  }
+
+  const { data: tokenResult, error: rpcError } = await supabase.rpc(
+    'generate_proposal_token'
+  )
+
+  if (rpcError) {
+    return { success: false, error: rpcError.message }
+  }
+
+  const token = tokenResult as string
+
+  const { error: updateError } = await supabase
+    .from('quotes')
+    .update({ public_token: token })
+    .eq('tenant_id', tenantId)
+    .eq('id', quoteId)
+
+  if (updateError) {
+    return { success: false, error: updateError.message }
+  }
+
+  return { success: true, token }
+}
+
+export async function getQuoteByPublicToken(
+  supabase: SupabaseClient<Database>,
+  token: string
+) {
+  const { data: quote, error } = await supabase
+    .from('quotes')
+    .select(
+      `
+      *,
+      contact:contacts!quotes_contact_fk(id, first_name, last_name, email, phone),
+      tenant:tenants!quotes_tenant_fk(id)
+    `
+    )
+    .eq('public_token', token)
+    .eq('status', 'sent')
+    .single()
+
+  console.error('[getQuoteByPublicToken] DEBUG:', {
+    token,
+    quoteFound: !!quote,
+    quoteId: quote?.id,
+    errorMessage: error?.message,
+    errorCode: error?.code,
+    errorStatus: error?.status,
+  })
+
+  if (error) {
+    return { success: false, error: error.message }
+  }
+
+  return { success: true, quote }
+}
