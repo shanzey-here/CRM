@@ -3,8 +3,10 @@ import { notFound, redirect } from 'next/navigation'
 import { getLeadById } from '@/modules/leads/server/repository'
 import { getContactById, getAddressById } from '@/modules/clients/server/repository'
 import { getTimeline } from '@/modules/activities/server/repository'
+import { getQuotesForLead } from '@/modules/quotes/server/repository'
 import { EditLeadForm } from './components/edit-lead-form'
 import { StageControl } from './components/stage-control'
+import { QuotesList } from './components/quotes-list'
 import { TimelineView } from '../../components/timeline-view'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
@@ -71,7 +73,10 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
   // 6. Fetch Timeline
   const { data: timelineItems } = await getTimeline(supabase, tenantId, { leadId: lead.id })
 
-  // 7. Fetch Tenant Staff for assignments
+  // 7. Fetch Quotes
+  const { data: quotes } = await getQuotesForLead(supabase, tenantId, lead.id)
+
+  // 8. Fetch Tenant Staff for assignments
   const { getTenantStaff } = await import('@/modules/users/server/repository')
   const { data: tenantStaff } = await getTenantStaff(supabase, tenantId)
 
@@ -281,6 +286,9 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
               )}
             </CardContent>
           </Card>
+
+          {/* Quotes List */}
+          <QuotesList leadId={lead.id} contactId={lead.contact_id} quotes={quotes || []} />
 
           {/* Activity Timeline */}
           <Card className="shadow-sm border-slate-200">
