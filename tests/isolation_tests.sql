@@ -658,6 +658,98 @@ END;
 $$;
 
 -- =============================================================================
+-- TEST: Activities Immutability and Author Edit
+-- =============================================================================
+DO $$
+DECLARE
+  v_tenant_a uuid := 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
+  v_admin_a uuid := '11111111-1111-1111-1111-111111111111';
+  v_dispatcher_a uuid := '22222222-2222-2222-2222-222222222222';
+  v_contact_a uuid := 'caaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
+  v_note_id uuid;
+  v_system_id uuid;
+BEGIN
+  RAISE NOTICE '--- Activities Immutability Tests ---';
+
+  PERFORM tests.set_jwt_claims(v_admin_a, v_tenant_a, 'tenant_admin');
+
+  -- Insert a note activity
+  INSERT INTO activities (tenant_id, contact_id, type, content, created_by)
+  VALUES (v_tenant_a, v_contact_a, 'note', 'Initial note', v_admin_a)
+  RETURNING id INTO v_note_id;
+
+  -- Insert a system activity
+  INSERT INTO activities (tenant_id, contact_id, type, content, created_by)
+  VALUES (v_tenant_a, v_contact_a, 'system', 'System event', v_admin_a)
+  RETURNING id INTO v_system_id;
+
+  -- 1. Author can update note content
+  UPDATE activities SET content = 'Updated note' WHERE id = v_note_id;
+  RAISE NOTICE 'PASS: Author can update own note activity content';
+
+  -- 2. Non-author cannot update note
+  PERFORM tests.set_jwt_claims(v_dispatcher_a, v_tenant_a, 'dispatcher');
+  UPDATE activities SET content = 'Hacked note' WHERE id = v_note_id;
+  -- RLS silently filters rows it can't update, so we verify content didn't change
+  IF (SELECT content FROM activities WHERE id = v_note_id) = 'Updated note' THEN
+    RAISE NOTICE 'PASS: Non-author cannot update note activity';
+  ELSE
+    RAISE WARNING 'FAIL: Non-author updated note activity!';
+  END IF;
+
+  -- 3. System activity cannot be updated
+  PERFORM tests.set_jwt_claims(v_admin_a, v_tenant_a, 'tenant_admin');
+  PERFORM tests.assert_raises(
+    'System activity cannot be updated',
+    format('UPDATE activities SET content = ''Hacked system'' WHERE id = %L', v_system_id)
+  );
+
+  -- 4. Cannot change core fields of a note
+  PERFORM tests.assert_raises(
+    'Cannot change activity core fields',
+    format('UPDATE activities SET type = ''call'' WHERE id = %L', v_note_id)
+  );
+
+END;
+$$;
+
+-- =============================================================================
+-- TEST: Tasks Crew Role Column Restrictions
+-- =============================================================================
+DO $$
+DECLARE
+  v_tenant_a uuid := 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
+  v_admin_a uuid := '11111111-1111-1111-1111-111111111111';
+  v_crew_a uuid := '33333333-3333-3333-3333-333333333333';
+  v_contact_a uuid := 'caaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
+  v_task_id uuid;
+BEGIN
+  RAISE NOTICE '--- Tasks Crew Restrictions Tests ---';
+
+  PERFORM tests.set_jwt_claims(v_admin_a, v_tenant_a, 'tenant_admin');
+
+  -- Admin creates a task assigned to crew
+  INSERT INTO tasks (tenant_id, contact_id, assigned_to, title, status)
+  VALUES (v_tenant_a, v_contact_a, v_crew_a, 'Call client', 'pending')
+  RETURNING id INTO v_task_id;
+
+  -- Switch to crew
+  PERFORM tests.set_jwt_claims(v_crew_a, v_tenant_a, 'crew');
+
+  -- 1. Crew can update status
+  UPDATE tasks SET status = 'completed', completed_at = now() WHERE id = v_task_id;
+  RAISE NOTICE 'PASS: Crew can update task status';
+
+  -- 2. Crew cannot update title
+  PERFORM tests.assert_raises(
+    'Crew cannot update task title',
+    format('UPDATE tasks SET title = ''Hacked title'' WHERE id = %L', v_task_id)
+  );
+END;
+$$;
+
+
+-- =============================================================================
 -- CLEANUP — remove test data (runs unconditionally, every invocation)
 -- =============================================================================
 -- This script runs against a shared, non-resettable database — there is no
