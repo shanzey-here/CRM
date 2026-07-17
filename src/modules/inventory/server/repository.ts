@@ -10,6 +10,15 @@ export async function getInventoryItems(supabase: SupabaseClient<Database>, tena
     .order('name', { ascending: true })
 }
 
+export async function getActiveInventoryItems(supabase: SupabaseClient<Database>, tenantId: string) {
+  return await supabase
+    .from('inventory_items')
+    .select('*')
+    .eq('tenant_id', tenantId)
+    .eq('is_active', true)
+    .order('name', { ascending: true })
+}
+
 export async function createInventoryItem(
   supabase: SupabaseClient<Database>,
   tenantId: string,
