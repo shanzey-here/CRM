@@ -105,3 +105,48 @@ export async function getJobAssignments(
     vehicleAssignments: vehicleRes.data
   }
 }
+
+export async function getSchedulingBoardData(
+  supabase: SupabaseClient<Database>,
+  tenantId: string,
+  dateStr: string // YYYY-MM-DD
+) {
+  const [vehiclesRes, crewRes, jobsRes] = await Promise.all([
+    supabase.from('vehicles')
+      .select('*')
+      .eq('tenant_id', tenantId)
+      .eq('is_active', true)
+      .order('name'),
+    supabase.from('users')
+      .select('id, full_name, role')
+      .eq('tenant_id', tenantId)
+      .eq('role', 'crew')
+      .eq('is_active', true)
+      .order('full_name'),
+    supabase.from('jobs')
+      .select(`
+        id, move_date, status, contact_id, quote_id,
+        contact:contacts(first_name, last_name, company_name),
+        quote:quotes(total_volume),
+        job_crew_assignments(*),
+        job_vehicle_assignments(*)
+      `)
+      .eq('tenant_id', tenantId)
+      .eq('move_date', dateStr)
+      .neq('status', 'cancelled')
+  ])
+
+  if (vehiclesRes.error) return { success: false, error: vehiclesRes.error.message }
+  if (crewRes.error) return { success: false, error: crewRes.error.message }
+  if (jobsRes.error) return { success: false, error: jobsRes.error.message }
+
+  return {
+    success: true,
+    data: {
+      vehicles: vehiclesRes.data,
+      crew: crewRes.data,
+      jobs: jobsRes.data
+    }
+  }
+}
+
