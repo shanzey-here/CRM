@@ -1709,6 +1709,7 @@ export type Database = {
           created_at: string
           id: string
           name: string
+          balance_due_days_before_move: number
           settings: Json | null
           slug: string
           status: Database["public"]["Enums"]["tenant_status"]
@@ -1722,6 +1723,7 @@ export type Database = {
           created_at?: string
           id?: string
           name: string
+          balance_due_days_before_move?: number
           settings?: Json | null
           slug: string
           status?: Database["public"]["Enums"]["tenant_status"]
@@ -1735,6 +1737,7 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string
+          balance_due_days_before_move?: number
           settings?: Json | null
           slug?: string
           status?: Database["public"]["Enums"]["tenant_status"]

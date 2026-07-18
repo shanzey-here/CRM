@@ -214,7 +214,8 @@ import { createJobFromQuoteTransaction } from '@/modules/jobs/server/repository'
 export async function markQuoteAccepted(
   supabase: SupabaseClient<Database>,
   tenantId: string,
-  quoteId: string
+  quoteId: string,
+  stripePaymentIntentId?: string
 ) {
   // 1. Fetch the quote and its associated lead to gather job data
   const { data: quoteData, error: quoteError } = await supabase
@@ -259,7 +260,8 @@ export async function markQuoteAccepted(
     lead_id: quoteData.lead_id,
     move_date: moveDate,
     origin_address_id: originAddressId,
-    destination_address_id: destAddressId
+    destination_address_id: destAddressId,
+    stripe_payment_intent_id: stripePaymentIntentId
   })
 
   return result
