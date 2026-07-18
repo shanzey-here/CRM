@@ -15,9 +15,9 @@ export async function createJobFromQuoteTransaction(
     p_quote_id: data.quote_id,
     p_lead_id: data.lead_id || '',
     p_contact_id: data.contact_id,
-    p_move_date: data.move_date || null,
-    p_origin_address_id: data.origin_address_id || null,
-    p_destination_address_id: data.destination_address_id || null
+    p_move_date: (data.move_date || undefined) as any,
+    p_origin_address_id: (data.origin_address_id || undefined) as any,
+    p_destination_address_id: (data.destination_address_id || undefined) as any
   })
 
   if (error) {
@@ -49,4 +49,65 @@ export async function getJobById(
   }
 
   return { success: true, job: parsed.data }
+}
+
+export async function getJobsByTenant(
+  supabase: SupabaseClient<Database>,
+  tenantId: string
+) {
+  const { data, error } = await supabase
+    .from('jobs')
+    .select(`
+      *,
+      contact:contacts(first_name, last_name, email, phone)
+    `)
+    .eq('tenant_id', tenantId)
+    .order('move_date', { ascending: true })
+
+  if (error) {
+    return { success: false, error: error.message }
+  }
+
+  return { success: true, jobs: data }
+}
+
+export async function getJobDetails(
+  supabase: SupabaseClient<Database>,
+  tenantId: string,
+  jobId: string
+) {
+  // Use a transaction/RPC or just joined query. 
+  // We want the Job, Contact, Addresses, Quote, and Quote Inventory snapshot
+  const { data, error } = await supabase
+    .from('jobs')
+    .select(`
+      *,
+      contact:contacts(first_name, last_name, email, phone, company_name),
+      origin_address:addresses!jobs_origin_address_fk(*),
+      destination_address:addresses!jobs_destination_address_fk(*),
+      quote:quotes(
+        id, subtotal, surcharge_total, total_price, deposit_amount, status, total_volume, terms,
+        quote_inventory(
+          id,
+          quantity,
+          inventory_item:inventory_items(id, name, room, default_volume)
+        )
+      )
+    `)
+    .eq('id', jobId)
+    .eq('tenant_id', tenantId)
+    .single()
+
+  if (error) {
+    if (error.code === 'PGRST116') {
+      return { success: false, error: 'Job not found' }
+    }
+    return { success: false, error: error.message }
+  }
+
+  if (!data) {
+    return { success: false, error: 'Job not found' }
+  }
+
+  return { success: true, jobDetails: data }
 }
