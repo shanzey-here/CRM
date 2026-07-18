@@ -1180,6 +1180,57 @@ export type Database = {
           },
         ]
       }
+      quote_signatures: {
+        Row: {
+          created_at: string
+          document_hash: string
+          id: string
+          ip_address: string | null
+          quote_id: string
+          signature_name: string
+          signature_storage_path: string
+          signed_at: string
+          tenant_id: string
+        }
+        Insert: {
+          created_at?: string
+          document_hash: string
+          id?: string
+          ip_address?: string | null
+          quote_id: string
+          signature_name: string
+          signature_storage_path: string
+          signed_at?: string
+          tenant_id: string
+        }
+        Update: {
+          created_at?: string
+          document_hash?: string
+          id?: string
+          ip_address?: string | null
+          quote_id?: string
+          signature_name?: string
+          signature_storage_path?: string
+          signed_at?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_signatures_quote_fk"
+            columns: ["quote_id", "tenant_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id", "tenant_id"]
+          },
+          {
+            foreignKeyName: "quote_signatures_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       quote_surcharges: {
         Row: {
           amount: number
@@ -1236,6 +1287,7 @@ export type Database = {
           final_price: number | null
           id: string
           lead_id: string | null
+          public_token: string | null
           signature_data: string | null
           signature_name: string | null
           status: Database["public"]["Enums"]["quote_status"]
@@ -1261,6 +1313,7 @@ export type Database = {
           final_price?: number | null
           id?: string
           lead_id?: string | null
+          public_token?: string | null
           signature_data?: string | null
           signature_name?: string | null
           status?: Database["public"]["Enums"]["quote_status"]
@@ -1286,6 +1339,7 @@ export type Database = {
           final_price?: number | null
           id?: string
           lead_id?: string | null
+          public_token?: string | null
           signature_data?: string | null
           signature_name?: string | null
           status?: Database["public"]["Enums"]["quote_status"]
@@ -1658,6 +1712,7 @@ export type Database = {
           settings: Json | null
           slug: string
           status: Database["public"]["Enums"]["tenant_status"]
+          stripe_connected_account_id: string | null
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
           updated_at: string | null
@@ -1670,6 +1725,7 @@ export type Database = {
           settings?: Json | null
           slug: string
           status?: Database["public"]["Enums"]["tenant_status"]
+          stripe_connected_account_id?: string | null
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           updated_at?: string | null
@@ -1682,6 +1738,7 @@ export type Database = {
           settings?: Json | null
           slug?: string
           status?: Database["public"]["Enums"]["tenant_status"]
+          stripe_connected_account_id?: string | null
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           updated_at?: string | null
@@ -1819,6 +1876,7 @@ export type Database = {
         Args: { p_tenant_id: string }
         Returns: string
       }
+      generate_proposal_token: { Args: never; Returns: string }
       is_super_admin: { Args: never; Returns: boolean }
       process_domain_event_for_activities: {
         Args: { p_event_id: string }

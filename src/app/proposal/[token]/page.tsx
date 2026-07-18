@@ -1,5 +1,6 @@
 import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { notFound } from 'next/navigation'
+import { AcceptanceFlow } from './components/acceptance-flow'
 
 interface ProposalPageProps {
   params: Promise<{ token: string }>
@@ -20,7 +21,7 @@ export default async function ProposalPage({ params }: ProposalPageProps) {
     `
     )
     .eq('public_token', token)
-    .eq('status', 'sent')
+    .in('status', ['sent', 'accepted'])
     .single()
 
   if (error || !quote) {
@@ -170,12 +171,12 @@ export default async function ProposalPage({ params }: ProposalPageProps) {
               </div>
             </div>
 
-            <div style={{ backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', padding: '24px' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '12px' }}>What's Next?</h3>
-              <p style={{ color: '#4b5563', fontSize: '14px', lineHeight: '1.5', margin: 0 }}>
-                Ready to move forward? We'll follow up shortly to finalize your booking.
-              </p>
-            </div>
+            <AcceptanceFlow 
+              token={token}
+              primaryColor={primaryColor}
+              depositAmount={Number(quote.deposit_amount || 0)}
+              status={quote.status}
+            />
           </div>
         </div>
       </div>

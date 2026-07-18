@@ -162,3 +162,80 @@ export async function getQuoteByPublicToken(
 
   return { success: true, quote }
 }
+export async function saveQuoteSignature(
+  supabase: SupabaseClient<Database>,
+  tenantId: string,
+  quoteId: string,
+  signatureName: string,
+  base64Image: string,
+  documentHash: string,
+  ipAddress: string | null
+) {
+  // Convert base64 to buffer
+  const base64Data = base64Image.replace(/^data:image\/\w+;base64,/, '')
+  const buffer = Buffer.from(base64Data, 'base64')
+  
+  const timestamp = new Date().getTime()
+  const storagePath = `${tenantId}/signature_${timestamp}.png`
+  
+  // 1. Upload to storage
+  const { error: uploadError } = await supabase.storage
+    .from('signatures')
+    .upload(storagePath, buffer, {
+      contentType: 'image/png',
+      upsert: true,
+    })
+    
+  if (uploadError) {
+    return { success: false, error: 'Failed to upload signature image: ' + uploadError.message }
+  }
+  
+  // 2. Insert into quote_signatures
+  const { error: dbError } = await supabase
+    .from('quote_signatures')
+    .insert({
+      tenant_id: tenantId,
+      quote_id: quoteId,
+      signature_name: signatureName,
+      signature_storage_path: storagePath,
+      document_hash: documentHash,
+      ip_address: ipAddress,
+    })
+    
+  if (dbError) {
+    return { success: false, error: 'Failed to save signature record: ' + dbError.message }
+  }
+  
+  return { success: true }
+}
+
+export async function markQuoteAccepted(
+  supabase: SupabaseClient<Database>,
+  tenantId: string,
+  quoteId: string
+) {
+  // Use a transaction/RPC or just two distinct calls. We can emit via event-bus if we want.
+  const { error: updateError } = await supabase
+    .from('quotes')
+    .update({ 
+      status: 'accepted',
+      accepted_at: new Date().toISOString()
+    })
+    .eq('id', quoteId)
+    .eq('tenant_id', tenantId)
+    .eq('status', 'sent') // Mutability guard
+    
+  if (updateError) {
+    return { success: false, error: 'Failed to update quote status: ' + updateError.message }
+  }
+  
+  // Emit domain event
+  await supabase.from('domain_events').insert({
+    tenant_id: tenantId,
+    event_type: 'quote.accepted',
+    source_module: 'quoting',
+    payload: { quote_id: quoteId }
+  })
+  
+  return { success: true }
+}
