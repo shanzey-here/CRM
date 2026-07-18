@@ -1841,6 +1841,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_quote_transaction: {
+        Args: {
+          p_tenant_id: string
+          p_quote_id: string
+          p_lead_id: string
+          p_contact_id: string
+          p_move_date: string
+          p_origin_address_id: string
+          p_destination_address_id: string
+        }
+        Returns: Json
+      }
       calculate_quote_price: {
         Args: {
           p_distance_meters: number

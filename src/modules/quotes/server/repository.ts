@@ -209,33 +209,58 @@ export async function saveQuoteSignature(
   return { success: true }
 }
 
+import { createJobFromQuoteTransaction } from '@/modules/jobs/server/repository'
+
 export async function markQuoteAccepted(
   supabase: SupabaseClient<Database>,
   tenantId: string,
   quoteId: string
 ) {
-  // Use a transaction/RPC or just two distinct calls. We can emit via event-bus if we want.
-  const { error: updateError } = await supabase
+  // 1. Fetch the quote and its associated lead to gather job data
+  const { data: quoteData, error: quoteError } = await supabase
     .from('quotes')
-    .update({ 
-      status: 'accepted',
-      accepted_at: new Date().toISOString()
-    })
+    .select('contact_id, lead_id, status')
     .eq('id', quoteId)
     .eq('tenant_id', tenantId)
-    .eq('status', 'sent') // Mutability guard
-    
-  if (updateError) {
-    return { success: false, error: 'Failed to update quote status: ' + updateError.message }
+    .single()
+
+  if (quoteError || !quoteData) {
+    return { success: false, error: 'Quote not found' }
   }
-  
-  // Emit domain event
-  await supabase.from('domain_events').insert({
-    tenant_id: tenantId,
-    event_type: 'quote.accepted',
-    source_module: 'quoting',
-    payload: { quote_id: quoteId }
+
+  if (quoteData.status !== 'sent') {
+    return { success: false, error: 'Quote is not in a valid state to be accepted' }
+  }
+
+  let moveDate = null
+  let originAddressId = null
+  let destAddressId = null
+
+  if (quoteData.lead_id) {
+    const { data: leadData } = await supabase
+      .from('leads')
+      .select('preferred_move_date, origin_address_id, destination_address_id')
+      .eq('id', quoteData.lead_id)
+      .eq('tenant_id', tenantId)
+      .single()
+
+    if (leadData) {
+      moveDate = leadData.preferred_move_date
+      originAddressId = leadData.origin_address_id
+      destAddressId = leadData.destination_address_id
+    }
+  }
+
+  // 2. Delegate to the jobs module to execute the transaction
+  // This wraps Quote Update, Job Creation, Lead Update, and Event Emission in one ACID step
+  const result = await createJobFromQuoteTransaction(supabase, tenantId, {
+    quote_id: quoteId,
+    contact_id: quoteData.contact_id,
+    lead_id: quoteData.lead_id,
+    move_date: moveDate,
+    origin_address_id: originAddressId,
+    destination_address_id: destAddressId
   })
-  
-  return { success: true }
+
+  return result
 }
