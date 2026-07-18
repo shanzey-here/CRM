@@ -29,6 +29,7 @@ export const CreateJobFromQuoteSchema = z.object({
   move_date: z.string().nullable().optional(),
   origin_address_id: z.string().uuid().nullable().optional(),
   destination_address_id: z.string().uuid().nullable().optional(),
+  stripe_payment_intent_id: z.string().nullable().optional(),
 })
 
 export type CreateJobFromQuoteData = z.infer<typeof CreateJobFromQuoteSchema>

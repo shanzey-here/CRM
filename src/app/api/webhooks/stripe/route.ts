@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
 
       if (quoteId && tenantId) {
         const supabase = createServiceRoleClient()
-        const result = await markQuoteAccepted(supabase, tenantId, quoteId)
+        const result = await markQuoteAccepted(supabase, tenantId, quoteId, paymentIntent.id)
         
         if (!result.success) {
           console.error(`Failed to mark quote accepted for intent ${paymentIntent.id}:`, result.error)

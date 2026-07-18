@@ -17,7 +17,8 @@ export async function createJobFromQuoteTransaction(
     p_contact_id: data.contact_id,
     p_move_date: (data.move_date || undefined) as any,
     p_origin_address_id: (data.origin_address_id || undefined) as any,
-    p_destination_address_id: (data.destination_address_id || undefined) as any
+    p_destination_address_id: (data.destination_address_id || undefined) as any,
+    p_stripe_payment_intent_id: data.stripe_payment_intent_id || null
   })
 
   if (error) {
