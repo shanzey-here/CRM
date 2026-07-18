@@ -10,6 +10,7 @@ export function HeaderNav() {
   const links = [
     { name: 'Leads', href: '/office/leads' },
     { name: 'Clients', href: '/office/clients' },
+    { name: 'Scheduling', href: '/office/scheduling' },
     { name: 'Tasks', href: '/office/tasks' },
     { name: 'Jobs', href: '/office/jobs' },
     { name: 'Settings', href: '/office/settings' },
