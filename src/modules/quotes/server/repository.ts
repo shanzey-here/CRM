@@ -210,6 +210,7 @@ export async function saveQuoteSignature(
 }
 
 import { createJobFromQuoteTransaction } from '@/modules/jobs/server/repository'
+import { computeInvoicePlan } from '@/modules/invoicing/server/plan'
 
 export async function markQuoteAccepted(
   supabase: SupabaseClient<Database>,
@@ -220,19 +221,17 @@ export async function markQuoteAccepted(
   // 1. Fetch the quote and its associated lead to gather job data
   const { data: quoteData, error: quoteError } = await supabase
     .from('quotes')
-    .select('contact_id, lead_id, status')
+    .select('id, contact_id, lead_id, status, subtotal, surcharge_total, total_price, deposit_amount')
     .eq('id', quoteId)
     .eq('tenant_id', tenantId)
     .single()
 
   if (quoteError || !quoteData) {
-    return { success: false, error: 'Quote not found' }
+    return { success: false, error: 'Quote not found', alreadyAccepted: false }
   }
 
-  if (quoteData.status !== 'sent') {
-    return { success: false, error: 'Quote is not in a valid state to be accepted' }
-  }
-
+  // No pre-check here — the RPC guard is the single idempotency point
+  // If the quote is already accepted, the RPC will detect it and return P0002
   let moveDate = null
   let originAddressId = null
   let destAddressId = null
@@ -252,8 +251,29 @@ export async function markQuoteAccepted(
     }
   }
 
-  // 2. Delegate to the jobs module to execute the transaction
-  // This wraps Quote Update, Job Creation, Lead Update, and Event Emission in one ACID step
+  // 2. Fetch tenant settings to get balance due offset
+  const { data: tenantSettings } = await supabase
+    .from('tenant_settings')
+    .select('balance_due_days_before_move')
+    .eq('tenant_id', tenantId)
+    .single()
+
+  const balanceDueDaysBeforeMove = tenantSettings?.balance_due_days_before_move ?? 2
+
+  // 3. Compute the invoice plan in TypeScript (explicit, testable step)
+  const invoicePlan = computeInvoicePlan(
+    {
+      subtotal: Number(quoteData.subtotal) || 0,
+      surcharge_total: Number(quoteData.surcharge_total) || 0,
+      total_price: Number(quoteData.total_price) || 0,
+      deposit_amount: Number(quoteData.deposit_amount) || 0,
+    },
+    moveDate || new Date().toISOString().split('T')[0],
+    balanceDueDaysBeforeMove
+  )
+
+  // 4. Delegate to the jobs module to execute the transaction
+  // This wraps Quote Update, Job Creation, Lead Update, Event Emission, and Invoice Generation in one ACID step
   const result = await createJobFromQuoteTransaction(supabase, tenantId, {
     quote_id: quoteId,
     contact_id: quoteData.contact_id,
@@ -261,7 +281,8 @@ export async function markQuoteAccepted(
     move_date: moveDate,
     origin_address_id: originAddressId,
     destination_address_id: destAddressId,
-    stripe_payment_intent_id: stripePaymentIntentId
+    stripe_payment_intent_id: stripePaymentIntentId,
+    invoicePlan,
   })
 
   return result

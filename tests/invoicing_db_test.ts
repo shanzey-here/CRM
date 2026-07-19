@@ -25,28 +25,33 @@ async function runTests() {
 
   // 2. Setup contact
   const contactId = crypto.randomUUID()
-  await supabase.from('contacts').insert({
+  const contactInsert = await supabase.from('contacts').insert({
     id: contactId,
     tenant_id: tenantId,
     first_name: 'Jane',
     last_name: 'Doe',
     email: 'jane.invoice@test.com'
   })
+  if (contactInsert.error) {
+    console.error('Contact insert error:', contactInsert.error.message)
+  }
 
   // 3. Create Lead
   const leadId = crypto.randomUUID()
-  await supabase.from('leads').insert({
+  const leadInsert = await supabase.from('leads').insert({
     id: leadId,
     tenant_id: tenantId,
     contact_id: contactId,
-    status: 'new',
     stage: 'quote_sent',
     preferred_move_date: '2026-08-15'
   })
+  if (leadInsert.error) {
+    console.error('Lead insert error:', leadInsert.error.message)
+  }
 
   // 4. Create Quote (Sent status) with deposit
   const quoteId = crypto.randomUUID()
-  await supabase.from('quotes').insert({
+  const quoteInsert = await supabase.from('quotes').insert({
     id: quoteId,
     tenant_id: tenantId,
     lead_id: leadId,
@@ -57,6 +62,9 @@ async function runTests() {
     total_price: 1200,
     deposit_amount: 200
   })
+  if (quoteInsert.error) {
+    console.error('Quote insert error:', quoteInsert.error.message)
+  }
 
   console.log(`[TEST] Setup complete. Quote ${quoteId} is in 'sent' state.`)
 
@@ -133,7 +141,127 @@ async function runTests() {
     }
   }
 
-  console.log('--- All Invoicing tests completed! ---')
+  console.log('--- Invoicing DB tests completed! ---\n')
+
+  // ===== IDEMPOTENCY TESTS =====
+  console.log('--- Idempotency Tests (Sequential + Concurrent) ---\n')
+
+  // Test 1: Sequential idempotent retry
+  console.log('[IDEMPOTENCY TEST 1] Sequential retry of markQuoteAccepted')
+  const idempotencyQuoteId = crypto.randomUUID()
+  await supabase.from('quotes').insert({
+    id: idempotencyQuoteId,
+    tenant_id: tenantId,
+    lead_id: leadId,
+    contact_id: contactId,
+    status: 'sent',
+    subtotal: 2000,
+    surcharge_total: 300,
+    total_price: 2300,
+    deposit_amount: 500,
+  })
+
+  const fakeStripeId1 = 'pi_test_seq_' + crypto.randomUUID().slice(0, 8)
+
+  // First call: should succeed
+  const firstCall = await markQuoteAccepted(supabase, tenantId, idempotencyQuoteId, fakeStripeId1)
+  if (!firstCall.success) {
+    console.error(`[FAIL] First call should succeed, got error: ${firstCall.error}`)
+  } else {
+    console.log(`[PASS] First call succeeded, jobId: ${firstCall.jobId}`)
+  }
+
+  // Second call: should return alreadyAccepted flag, not fail
+  const secondCall = await markQuoteAccepted(supabase, tenantId, idempotencyQuoteId, fakeStripeId1)
+  if (secondCall.success) {
+    console.error(`[FAIL] Second call should not succeed (quote already accepted)`)
+  } else if ((secondCall as any).alreadyAccepted) {
+    console.log(`[PASS] Second call correctly identified as idempotent retry (alreadyAccepted: true)`)
+  } else {
+    console.error(`[FAIL] Second call failed but not as idempotent retry: ${secondCall.error}`)
+  }
+
+  // Verify only one invoice exists for the job
+  if (firstCall.success) {
+    const invoices = await supabase
+      .from('invoices')
+      .select('id')
+      .eq('tenant_id', tenantId)
+      .eq('job_id', firstCall.jobId)
+
+    if (invoices.data && invoices.data.length === 1) {
+      console.log(`[PASS] Exactly one invoice exists for the job`)
+    } else {
+      console.error(`[FAIL] Expected 1 invoice, found ${invoices.data?.length || 0}`)
+    }
+  }
+
+  // Test 2: Concurrent idempotent retries (Promise.all)
+  console.log('\n[IDEMPOTENCY TEST 2] Concurrent retries via Promise.all')
+  const concurrentQuoteId = crypto.randomUUID()
+  await supabase.from('quotes').insert({
+    id: concurrentQuoteId,
+    tenant_id: tenantId,
+    lead_id: leadId,
+    contact_id: contactId,
+    status: 'sent',
+    subtotal: 3000,
+    surcharge_total: 400,
+    total_price: 3400,
+    deposit_amount: 600,
+  })
+
+  const fakeStripeId2 = 'pi_test_conc_' + crypto.randomUUID().slice(0, 8)
+
+  // Fire two calls concurrently
+  const [concurrentFirst, concurrentSecond] = await Promise.allSettled([
+    markQuoteAccepted(supabase, tenantId, concurrentQuoteId, fakeStripeId2),
+    markQuoteAccepted(supabase, tenantId, concurrentQuoteId, fakeStripeId2),
+  ]).then(results => [
+    results[0].status === 'fulfilled' ? results[0].value : null,
+    results[1].status === 'fulfilled' ? results[1].value : null,
+  ])
+
+  let concurrentSuccess = 0
+  let concurrentIdempotent = 0
+
+  if (concurrentFirst?.success) {
+    concurrentSuccess++
+  } else if ((concurrentFirst as any)?.alreadyAccepted) {
+    concurrentIdempotent++
+  }
+
+  if (concurrentSecond?.success) {
+    concurrentSuccess++
+  } else if ((concurrentSecond as any)?.alreadyAccepted) {
+    concurrentIdempotent++
+  }
+
+  if (concurrentSuccess === 1 && concurrentIdempotent === 1) {
+    console.log(`[PASS] Concurrent calls: exactly one succeeded, one was idempotently rejected`)
+  } else {
+    console.error(
+      `[FAIL] Concurrent calls: expected 1 success + 1 idempotent, got ${concurrentSuccess} success + ${concurrentIdempotent} idempotent`
+    )
+  }
+
+  // Verify only one invoice exists for this concurrent job
+  const jobIdConcurrent = concurrentFirst?.success ? concurrentFirst.jobId : concurrentSecond?.jobId
+  if (jobIdConcurrent) {
+    const invoicesConcurrent = await supabase
+      .from('invoices')
+      .select('id')
+      .eq('tenant_id', tenantId)
+      .eq('job_id', jobIdConcurrent)
+
+    if (invoicesConcurrent.data && invoicesConcurrent.data.length === 1) {
+      console.log(`[PASS] Concurrent: exactly one invoice exists for the job`)
+    } else {
+      console.error(`[FAIL] Concurrent: expected 1 invoice, found ${invoicesConcurrent.data?.length || 0}`)
+    }
+  }
+
+  console.log('\n--- All tests (DB + Idempotency) completed! ---')
 }
 
 runTests().catch(e => {

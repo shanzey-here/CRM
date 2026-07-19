@@ -7,22 +7,33 @@ export async function createJobFromQuoteTransaction(
   tenantId: string,
   data: CreateJobFromQuoteData
 ) {
-  // Call the transactional RPC. 
-  // We use this to wrap Quote update, Job insert, Lead update, and Event insert 
+  // Call the transactional RPC.
+  // We use this to wrap Quote update, Job insert, Lead update, and Event insert
   // into one ACID-compliant database transaction since the REST API lacks BEGIN/COMMIT.
+  // Invoice plan is pre-computed in TypeScript, not derived in SQL.
   const { data: result, error } = await supabase.rpc('accept_quote_transaction', {
     p_tenant_id: tenantId,
     p_quote_id: data.quote_id,
-    p_lead_id: data.lead_id || '',
+    p_lead_id: data.lead_id || null,
     p_contact_id: data.contact_id,
-    p_move_date: (data.move_date || undefined) as any,
-    p_origin_address_id: (data.origin_address_id || undefined) as any,
-    p_destination_address_id: (data.destination_address_id || undefined) as any,
-    p_stripe_payment_intent_id: data.stripe_payment_intent_id || null
+    p_move_date: data.move_date || null,
+    p_origin_address_id: data.origin_address_id || null,
+    p_destination_address_id: data.destination_address_id || null,
+    p_stripe_payment_intent_id: data.stripe_payment_intent_id || null,
+    p_invoice_subtotal: data.invoicePlan.subtotal,
+    p_invoice_tax_amount: data.invoicePlan.taxAmount,
+    p_invoice_total: data.invoicePlan.total,
+    p_line_items: data.invoicePlan.lineItems as any,
+    p_deposit_schedule: data.invoicePlan.depositSchedule as any,
+    p_balance_schedule: data.invoicePlan.balanceSchedule as any,
   })
 
   if (error) {
-    return { success: false, error: 'Transaction failed: ' + error.message }
+    // Detect idempotent retry: quote was already accepted (status no longer 'sent')
+    if (error.code === 'P0002') {
+      return { success: false, alreadyAccepted: true, error: error.message }
+    }
+    return { success: false, alreadyAccepted: false, error: 'Transaction failed: ' + error.message }
   }
 
   return { success: true, jobId: (result as any)?.job_id }
