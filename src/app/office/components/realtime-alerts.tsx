@@ -13,6 +13,16 @@ export function RealtimeAlerts({ tenantId }: { tenantId: string }) {
   useEffect(() => {
     const supabase = createClient()
 
+    console.log('[RealtimeAlerts] Setting up subscription for tenantId:', tenantId)
+
+    // Set the user's JWT on the Realtime connection for RLS evaluation
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.access_token) {
+        supabase.realtime.setAuth(session.access_token)
+        console.log('[RealtimeAlerts] JWT set on Realtime connection')
+      }
+    })
+
     // 1. Subscribe to leads table specifically for this tenant
     const channel = supabase
       .channel('leads-inquiries-channel')
@@ -25,8 +35,10 @@ export function RealtimeAlerts({ tenantId }: { tenantId: string }) {
           filter: `tenant_id=eq.${tenantId}`
         },
         (payload) => {
+          console.log('[RealtimeAlerts] **CALLBACK FIRED** - Received postgres_changes event:', payload)
           // Only alert for 'inquiry' stage
           if (payload.new && payload.new.stage === 'inquiry') {
+            console.log('[RealtimeAlerts] Alert triggered for inquiry stage')
             const newAlert = {
               id: payload.new.id,
               message: 'New Inquiry Received!'
@@ -42,7 +54,12 @@ export function RealtimeAlerts({ tenantId }: { tenantId: string }) {
           }
         }
       )
-      .subscribe()
+      .subscribe((status, err) => {
+        console.log('[RealtimeAlerts] Subscription status:', status)
+        if (err) console.error('[RealtimeAlerts] Subscription error:', err)
+      })
+
+    console.log('[RealtimeAlerts] Subscription established, channel:', channel)
 
     return () => {
       supabase.removeChannel(channel)
