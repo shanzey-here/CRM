@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { stripe } from '@/modules/payments/server/stripe'
 import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { markQuoteAccepted } from '@/modules/quotes/server/repository'
+import { recordInvoicePayment } from '@/modules/invoicing/server/repository'
 import Stripe from 'stripe'
 
 export async function POST(request: NextRequest) {
@@ -46,6 +47,32 @@ export async function POST(request: NextRequest) {
 
         console.log(`Successfully marked quote ${quoteId} as accepted via webhook.`)
       }
+    } else if (paymentIntent.metadata?.type === 'invoice_payment') {
+      const invoiceId = paymentIntent.metadata.invoice_id
+      const scheduleId = paymentIntent.metadata.schedule_id
+      const tenantId = paymentIntent.metadata.tenant_id
+
+      if (invoiceId && scheduleId && tenantId) {
+        const supabase = createServiceRoleClient()
+        // amount is in minor units (pence/cents), convert to major units
+        const amount = paymentIntent.amount / 100
+
+        const result = await recordInvoicePayment(supabase, tenantId, invoiceId, scheduleId, paymentIntent.id, amount)
+
+        if (!result.success) {
+          console.error(`Failed to record invoice payment for intent ${paymentIntent.id}:`, result.error)
+          return NextResponse.json({ error: 'Failed to record invoice payment' }, { status: 500 })
+        }
+
+        if (result.alreadyPaid) {
+          console.log(`Invoice schedule ${scheduleId} already marked paid for intent ${paymentIntent.id} (idempotent retry)`)
+        } else {
+          console.log(`Successfully recorded invoice payment for schedule ${scheduleId}.`)
+        }
+      }
+    } else {
+      // Safe fallback for unhandled metadata types to prevent Stripe retries
+      console.log(`Unhandled payment intent metadata type: ${paymentIntent.metadata?.type}. Ignoring.`)
     }
   }
 

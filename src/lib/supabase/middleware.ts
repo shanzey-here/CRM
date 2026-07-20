@@ -57,7 +57,7 @@ export async function updateSession(request: NextRequest) {
     if (appMetadata.is_super_admin) {
       correctDashboard = '/super-admin';
     } else if (appMetadata.tenant_role === 'tenant_admin') {
-      correctDashboard = '/admin';
+      correctDashboard = '/office/leads';
     } else if (appMetadata.tenant_role === 'dispatcher') {
       correctDashboard = '/office';
     } else if (appMetadata.tenant_role === 'crew') {
@@ -66,7 +66,7 @@ export async function updateSession(request: NextRequest) {
   }
 
   // Redirect authenticated users away from login, home, or the old generic dashboard
-  if (user && (path === '/login' || path === '/dashboard' || path === '/')) {
+  if (user && (path === '/login' || path === '/dashboard' || path === '/' || path === '/admin')) {
     // Prevent infinite loop if correctDashboard is '/'
     if (correctDashboard !== '/') {
       const url = request.nextUrl.clone();
@@ -88,7 +88,7 @@ export async function updateSession(request: NextRequest) {
     if (
       (isSuperAdminRoute && !appMetadata.is_super_admin) ||
       (isAdminRoute && appMetadata.tenant_role !== 'tenant_admin') ||
-      (isOfficeRoute && appMetadata.tenant_role !== 'dispatcher') ||
+      (isOfficeRoute && appMetadata.tenant_role !== 'dispatcher' && appMetadata.tenant_role !== 'tenant_admin') ||
       (isCrewRoute && appMetadata.tenant_role !== 'crew')
     ) {
       const url = request.nextUrl.clone();

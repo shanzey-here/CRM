@@ -88,3 +88,26 @@ export async function updatePaymentScheduleStatus(
 
   return { success: true }
 }
+
+export async function recordInvoicePayment(
+  supabase: SupabaseClient<Database>,
+  tenantId: string,
+  invoiceId: string,
+  scheduleId: string,
+  stripeIntentId: string,
+  amount: number
+) {
+  const { data, error } = await supabase.rpc('record_invoice_payment', {
+    p_tenant_id: tenantId,
+    p_invoice_id: invoiceId,
+    p_schedule_id: scheduleId,
+    p_stripe_intent_id: stripeIntentId,
+    p_amount: amount
+  })
+
+  if (error) {
+    return { success: false, error: 'Failed to record payment: ' + error.message }
+  }
+
+  return { success: true, alreadyPaid: (data as any)?.already_paid }
+}
