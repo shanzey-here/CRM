@@ -19,7 +19,7 @@ BEGIN
   -- 1. Fetch current role and tenant_id from public.users
   SELECT role, tenant_id INTO v_role, v_tenant_id
   FROM public.users
-  WHERE id = (event->>'user_id')::uuid;
+  WHERE id = (event->'claims'->>'sub')::uuid;
 
   claims := event->'claims';
 

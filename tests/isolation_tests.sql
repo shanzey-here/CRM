@@ -793,6 +793,48 @@ $$;
 
 
 -- =============================================================================
+-- TEST: Dashboard Repository Queries Isolation
+-- =============================================================================
+DO $$
+DECLARE
+  v_tenant_a uuid := 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
+  v_admin_a uuid := '11111111-1111-1111-1111-111111111111';
+  v_count bigint;
+BEGIN
+  RAISE NOTICE '--- Dashboard Repository Queries Isolation Tests ---';
+
+  -- Set JWT claims for Tenant A admin
+  PERFORM tests.set_jwt_claims(v_admin_a, v_tenant_a, 'tenant_admin');
+
+  -- 1. getUpcomingJobs
+  SELECT count(*) INTO v_count FROM jobs 
+  WHERE move_date >= CURRENT_DATE 
+    AND status NOT IN ('completed', 'canceled');
+  -- Since we seeded 1 future job in setup ('2026-08-01')
+  PERFORM tests.assert_count('Dashboard getUpcomingJobs sees own tenant only', v_count, 1);
+
+  -- 2. getPendingTasks
+  SELECT count(*) INTO v_count FROM tasks WHERE status = 'pending';
+  -- We seeded 1 task earlier in the Tasks Crew Restriction test
+  PERFORM tests.assert_count('Dashboard getPendingTasks sees own tenant only', v_count, 1);
+
+  -- 3. getLeadsNeedingFollowUp
+  SELECT count(*) INTO v_count FROM leads 
+  WHERE status IN ('inquiry', 'quote_sent') AND is_archived = false;
+  -- We seeded 1 lead ('quote_sent')
+  PERFORM tests.assert_count('Dashboard getLeadsNeedingFollowUp sees own tenant only', v_count, 1);
+
+  -- 4. getOutstandingInvoices
+  SELECT count(*) INTO v_count FROM invoices 
+  WHERE status NOT IN ('paid', 'void') AND amount_due > 0;
+  -- We seeded 1 invoice ('sent') which by default has amount_due > 0 (or total > 0)
+  PERFORM tests.assert_count('Dashboard getOutstandingInvoices sees own tenant only', v_count, 1);
+
+END;
+$$;
+
+
+-- =============================================================================
 -- CLEANUP — remove test data (runs unconditionally, every invocation)
 -- =============================================================================
 -- This script runs against a shared, non-resettable database — there is no

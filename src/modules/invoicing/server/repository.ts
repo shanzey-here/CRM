@@ -111,3 +111,27 @@ export async function recordInvoicePayment(
 
   return { success: true, alreadyPaid: (data as any)?.already_paid }
 }
+
+export async function getOutstandingInvoices(
+  supabase: SupabaseClient<Database>,
+  tenantId: string,
+  limit: number = 5
+) {
+  const { data, error } = await supabase
+    .from('invoices')
+    .select(`
+      id,
+      total,
+      status,
+      due_date,
+      job:jobs(id, contact:contacts(first_name, last_name))
+    `)
+    .eq('tenant_id', tenantId)
+    .not('status', 'eq', 'paid')
+    .not('status', 'eq', 'void')
+    .order('due_date', { ascending: true, nullsFirst: false })
+    .limit(limit)
+
+  return { success: !error, invoices: data || [], error: error?.message }
+}
+

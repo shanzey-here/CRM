@@ -123,3 +123,31 @@ export async function getJobDetails(
 
   return { success: true, jobDetails: data }
 }
+
+export async function getUpcomingJobs(
+  supabase: SupabaseClient<Database>,
+  tenantId: string,
+  limit: number = 5
+) {
+  const { data, error } = await supabase
+    .from('jobs')
+    .select(`
+      id,
+      status,
+      move_date,
+      contact:contacts(first_name, last_name)
+    `)
+    .eq('tenant_id', tenantId)
+    .gte('move_date', new Date().toISOString().split('T')[0])
+    .not('status', 'eq', 'completed')
+    .not('status', 'eq', 'cancelled')
+    .order('move_date', { ascending: true })
+    .limit(limit)
+
+  if (error) {
+    return { success: false, error: error.message }
+  }
+
+  return { success: true, jobs: data }
+}
+

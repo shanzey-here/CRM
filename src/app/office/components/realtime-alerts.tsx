@@ -1,0 +1,127 @@
+'use client'
+
+import { useEffect, useState, useRef } from 'react'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
+import { Bell, X } from 'lucide-react'
+
+export function RealtimeAlerts({ tenantId }: { tenantId: string }) {
+  const router = useRouter()
+  const [alerts, setAlerts] = useState<{ id: string; message: string }[]>([])
+  const audioContextRef = useRef<AudioContext | null>(null)
+
+  useEffect(() => {
+    const supabase = createClient()
+
+    // 1. Subscribe to leads table specifically for this tenant
+    const channel = supabase
+      .channel('leads-inquiries-channel')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'leads',
+          filter: `tenant_id=eq.${tenantId}`
+        },
+        (payload) => {
+          // Only alert for 'inquiry' stage
+          if (payload.new && payload.new.stage === 'inquiry') {
+            const newAlert = {
+              id: payload.new.id,
+              message: 'New Inquiry Received!'
+            }
+            setAlerts((prev) => [...prev, newAlert])
+            playDingSound()
+            router.refresh() // Tell Next.js to refresh server components and refetch data
+
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+              setAlerts((prev) => prev.filter((a) => a.id !== newAlert.id))
+            }, 5000)
+          }
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+      if (audioContextRef.current) {
+        audioContextRef.current.close()
+      }
+    }
+  }, [tenantId])
+
+  const playDingSound = () => {
+    try {
+      // Browser autoplay policies require user interaction before AudioContext can play.
+      // If the user hasn't clicked anywhere, this will silently fail or warn in console, which is expected/graceful.
+      if (!audioContextRef.current) {
+        const AudioContext = window.AudioContext || (window as any).webkitAudioContext
+        if (AudioContext) {
+          audioContextRef.current = new AudioContext()
+        } else {
+          return // Fallback for unsupported browsers
+        }
+      }
+
+      const ctx = audioContextRef.current
+      // Resume context if it was suspended due to autoplay policy
+      if (ctx.state === 'suspended') {
+        ctx.resume()
+      }
+
+      const osc = ctx.createOscillator()
+      const gainNode = ctx.createGain()
+
+      osc.type = 'sine'
+      osc.frequency.setValueAtTime(880, ctx.currentTime) // A5 note
+      osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.5) // Slide down to A4
+
+      gainNode.gain.setValueAtTime(0, ctx.currentTime)
+      gainNode.gain.linearRampToValueAtTime(0.5, ctx.currentTime + 0.05)
+      gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5)
+
+      osc.connect(gainNode)
+      gainNode.connect(ctx.destination)
+
+      osc.start(ctx.currentTime)
+      osc.stop(ctx.currentTime + 0.5)
+    } catch (err) {
+      console.warn('Could not play audio alert:', err)
+    }
+  }
+
+  const dismissAlert = (id: string) => {
+    setAlerts((prev) => prev.filter((a) => a.id !== id))
+  }
+
+  if (alerts.length === 0) return null
+
+  return (
+    <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2">
+      {alerts.map((alert) => (
+        <div
+          key={alert.id}
+          className="flex items-center justify-between p-4 bg-white border border-emerald-200 rounded-lg shadow-lg max-w-sm animate-in slide-in-from-bottom-5 fade-in duration-300"
+        >
+          <div className="flex items-center gap-3">
+            <div className="bg-emerald-100 p-2 rounded-full text-emerald-600">
+              <Bell size={20} className="animate-pulse" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-slate-900">{alert.message}</p>
+              <p className="text-xs text-slate-500">Check your leads dashboard.</p>
+            </div>
+          </div>
+          <button
+            onClick={() => dismissAlert(alert.id)}
+            className="ml-4 text-slate-400 hover:text-slate-600 transition-colors"
+          >
+            <X size={16} />
+          </button>
+        </div>
+      ))}
+    </div>
+  )
+}

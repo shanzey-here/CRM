@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { HeaderNav } from './components/header-nav'
+import { RealtimeAlerts } from './components/realtime-alerts'
 
 export default async function OfficeLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -49,6 +50,7 @@ export default async function OfficeLayout({ children }: { children: React.React
       <main className="flex-1">
         {children}
       </main>
+      <RealtimeAlerts tenantId={tenantId} />
     </div>
   )
 }

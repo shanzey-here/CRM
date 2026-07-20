@@ -10,6 +10,8 @@ export const metadata = {
   description: 'Manage your active leads pipeline with a drag-and-drop Kanban board.',
 }
 
+export const dynamic = 'force-dynamic'
+
 export default async function LeadsPage() {
   const supabase = await createClient()
 

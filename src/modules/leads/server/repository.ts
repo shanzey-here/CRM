@@ -101,3 +101,26 @@ export async function archiveLead(
 
   return { error }
 }
+
+export async function getLeadsNeedingFollowUp(
+  supabase: SupabaseClient<Database>,
+  tenantId: string,
+  limit: number = 5
+) {
+  const { data, error } = await supabase
+    .from('leads')
+    .select(`
+      id,
+      stage,
+      updated_at,
+      contact:contacts(first_name, last_name)
+    `)
+    .eq('tenant_id', tenantId)
+    .in('stage', ['inquiry', 'quote_sent'])
+    .eq('is_archived', false)
+    .order('updated_at', { ascending: true }) // Oldest first
+    .limit(limit)
+
+  return { success: !error, leads: data || [], error: error?.message }
+}
+

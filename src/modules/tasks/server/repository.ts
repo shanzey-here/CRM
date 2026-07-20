@@ -61,3 +61,20 @@ export async function updateTask(
 
   return { data, error }
 }
+
+export async function getPendingTasks(
+  supabase: SupabaseClient<Database>,
+  tenantId: string,
+  limit: number = 5
+) {
+  const { data, error } = await supabase
+    .from('tasks')
+    .select('*')
+    .eq('tenant_id', tenantId)
+    .eq('status', 'pending')
+    .order('due_date', { ascending: true, nullsFirst: false })
+    .limit(limit)
+
+  return { success: !error, tasks: data || [], error: error?.message }
+}
+
