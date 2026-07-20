@@ -9,7 +9,7 @@ export default async function SchedulingPage({
 }: {
   searchParams: Promise<{ date?: string }>
 }) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return redirect('/login')
 

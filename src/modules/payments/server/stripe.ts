@@ -44,3 +44,62 @@ export async function createDepositPaymentIntent({
 
   return paymentIntent
 }
+
+export type CreateInvoiceCheckoutSessionParams = {
+  amount: number
+  currency?: string
+  tenantConnectedAccountId: string
+  invoiceId: string
+  scheduleId: string
+  tenantId: string
+  successUrl: string
+  cancelUrl: string
+}
+
+export async function createInvoiceCheckoutSession({
+  amount,
+  currency = 'gbp',
+  tenantConnectedAccountId,
+  invoiceId,
+  scheduleId,
+  tenantId,
+  successUrl,
+  cancelUrl,
+}: CreateInvoiceCheckoutSessionParams) {
+  const amountInMinorUnits = Math.round(amount * 100)
+
+  const session = await stripe.checkout.sessions.create({
+    payment_method_types: ['card'], // BACS/Asynchronous methods specifically excluded for now
+    line_items: [
+      {
+        price_data: {
+          currency: currency.toLowerCase(),
+          product_data: {
+            name: 'Balance Payment',
+            description: `Payment for Schedule ${scheduleId.split('-')[0]} on Invoice ${invoiceId.split('-')[0]}`
+          },
+          unit_amount: amountInMinorUnits,
+        },
+        quantity: 1,
+      },
+    ],
+    mode: 'payment',
+    success_url: successUrl,
+    cancel_url: cancelUrl,
+    payment_intent_data: {
+      transfer_data: {
+        destination: tenantConnectedAccountId,
+      },
+      on_behalf_of: tenantConnectedAccountId,
+      metadata: {
+        type: 'invoice_payment',
+        invoice_id: invoiceId,
+        schedule_id: scheduleId,
+        tenant_id: tenantId,
+      },
+    },
+    client_reference_id: scheduleId,
+  })
+
+  return session
+}
