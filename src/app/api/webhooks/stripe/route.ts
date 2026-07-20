@@ -13,7 +13,6 @@ export async function POST(request: NextRequest) {
   }
 
   let event: Stripe.Event
-
   try {
     event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET)
   } catch (err: any) {
@@ -32,12 +31,19 @@ export async function POST(request: NextRequest) {
       if (quoteId && tenantId) {
         const supabase = createServiceRoleClient()
         const result = await markQuoteAccepted(supabase, tenantId, quoteId, paymentIntent.id)
-        
+
         if (!result.success) {
+          // Idempotent retry: quote was already accepted (Stripe retrying webhook delivery)
+          if ((result as any).alreadyAccepted) {
+            console.log(`Quote ${quoteId} already accepted for intent ${paymentIntent.id} (idempotent retry)`)
+            return NextResponse.json({ received: true })
+          }
+
+          // Genuine failure: should retry
           console.error(`Failed to mark quote accepted for intent ${paymentIntent.id}:`, result.error)
           return NextResponse.json({ error: 'Failed to update quote' }, { status: 500 })
         }
-        
+
         console.log(`Successfully marked quote ${quoteId} as accepted via webhook.`)
       }
     }

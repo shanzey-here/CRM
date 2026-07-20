@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { type InvoicePlan } from '@/modules/invoicing/server/plan'
 
 export const JobStatusEnum = z.enum(['scheduled', 'in_progress', 'completed', 'cancelled'])
 export type JobStatus = z.infer<typeof JobStatusEnum>
@@ -32,4 +33,6 @@ export const CreateJobFromQuoteSchema = z.object({
   stripe_payment_intent_id: z.string().nullable().optional(),
 })
 
-export type CreateJobFromQuoteData = z.infer<typeof CreateJobFromQuoteSchema>
+export type CreateJobFromQuoteData = z.infer<typeof CreateJobFromQuoteSchema> & {
+  invoicePlan: InvoicePlan
+}
