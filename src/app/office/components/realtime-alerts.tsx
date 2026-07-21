@@ -12,62 +12,65 @@ export function RealtimeAlerts({ tenantId }: { tenantId: string }) {
 
   useEffect(() => {
     const supabase = createClient()
+    let channel: any = null
 
     console.log('[RealtimeAlerts] Setting up subscription for tenantId:', tenantId)
 
-    // Set the user's JWT on the Realtime connection for RLS evaluation
+    // 1. Wait for session to be fully restored before subscribing to Realtime
+    // This prevents the WebSocket from connecting with an anonymous token before the JWT is loaded!
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.access_token) {
-        supabase.realtime.setAuth(session.access_token)
-        console.log('[RealtimeAlerts] JWT set on Realtime connection')
+      if (!session?.access_token) {
+        console.warn('[RealtimeAlerts] No active session found, Realtime will likely fail RLS.')
+        return
       }
+
+      // Explicitly set the token just to be absolutely sure
+      supabase.realtime.setAuth(session.access_token)
+      console.log('[RealtimeAlerts] JWT set on Realtime connection')
+
+      // 2. Subscribe to leads table specifically for this tenant
+      channel = supabase
+        .channel('leads-inquiries-channel')
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'leads',
+            filter: `tenant_id=eq.${tenantId}`
+          },
+          (payload) => {
+            console.log('[RealtimeAlerts] **CALLBACK FIRED** - Received postgres_changes event:', payload)
+            if (payload.new && payload.new.stage === 'inquiry') {
+              const newAlert = {
+                id: payload.new.id,
+                message: 'New Inquiry Received!'
+              }
+              setAlerts((prev) => [...prev, newAlert])
+              playDingSound()
+              router.refresh() 
+
+              setTimeout(() => {
+                setAlerts((prev) => prev.filter((a) => a.id !== newAlert.id))
+              }, 5000)
+            }
+          }
+        )
+        .subscribe((status, err) => {
+          console.log('[RealtimeAlerts] Subscription status:', status)
+          if (err) console.error('[RealtimeAlerts] Subscription error:', err)
+        })
     })
 
-    // 1. Subscribe to leads table specifically for this tenant
-    const channel = supabase
-      .channel('leads-inquiries-channel')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'leads',
-          filter: `tenant_id=eq.${tenantId}`
-        },
-        (payload) => {
-          console.log('[RealtimeAlerts] **CALLBACK FIRED** - Received postgres_changes event:', payload)
-          // Only alert for 'inquiry' stage
-          if (payload.new && payload.new.stage === 'inquiry') {
-            console.log('[RealtimeAlerts] Alert triggered for inquiry stage')
-            const newAlert = {
-              id: payload.new.id,
-              message: 'New Inquiry Received!'
-            }
-            setAlerts((prev) => [...prev, newAlert])
-            playDingSound()
-            router.refresh() // Tell Next.js to refresh server components and refetch data
-
-            // Auto-dismiss after 5 seconds
-            setTimeout(() => {
-              setAlerts((prev) => prev.filter((a) => a.id !== newAlert.id))
-            }, 5000)
-          }
-        }
-      )
-      .subscribe((status, err) => {
-        console.log('[RealtimeAlerts] Subscription status:', status)
-        if (err) console.error('[RealtimeAlerts] Subscription error:', err)
-      })
-
-    console.log('[RealtimeAlerts] Subscription established, channel:', channel)
-
     return () => {
-      supabase.removeChannel(channel)
+      if (channel) {
+        supabase.removeChannel(channel)
+      }
       if (audioContextRef.current) {
         audioContextRef.current.close()
       }
     }
-  }, [tenantId])
+  }, [tenantId, router])
 
   const playDingSound = () => {
     try {
