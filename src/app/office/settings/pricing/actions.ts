@@ -30,7 +30,6 @@ export async function updatePricingAction(formData: FormData) {
   const per_cubic_foot_rate = formData.get('per_cubic_foot_rate') as string
   const labor_hourly_rate = formData.get('labor_hourly_rate') as string
   const labour_hours_per_cubicft = formData.get('labour_hours_per_cubicft') as string
-  const balance_due_days_before_move = formData.get('balance_due_days_before_move') as string
 
   // Parse surcharges JSON array
   let surcharges = []
@@ -49,7 +48,6 @@ export async function updatePricingAction(formData: FormData) {
     per_cubic_foot_rate: Number(per_cubic_foot_rate),
     labor_hourly_rate: Number(labor_hourly_rate),
     labour_hours_per_cubicft: Number(labour_hours_per_cubicft),
-    balance_due_days_before_move: Number(balance_due_days_before_move),
     surcharges,
   })
 

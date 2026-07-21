@@ -13,7 +13,6 @@ export const pricingSettingsSchema = z.object({
   per_cubic_foot_rate: z.coerce.number().positive('Per-cubic-foot rate must be a positive number'),
   labor_hourly_rate: z.coerce.number().positive('Labor hourly rate must be a positive number'),
   labour_hours_per_cubicft: z.coerce.number().positive('Labor hours per cubic foot must be a positive number'),
-  balance_due_days_before_move: z.coerce.number().int().min(0, 'Balance due days must be 0 or greater'),
   surcharges: z.array(surchargeSchema).default([]),
 })
 

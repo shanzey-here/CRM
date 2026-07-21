@@ -29,7 +29,6 @@ export function PricingForm({ settings }: Props) {
       per_cubic_foot_rate: settings?.per_cubic_foot_rate || 0,
       labor_hourly_rate: settings?.labor_hourly_rate || 0,
       labour_hours_per_cubicft: settings?.labour_hours_per_cubicft || 0.1,
-      balance_due_days_before_move: settings?.balance_due_days_before_move || 2,
       surcharges: settings?.surcharges || [],
     },
   })
@@ -49,7 +48,6 @@ export function PricingForm({ settings }: Props) {
         formData.append('per_cubic_foot_rate', String(data.per_cubic_foot_rate))
         formData.append('labor_hourly_rate', String(data.labor_hourly_rate))
         formData.append('labour_hours_per_cubicft', String(data.labour_hours_per_cubicft))
-        formData.append('balance_due_days_before_move', String(data.balance_due_days_before_move))
         formData.append('surcharges', JSON.stringify(data.surcharges))
 
         await updatePricingAction(formData)
@@ -157,23 +155,6 @@ export function PricingForm({ settings }: Props) {
             />
             {errors.labour_hours_per_cubicft && (
               <p className="text-sm text-red-600 mt-1">{errors.labour_hours_per_cubicft.message}</p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-slate-900 mb-1">
-              Balance Due Days Before Move
-            </label>
-            <input
-              type="number"
-              step="1"
-              {...register('balance_due_days_before_move', { valueAsNumber: true })}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-            />
-            {errors.balance_due_days_before_move && (
-              <p className="text-sm text-red-600 mt-1">
-                {errors.balance_due_days_before_move.message}
-              </p>
             )}
           </div>
         </div>
