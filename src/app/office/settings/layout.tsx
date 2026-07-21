@@ -3,6 +3,8 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import { createClient } from '@/lib/supabase/client'
+import { useEffect, useState } from 'react'
 
 export default function SettingsLayout({
   children,
@@ -10,10 +12,22 @@ export default function SettingsLayout({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
+  const [isTenantAdmin, setIsTenantAdmin] = useState(false)
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user?.app_metadata?.tenant_role === 'tenant_admin') {
+        setIsTenantAdmin(true)
+      }
+    })
+  }, [])
 
   const navItems = [
     { name: 'Inventory Catalog', href: '/office/settings/inventory' },
-    // Later: { name: 'Pricing', href: '/office/settings/pricing' }
+    { name: 'Branding', href: '/office/settings/branding' },
+    { name: 'Pricing', href: '/office/settings/pricing' },
+    ...(isTenantAdmin ? [{ name: 'Staff', href: '/office/settings/staff' }] : []),
   ]
 
   return (
