@@ -1,5 +1,6 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { MapPin, Calendar, Clock, GripVertical } from 'lucide-react'
@@ -43,6 +44,7 @@ function AddressPreview({ leadId, type }: { leadId: string; type: 'origin' | 'de
 }
 
 export function LeadCard({ lead, isDragOverlay = false, isPending = false }: LeadCardProps) {
+  const router = useRouter()
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: lead.id,
   })
@@ -50,6 +52,10 @@ export function LeadCard({ lead, isDragOverlay = false, isPending = false }: Lea
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
+  }
+
+  const handleCardClick = () => {
+    router.push(`/office/leads/${lead.id}`)
   }
 
   const staleThresholdDays = 14
@@ -62,13 +68,14 @@ export function LeadCard({ lead, isDragOverlay = false, isPending = false }: Lea
     <div
       ref={setNodeRef}
       style={style}
+      onClick={handleCardClick}
       className={[
         'group relative bg-white rounded-lg border px-3 py-3 select-none',
-        'transition-all duration-150',
+        'transition-all duration-150 cursor-pointer',
         isDragging && !isDragOverlay
           ? 'opacity-40 scale-95 border-dashed border-slate-300 shadow-none'
           : 'border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5',
-        isDragOverlay ? 'rotate-1 shadow-xl ring-2 ring-indigo-400/40 cursor-grabbing' : 'cursor-grab',
+        isDragOverlay ? 'rotate-1 shadow-xl ring-2 ring-indigo-400/40' : '',
         isPending ? 'pointer-events-none opacity-70' : '',
       ].join(' ')}
     >
