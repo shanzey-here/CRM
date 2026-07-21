@@ -7,7 +7,7 @@ import { updateContactSchema, UpdateContactInput } from '@/modules/clients/schem
 import { Contact } from '@/modules/clients/server/repository'
 import { updateContactAction } from '../../actions'
 
-import { Button } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -19,6 +19,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Loader2, Edit2 } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 export function EditContactForm({ contact }: { contact: Contact }) {
   const [open, setOpen] = useState(false)
@@ -64,11 +65,8 @@ export function EditContactForm({ contact }: { contact: Contact }) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      {/* @ts-expect-error Radix UI type mismatch with React 19 */}
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-2">
-          <Edit2 className="h-4 w-4" /> Edit Profile
-        </Button>
+      <DialogTrigger className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'gap-2')}>
+        <Edit2 className="h-4 w-4" /> Edit Profile
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>

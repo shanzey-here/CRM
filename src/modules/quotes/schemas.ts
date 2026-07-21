@@ -10,7 +10,7 @@ export type InsertQuoteInput = z.infer<typeof insertQuoteSchema>
 
 export const quoteInventoryItemSchema = z.object({
   inventory_item_id: z.string().uuid(),
-  room: z.enum(ROOMS),
+  room: z.enum(INVENTORY_ROOMS),
   quantity: z.coerce.number().int().positive(),
   item_name: z.string().min(1, 'Item name is required'),
   volume: z.coerce.number().positive(), // This is the base volume of the item

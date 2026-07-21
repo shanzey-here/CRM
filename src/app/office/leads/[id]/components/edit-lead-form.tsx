@@ -7,7 +7,7 @@ import { updateLeadDetailsSchema, UpdateLeadDetailsInput } from '@/modules/leads
 import { Lead } from '@/modules/leads/server/repository'
 import { updateLeadDetailsAction } from '../../actions'
 
-import { Button } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -19,6 +19,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Loader2, Edit2 } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 export function EditLeadForm({ lead }: { lead: Lead }) {
   const [open, setOpen] = useState(false)
@@ -56,11 +57,8 @@ export function EditLeadForm({ lead }: { lead: Lead }) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      {/* @ts-expect-error Radix UI type mismatch with React 19 */}
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-2">
-          <Edit2 className="h-4 w-4" /> Edit Details
-        </Button>
+      <DialogTrigger className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'gap-2')}>
+        <Edit2 className="h-4 w-4" /> Edit Details
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
