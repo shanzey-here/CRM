@@ -49,13 +49,31 @@ export default async function OfficeLayout({ children }: { children: React.React
     redirect('/office/settings/billing?restricted=true')
   }
 
-  // 4. Layout Render
+  // 4. Banner Logic
+  let trialDaysRemaining = null
+  if (subStatus === 'trialing' && subscription?.current_period_end) {
+    const { differenceInDays } = await import('date-fns')
+    const days = differenceInDays(new Date(subscription.current_period_end), new Date())
+    if (days >= 0 && days <= 3) {
+      trialDaysRemaining = days
+    }
+  }
+
+  // 5. Layout Render
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
       {subStatus === 'past_due' && (
         <div className="bg-amber-600 px-4 py-3 text-white text-sm font-medium text-center shadow-inner">
           Your last payment failed. Please update your billing information to avoid service interruption.{' '}
           <Link href="/office/settings/billing" className="underline hover:text-amber-100">
+            Manage Billing
+          </Link>
+        </div>
+      )}
+      {trialDaysRemaining !== null && (
+        <div className="bg-amber-500 px-4 py-3 text-amber-950 text-sm font-medium text-center shadow-inner">
+          Your free trial expires in {trialDaysRemaining === 0 ? 'less than a day' : `${trialDaysRemaining} days`}. Please update your billing information to avoid service interruption.{' '}
+          <Link href="/office/settings/billing" className="underline hover:text-amber-950 font-bold">
             Manage Billing
           </Link>
         </div>
