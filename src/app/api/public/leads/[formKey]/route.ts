@@ -110,7 +110,18 @@ export async function POST(request: NextRequest, context: { params: Promise<{ fo
     return jsonResponse({ success: true, message: 'Thank you — we will be in touch shortly.' }, 200)
   }
 
-  // 4. Find-or-create the contact within the resolved tenant, deduped by
+  // 4. Check max_leads usage limit for this tenant.
+  // We use the service_role client to perform the count bypass because this
+  // is an unauthenticated endpoint.
+  const { checkTenantLimit } = await import('@/modules/subscriptions/server/entitlements')
+  const limitCheck = await checkTenantLimit(supabase, tenantId, 'max_leads')
+  if (!limitCheck.allowed) {
+    await supabase.from('public_lead_submission_log').insert({ tenant_id: tenantId, ip_address: ip, outcome: 'rate_limited' })
+    // The generic error explicitly prevents leaking that the tenant is out of quota.
+    return genericError(403, 'This provider is currently unable to accept new inquiries.')
+  }
+
+  // 5. Find-or-create the contact within the resolved tenant, deduped by
   // email. KNOWN LIMITATION: this is a SELECT-then-INSERT with no unique
   // constraint on contacts.email, so two near-simultaneous submissions with
   // the same email could race and create two contacts. Acceptable for

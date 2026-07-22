@@ -28,3 +28,45 @@ export async function getTenantEntitlements(
 
   return entitlements && typeof entitlements === 'object' ? entitlements : {}
 }
+
+export type LimitKey = 'max_users' | 'max_leads'
+
+export async function checkTenantLimit(
+  supabase: SupabaseClient<Database>,
+  tenantId: string,
+  limitKey: LimitKey
+): Promise<{ allowed: boolean; limit: number | null; current: number }> {
+  const entitlements = await getTenantEntitlements(supabase, tenantId)
+  const limitValue = entitlements[limitKey]
+
+  // If no limit is defined on the plan, allow by default
+  if (typeof limitValue !== 'number') {
+    return { allowed: true, limit: null, current: 0 }
+  }
+
+  let current = 0
+
+  if (limitKey === 'max_users') {
+    // Only count active users (exclude deactivated staff so they aren't stuck at a historical high-water mark)
+    const { count } = await supabase
+      .from('users')
+      .select('id', { count: 'exact', head: true })
+      .eq('tenant_id', tenantId)
+      .eq('is_active', true)
+    current = count ?? 0
+  } else if (limitKey === 'max_leads') {
+    // Exclude archived leads
+    const { count } = await supabase
+      .from('leads')
+      .select('id', { count: 'exact', head: true })
+      .eq('tenant_id', tenantId)
+      .eq('is_archived', false)
+    current = count ?? 0
+  }
+
+  return {
+    allowed: current < limitValue,
+    limit: limitValue,
+    current
+  }
+}

@@ -29,9 +29,37 @@ export default async function OfficeLayout({ children }: { children: React.React
     redirect('/login?error=unauthorized_role')
   }
 
-  // 3. Layout Render
+  // 3. Subscription Status Gating
+  // We explicitly exempt /office/settings/billing from the hard block so they
+  // can fix their suspended/cancelled account. (Note: server actions don't run
+  // through layout.tsx, but UI navigation does).
+  // Also, super_admin is already redirected out (they don't see /office), so
+  // this is safely scoped to tenant staff.
+  const { headers } = await import('next/headers')
+  const headersList = await headers()
+  const currentPath = headersList.get('x-invoke-path') || ''
+  
+  const { getTenantSubscription } = await import('@/modules/subscriptions/server/repository')
+  const subscription = await getTenantSubscription(supabase, tenantId)
+  const subStatus = subscription?.status ?? 'active'
+
+  const isBillingPage = currentPath.startsWith('/office/settings/billing')
+
+  if (!isBillingPage && (subStatus === 'cancelled' || subStatus === 'suspended' || subStatus === 'unpaid')) {
+    redirect('/office/settings/billing?restricted=true')
+  }
+
+  // 4. Layout Render
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
+      {subStatus === 'past_due' && (
+        <div className="bg-amber-600 px-4 py-3 text-white text-sm font-medium text-center shadow-inner">
+          Your last payment failed. Please update your billing information to avoid service interruption.{' '}
+          <Link href="/office/settings/billing" className="underline hover:text-amber-100">
+            Manage Billing
+          </Link>
+        </div>
+      )}
       <header className="bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
