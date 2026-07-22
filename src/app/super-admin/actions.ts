@@ -1,7 +1,9 @@
 ﻿'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { revalidatePath } from 'next/cache'
+import { stripe } from '@/modules/payments/server/stripe'
 
 export async function getTenants() {
   const supabase = await createClient()
@@ -66,9 +68,12 @@ export async function createTenant(formData: FormData) {
   }
 
   // 4. Insert New Tenant
+  // status now lives on tenant_subscriptions (migration 00037), not tenants —
+  // provision_tenant_defaults_trigger auto-provisions the trial subscription
+  // row on insert (migration 00040).
   const { error: insertError } = await supabase
     .from('tenants')
-    .insert([{ name: name.trim(), slug: slug.trim(), status: 'active' }])
+    .insert([{ name: name.trim(), slug: slug.trim() }])
 
   if (insertError) {
     return { error: `Failed to create tenant: ${insertError.message}` }
@@ -77,4 +82,100 @@ export async function createTenant(formData: FormData) {
   // 5. Revalidate
   revalidatePath('/super-admin')
   return { success: true }
+}
+
+// Reads the platform's Stripe Products/Prices and upserts them into
+// saas_plans/saas_prices, keyed on the Stripe ids. Upsert, not insert-only —
+// re-running after editing a price in the Dashboard updates the local row.
+// Deliberately does NOT touch saas_plans.entitlements on update: entitlements
+// are manually curated after first sync (Stripe metadata strings don't map
+// cleanly to structured jsonb), so a fresh plan gets entitlements: {} and a
+// super-admin fills it in; every later sync leaves that column alone.
+export async function syncStripePlans() {
+  const supabase = await createClient()
+
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user || user.app_metadata.is_super_admin !== true) {
+    throw new Error('Unauthorized: Super Admin access required')
+  }
+
+  const serviceClient = createServiceRoleClient()
+
+  const products = await stripe.products.list({ active: true, limit: 100 })
+  const prices = await stripe.prices.list({ active: true, limit: 100 })
+
+  let plansSynced = 0
+  let pricesSynced = 0
+  const skipped: string[] = []
+
+  for (const product of products.data) {
+    // Payload deliberately omits `entitlements` — see function comment above.
+    const { error } = await serviceClient
+      .from('saas_plans')
+      .upsert(
+        {
+          stripe_product_id: product.id,
+          name: product.name,
+          description: product.description,
+          is_active: product.active,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: 'stripe_product_id' }
+      )
+
+    if (error) {
+      skipped.push(`Plan "${product.name}" (${product.id}): ${error.message}`)
+      continue
+    }
+    plansSynced++
+  }
+
+  for (const price of prices.data) {
+    if (!price.recurring) {
+      skipped.push(`Price ${price.id}: not a recurring price, skipped (subscriptions only)`)
+      continue
+    }
+
+    if (price.recurring.interval !== 'month' && price.recurring.interval !== 'year') {
+      skipped.push(`Price ${price.id}: unsupported interval "${price.recurring.interval}" (only month/year), skipped`)
+      continue
+    }
+
+    const productId = typeof price.product === 'string' ? price.product : price.product.id
+
+    const { data: plan, error: planLookupError } = await serviceClient
+      .from('saas_plans')
+      .select('id')
+      .eq('stripe_product_id', productId)
+      .maybeSingle()
+
+    if (planLookupError || !plan) {
+      skipped.push(`Price ${price.id}: no synced plan for product ${productId}`)
+      continue
+    }
+
+    const { error } = await serviceClient
+      .from('saas_prices')
+      .upsert(
+        {
+          stripe_price_id: price.id,
+          plan_id: plan.id,
+          unit_amount: price.unit_amount,
+          currency: price.currency,
+          interval: price.recurring.interval,
+          is_active: price.active,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: 'stripe_price_id' }
+      )
+
+    if (error) {
+      skipped.push(`Price ${price.id}: ${error.message}`)
+      continue
+    }
+    pricesSynced++
+  }
+
+  revalidatePath('/super-admin')
+  return { success: true, plansSynced, pricesSynced, skipped }
 }

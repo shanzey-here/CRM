@@ -2,6 +2,7 @@
 import { redirect } from 'next/navigation'
 import { TenantList } from './components/tenant-list'
 import { CreateTenantDialog } from './components/create-tenant-dialog'
+import { SyncStripePlansButton } from './components/sync-stripe-plans-button'
 
 export default async function SuperAdminDashboard() {
   const supabase = await createClient()
@@ -22,7 +23,8 @@ export default async function SuperAdminDashboard() {
             <h1 className="text-3xl font-bold tracking-tight text-white">Platform Tenants</h1>
             <p className="text-slate-400 mt-1">Manage and oversee all workspaces in the system.</p>
           </div>
-          <div className="shrink-0">
+          <div className="shrink-0 flex items-center gap-3">
+            <SyncStripePlansButton />
             <CreateTenantDialog />
           </div>
         </div>
