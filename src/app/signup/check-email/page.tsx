@@ -1,7 +1,8 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { CheckCircle2 } from 'lucide-react'
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 export default function CheckEmailPage() {
   return (
@@ -37,9 +38,9 @@ export default function CheckEmailPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button asChild variant="outline" className="w-full">
-              <Link href="/login">Return to login</Link>
-            </Button>
+            <Link href="/login" className={cn(buttonVariants({ variant: 'outline' }), "w-full")}>
+              Return to login
+            </Link>
           </CardContent>
         </Card>
       </div>

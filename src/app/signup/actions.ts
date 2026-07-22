@@ -111,6 +111,21 @@ export async function signup(data: SignupInput) {
     return { success: false, error: 'Failed to finalize account setup. Please try again.' }
   }
 
+  // 6. Explicitly send the signup confirmation email
+  // admin.createUser with email_confirm: false creates the user but does NOT send the email natively.
+  // We must trigger it.
+  const { error: resendErr } = await supabase.auth.resend({
+    type: 'signup',
+    email: email
+  })
+
+  if (resendErr) {
+    console.error('Failed to send confirmation email:', resendErr)
+    // We do NOT rollback here, the user is created and they can request a new email from the login page,
+    // but we log it.
+    await supabase.from('public_signup_log').insert({ ip_address: ip, outcome: 'email_send_failed' })
+  }
+
   // Log success
   await supabase.from('public_signup_log').insert({ ip_address: ip, outcome: 'success', tenant_id: newTenant.id })
 
