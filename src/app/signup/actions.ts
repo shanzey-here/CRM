@@ -4,6 +4,7 @@ import { headers } from 'next/headers'
 import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { signupSchema, type SignupInput } from './schemas'
 import { randomBytes } from 'crypto'
+import { provisionTenant } from '@/modules/tenants/server/provisioning'
 
 const RATE_LIMIT_WINDOW_MINUTES = 10
 const RATE_LIMIT_PER_IP = 3
@@ -19,8 +20,7 @@ export async function signup(data: SignupInput) {
 
   const { companyName, fullName, email, password } = parsed.data
 
-  // 1. Rate Limiting by IP (reusing leads-api pattern)
-  // We use a dedicated table 'public_signup_log' to track attempts.
+  // 1. Rate Limiting by IP
   const headersList = await headers()
   let ip = headersList.get('x-forwarded-for')?.split(',')[0]?.trim() || headersList.get('x-real-ip') || 'unknown'
   
@@ -42,92 +42,39 @@ export async function signup(data: SignupInput) {
   const randomSuffix = randomBytes(3).toString('hex') // 6 random chars
   const slug = `${baseSlug}-${randomSuffix}`
 
-  // 3. Create Tenant
-  // This fires triggers that provision tenant_settings, pricing_settings, and a trial subscription.
-  const { data: newTenant, error: tenantErr } = await supabase
-    .from('tenants')
-    .insert({
-      name: companyName,
-      slug: slug,
-      base_currency: 'USD'
-    })
-    .select()
-    .single()
-
-  if (tenantErr || !newTenant) {
-    await supabase.from('public_signup_log').insert({ ip_address: ip, outcome: 'tenant_creation_failed' })
-    return { success: false, error: 'Failed to create workspace. Please try again.' }
-  }
-
-  // 4. Create Auth User
-  const { data: authData, error: authErr } = await supabase.auth.admin.createUser({
-    email,
-    password,
-    email_confirm: false, // Force email verification to prevent bot abuse
-    user_metadata: { full_name: fullName },
-    app_metadata: {
-      tenant_id: newTenant.id,
-      tenant_role: 'tenant_admin'
-    }
+  // 3. Provision Tenant (Shared Orchestration)
+  const result = await provisionTenant({
+    companyName,
+    slug,
+    adminEmail: email,
+    adminFullName: fullName,
+    adminPassword: password,
+    requireEmailConfirmation: true
   })
 
-  // Duplicate email check
-  if (authErr) {
-    // Clean up the tenant we just created
-    await supabase.from('tenants').delete().eq('id', newTenant.id)
-    await supabase.from('public_signup_log').insert({ ip_address: ip, outcome: 'auth_creation_failed' })
-    
-    if (authErr.message.toLowerCase().includes('already registered') || authErr.message.toLowerCase().includes('already exists')) {
-      return { success: false, error: 'account_exists' } // Specific code for UI to handle
-    }
-    return { success: false, error: `Failed to create account: ${authErr.message}` }
-  }
-
-  const authUser = authData.user
-
-  if (!authUser) {
-    await supabase.from('tenants').delete().eq('id', newTenant.id)
-    await supabase.from('public_signup_log').insert({ ip_address: ip, outcome: 'auth_creation_failed_no_user' })
-    return { success: false, error: 'Failed to create account' }
-  }
-
-  // 5. Create Public User Record
-  const { error: publicUserErr } = await supabase
-    .from('users')
-    .insert({
-      id: authUser.id,
-      tenant_id: newTenant.id,
-      role: 'tenant_admin',
-      full_name: fullName,
-      email: email,
-      is_active: true
+  if (!result.success) {
+    await supabase.from('public_signup_log').insert({ 
+      ip_address: ip, 
+      outcome: result.errorCode === 'account_exists' ? 'account_exists' : 'provisioning_failed' 
     })
-
-  if (publicUserErr) {
-    // Rollback BOTH the auth user and the tenant
-    await supabase.auth.admin.deleteUser(authUser.id)
-    await supabase.from('tenants').delete().eq('id', newTenant.id)
-    await supabase.from('public_signup_log').insert({ ip_address: ip, outcome: 'public_user_creation_failed' })
-    return { success: false, error: 'Failed to finalize account setup. Please try again.' }
+    return { success: false, error: result.error }
   }
 
-  // 6. Explicitly send the signup confirmation email
-  // admin.createUser with email_confirm: false creates the user but does NOT send the email natively.
-  // We must trigger it.
+  // 4. Explicitly send the signup confirmation email
+  // provisionTenant with requireEmailConfirmation: true creates the user with email_confirm: false
+  // but does NOT send the email natively via admin.createUser. We must trigger it.
   const { error: resendErr } = await supabase.auth.resend({
     type: 'signup',
     email: email
   })
 
   if (resendErr) {
-    console.error('Failed to send confirmation email:', resendErr)
-    // We do NOT rollback here, the user is created and they can request a new email from the login page,
-    // but we log it.
+    console.error('[Signup Action] Failed to send confirmation email:', resendErr)
     await supabase.from('public_signup_log').insert({ ip_address: ip, outcome: 'email_send_failed' })
   }
 
   // Log success
-  await supabase.from('public_signup_log').insert({ ip_address: ip, outcome: 'success', tenant_id: newTenant.id })
+  await supabase.from('public_signup_log').insert({ ip_address: ip, outcome: 'success', tenant_id: result.tenantId })
 
   return { success: true }
 }
