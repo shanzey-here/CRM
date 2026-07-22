@@ -41,7 +41,7 @@ export async function updateSession(request: NextRequest) {
   // /api/public is the public, unauthenticated lead-capture endpoint.
   // /proposal is the public proposal page (non-guessable token-based access).
   // Both enforce their own tenant resolution in code instead of relying on session.
-  const isPublicPath = path.startsWith('/login') || path.startsWith('/auth') || path === '/' || path.startsWith('/api/public') || path.startsWith('/api/webhooks') || path.startsWith('/proposal')
+  const isPublicPath = path.startsWith('/login') || path.startsWith('/signup') || path.startsWith('/auth') || path === '/' || path.startsWith('/api/public') || path.startsWith('/api/webhooks') || path.startsWith('/proposal')
 
   // Redirect unauthenticated users trying to access protected paths
   if (!user && !isPublicPath) {

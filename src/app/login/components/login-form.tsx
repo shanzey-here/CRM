@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState } from 'react'
 import { login } from '../actions'
@@ -61,10 +61,16 @@ export function LoginForm() {
             />
           </div>
         </CardContent>
-        <CardFooter>
+        <CardFooter className="flex flex-col gap-4">
           <Button className="w-full font-semibold" type="submit" disabled={loading}>
             {loading ? 'Signing in...' : 'Sign in'}
           </Button>
+          <div className="text-sm text-muted-foreground text-center">
+            Don&apos;t have an account?{' '}
+            <a href="/signup" className="text-primary font-medium hover:underline">
+              Sign up
+            </a>
+          </div>
         </CardFooter>
       </form>
     </Card>
