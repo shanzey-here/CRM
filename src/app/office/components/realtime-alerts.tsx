@@ -29,8 +29,10 @@ export function RealtimeAlerts({ tenantId }: { tenantId: string }) {
       console.log('[RealtimeAlerts] JWT set on Realtime connection')
 
       // 2. Subscribe to leads table specifically for this tenant
+      // We append a random string to the channel name to avoid a known race condition in React Strict Mode
+      // where `supabase.channel()` returns an already-subscribing instance before cleanup completes.
       channel = supabase
-        .channel('leads-inquiries-channel')
+        .channel(`leads-inquiries-${tenantId}-${Math.random().toString(36).substring(7)}`)
         .on(
           'postgres_changes',
           {
