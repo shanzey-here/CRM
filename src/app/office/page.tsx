@@ -10,6 +10,7 @@ import { ErrorBoundary } from 'react-error-boundary'
 import { format } from 'date-fns'
 
 import { WidgetError } from './components/widget-error'
+import { OnboardingReminderBanner } from './components/onboarding-reminder-banner'
 
 export const dynamic = 'force-dynamic'
 
@@ -143,6 +144,24 @@ export default async function OfficeDashboard() {
   const tenantId = user.app_metadata?.tenant_id
   if (!tenantId) redirect('/login')
 
+  const role = user.app_metadata.tenant_role
+
+  // Handle Onboarding logic for tenant_admins
+  let showOnboardingReminder = false
+  if (role === 'tenant_admin') {
+    const { data: settings } = await supabase
+      .from('tenant_settings')
+      .select('onboarding_state')
+      .eq('tenant_id', tenantId)
+      .single()
+      
+    if (settings?.onboarding_state === 'pending') {
+      redirect('/office/onboarding')
+    } else if (settings?.onboarding_state === 'skipped') {
+      showOnboardingReminder = true
+    }
+  }
+
   // Use Service Role to safely bypass RLS since the auth hook fails to stamp JWT
   const adminSupabase = createAdminClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -150,8 +169,10 @@ export default async function OfficeDashboard() {
   )
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      {showOnboardingReminder && <OnboardingReminderBanner />}
+      
+      <div className="mb-2">
         <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
         <p className="text-slate-500 text-sm mt-1">Overview of your operations and pending actions. (RLS Bypass Active)</p>
       </div>
