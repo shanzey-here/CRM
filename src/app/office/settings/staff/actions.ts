@@ -42,6 +42,12 @@ export async function inviteStaffAction(formData: FormData) {
     return { error: `Validation error: ${parsed.error.errors[0]?.message || 'Invalid input'}` }
   }
 
+  const { checkTenantLimit } = await import('@/modules/subscriptions/server/entitlements')
+  const limitCheck = await checkTenantLimit(supabase, tenantId, 'max_users')
+  if (!limitCheck.allowed) {
+    return { error: `You've reached your plan's limit of ${limitCheck.limit} users. Upgrade to add more.` }
+  }
+
   const result = await inviteStaff(tenantId, parsed.data)
 
   if (!result.success) {
