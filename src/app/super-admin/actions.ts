@@ -1,4 +1,4 @@
-﻿'use server'
+'use server'
 
 import { createClient } from '@/lib/supabase/server'
 import { createServiceRoleClient } from '@/lib/supabase/service-role'
@@ -39,16 +39,15 @@ export async function createTenant(formData: FormData) {
   // 2. Validation
   const name = formData.get('name') as string
   const slug = formData.get('slug') as string
+  const adminEmail = formData.get('adminEmail') as string
+  const adminFullName = formData.get('adminFullName') as string
 
-  if (!name || name.trim() === '') {
-    return { error: 'Name is required' }
-  }
-  
-  if (!slug || slug.trim() === '') {
-    return { error: 'Slug is required' }
-  }
+  if (!name || name.trim() === '') return { error: 'Name is required' }
+  if (!slug || slug.trim() === '') return { error: 'Slug is required' }
+  if (!adminEmail || adminEmail.trim() === '') return { error: 'Admin Email is required' }
+  if (!adminFullName || adminFullName.trim() === '') return { error: 'Admin Full Name is required' }
 
-  // Basic slug format validation (alphanumeric and hyphens only)
+  // Basic slug format validation
   if (!/^[a-z0-9-]+$/.test(slug)) {
     return { error: 'Slug can only contain lowercase letters, numbers, and hyphens' }
   }
@@ -67,21 +66,26 @@ export async function createTenant(formData: FormData) {
     return { error: 'Failed to validate slug uniqueness' }
   }
 
-  // 4. Insert New Tenant
-  // status now lives on tenant_subscriptions (migration 00037), not tenants —
-  // provision_tenant_defaults_trigger auto-provisions the trial subscription
-  // row on insert (migration 00040).
-  const { error: insertError } = await supabase
-    .from('tenants')
-    .insert([{ name: name.trim(), slug: slug.trim() }])
+  // 4. Provision Tenant (Shared Orchestration)
+  // We do NOT require email confirmation for super-admin created tenants, 
+  // as it is an inherently trusted action.
+  const { provisionTenant } = await import('@/modules/tenants/server/provisioning')
+  
+  const result = await provisionTenant({
+    companyName: name.trim(),
+    slug: slug.trim(),
+    adminEmail: adminEmail.trim(),
+    adminFullName: adminFullName.trim(),
+    requireEmailConfirmation: false 
+  })
 
-  if (insertError) {
-    return { error: `Failed to create tenant: ${insertError.message}` }
+  if (!result.success) {
+    return { error: result.error || 'Provisioning failed' }
   }
 
   // 5. Revalidate
   revalidatePath('/super-admin')
-  return { success: true }
+  return { success: true, generatedPassword: result.generatedPassword }
 }
 
 // Reads the platform's Stripe Products/Prices and upserts them into
