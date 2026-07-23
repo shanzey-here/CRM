@@ -45,7 +45,7 @@ export default async function OfficeLayout({ children }: { children: React.React
 
   const isBillingPage = currentPath.startsWith('/office/settings/billing')
 
-  if (!isBillingPage && (subStatus === 'cancelled' || subStatus === 'suspended' || subStatus === 'unpaid')) {
+  if (!isBillingPage && (subStatus === 'cancelled' || subStatus === 'suspended' || subscription?.manually_suspended)) {
     redirect('/office/settings/billing?restricted=true')
   }
 
