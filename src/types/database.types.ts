@@ -364,6 +364,7 @@ export type Database = {
           direction: Database["public"]["Enums"]["email_direction"]
           from_address: string
           id: string
+          mailbox_id: string | null
           occurred_at: string | null
           received_at: string | null
           requires_approval: boolean
@@ -381,6 +382,7 @@ export type Database = {
           direction: Database["public"]["Enums"]["email_direction"]
           from_address: string
           id?: string
+          mailbox_id?: string | null
           occurred_at?: string | null
           received_at?: string | null
           requires_approval?: boolean
@@ -398,6 +400,7 @@ export type Database = {
           direction?: Database["public"]["Enums"]["email_direction"]
           from_address?: string
           id?: string
+          mailbox_id?: string | null
           occurred_at?: string | null
           received_at?: string | null
           requires_approval?: boolean
@@ -408,6 +411,13 @@ export type Database = {
           to_addresses?: string[] | null
         }
         Relationships: [
+          {
+            foreignKeyName: "email_messages_mailbox_fk"
+            columns: ["mailbox_id", "tenant_id"]
+            isOneToOne: false
+            referencedRelation: "mailboxes"
+            referencedColumns: ["id", "tenant_id"]
+          },
           {
             foreignKeyName: "email_messages_tenant_id_fkey"
             columns: ["tenant_id"]
@@ -433,6 +443,7 @@ export type Database = {
           lead_id: string | null
           mailbox_id: string
           participant_addresses: string[] | null
+          provider_thread_id: string | null
           subject: string | null
           tenant_id: string
         }
@@ -444,6 +455,7 @@ export type Database = {
           lead_id?: string | null
           mailbox_id: string
           participant_addresses?: string[] | null
+          provider_thread_id?: string | null
           subject?: string | null
           tenant_id: string
         }
@@ -455,6 +467,7 @@ export type Database = {
           lead_id?: string | null
           mailbox_id?: string
           participant_addresses?: string[] | null
+          provider_thread_id?: string | null
           subject?: string | null
           tenant_id?: string
         }
@@ -1004,14 +1017,36 @@ export type Database = {
           },
         ]
       }
+      mailbox_sync_lock: {
+        Row: {
+          id: boolean
+          is_running: boolean
+          started_at: string | null
+        }
+        Insert: {
+          id?: boolean
+          is_running?: boolean
+          started_at?: string | null
+        }
+        Update: {
+          id?: boolean
+          is_running?: boolean
+          started_at?: string | null
+        }
+        Relationships: []
+      }
       mailboxes: {
         Row: {
           connection_method: Database["public"]["Enums"]["mailbox_connection_method"]
           created_at: string
           encrypted_credential: string | null
           id: string
+          imap_host: string | null
+          imap_port: number | null
           is_active: boolean
+          last_sync_error: string | null
           last_synced_at: string | null
+          mailbox_address: string | null
           provider: Database["public"]["Enums"]["mailbox_provider"]
           tenant_id: string
           updated_at: string | null
@@ -1021,8 +1056,12 @@ export type Database = {
           created_at?: string
           encrypted_credential?: string | null
           id?: string
+          imap_host?: string | null
+          imap_port?: number | null
           is_active?: boolean
+          last_sync_error?: string | null
           last_synced_at?: string | null
+          mailbox_address?: string | null
           provider: Database["public"]["Enums"]["mailbox_provider"]
           tenant_id: string
           updated_at?: string | null
@@ -1032,8 +1071,12 @@ export type Database = {
           created_at?: string
           encrypted_credential?: string | null
           id?: string
+          imap_host?: string | null
+          imap_port?: number | null
           is_active?: boolean
+          last_sync_error?: string | null
           last_synced_at?: string | null
+          mailbox_address?: string | null
           provider?: Database["public"]["Enums"]["mailbox_provider"]
           tenant_id?: string
           updated_at?: string | null
