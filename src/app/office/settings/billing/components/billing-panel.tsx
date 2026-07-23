@@ -22,6 +22,7 @@ type SaasPlan = {
 
 type TenantSubscription = {
   status: string
+  manually_suspended?: boolean | null
   current_period_end: string | null
   cancel_at_period_end: boolean | null
   saas_prices: {
@@ -39,7 +40,14 @@ function formatMoney(amount: number | null, currency: string | null) {
   return new Intl.NumberFormat('en-GB', { style: 'currency', currency: (currency ?? 'usd').toUpperCase() }).format(amount / 100)
 }
 
-function StatusBadge({ status }: { status: string }) {
+function StatusBadge({ status, manuallySuspended }: { status: string, manuallySuspended?: boolean | null }) {
+  if (manuallySuspended) {
+    return (
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border bg-red-50 text-red-700 border-red-200">
+        suspended (manual)
+      </span>
+    )
+  }
   const styles: Record<string, string> = {
     trialing: 'bg-blue-50 text-blue-700 border-blue-200',
     active: 'bg-emerald-50 text-emerald-700 border-emerald-200',
@@ -66,6 +74,7 @@ export function BillingPanel({
   const [loadingAction, setLoadingAction] = useState<string | null>(null)
 
   const isActivelyPaid = subscription?.status === 'active'
+  const isManuallySuspended = !!subscription?.manually_suspended
 
   function handleCheckout(priceId: string) {
     setError(null)
@@ -101,6 +110,12 @@ export function BillingPanel({
         <div className="p-4 bg-red-50 border border-red-200 rounded text-red-700 text-sm">{error}</div>
       )}
 
+      {isManuallySuspended && (
+        <div className="p-4 bg-red-50 border border-red-200 rounded text-red-700 text-sm font-medium">
+          Your account has been suspended by a platform administrator. Please contact support.
+        </div>
+      )}
+
       {/* Current subscription */}
       <div className="bg-white rounded-lg border border-slate-200 p-6 space-y-4">
         <h3 className="text-lg font-semibold text-slate-900">Current Plan</h3>
@@ -108,7 +123,7 @@ export function BillingPanel({
         {subscription ? (
           <div className="space-y-3">
             <div className="flex items-center gap-3">
-              <StatusBadge status={subscription.status} />
+              <StatusBadge status={subscription.status} manuallySuspended={subscription.manually_suspended} />
               {subscription.saas_prices?.saas_plans?.name && (
                 <span className="text-sm font-medium text-slate-900">
                   {subscription.saas_prices.saas_plans.name}
@@ -139,18 +154,20 @@ export function BillingPanel({
           <p className="text-sm text-slate-500">No subscription found.</p>
         )}
 
-        <button
-          onClick={handlePortal}
-          disabled={isPending}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 disabled:opacity-50 transition-colors"
-        >
-          {loadingAction === 'portal' ? <Loader2 className="h-4 w-4 animate-spin" /> : <ExternalLink className="h-4 w-4" />}
-          Manage Billing
-        </button>
+        {!isManuallySuspended && (
+          <button
+            onClick={handlePortal}
+            disabled={isPending}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 disabled:opacity-50 transition-colors"
+          >
+            {loadingAction === 'portal' ? <Loader2 className="h-4 w-4 animate-spin" /> : <ExternalLink className="h-4 w-4" />}
+            Manage Billing
+          </button>
+        )}
       </div>
 
       {/* Plan picker — shown whenever the tenant isn't on an active paid plan */}
-      {!isActivelyPaid && plans.length > 0 && (
+      {!isActivelyPaid && !isManuallySuspended && plans.length > 0 && (
         <div className="bg-white rounded-lg border border-slate-200 p-6 space-y-4">
           <h3 className="text-lg font-semibold text-slate-900">Choose a Plan</h3>
           <div className="space-y-3">

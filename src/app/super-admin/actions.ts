@@ -17,7 +17,7 @@ export async function getTenants() {
   // 2. Fetch Tenants
   const { data, error } = await supabase
     .from('tenants')
-    .select('*')
+    .select('*, tenant_subscriptions(*)')
     .order('created_at', { ascending: false })
 
   if (error) {
@@ -182,4 +182,49 @@ export async function syncStripePlans() {
 
   revalidatePath('/super-admin')
   return { success: true, plansSynced, pricesSynced, skipped }
+}
+
+export async function suspendTenantAction(tenantId: string, reason: string) {
+  const supabase = await createClient()
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user || user.app_metadata.is_super_admin !== true) {
+    throw new Error('Unauthorized: Super Admin access required')
+  }
+  if (!reason || reason.trim() === '') {
+    return { error: 'Suspension reason is required' }
+  }
+
+  const serviceClient = createServiceRoleClient()
+  const { error } = await serviceClient
+    .from('tenant_subscriptions')
+    .update({ manually_suspended: true, suspension_reason: reason.trim() })
+    .eq('tenant_id', tenantId)
+
+  if (error) {
+    return { error: `Failed to suspend tenant: ${error.message}` }
+  }
+
+  revalidatePath('/super-admin')
+  return { success: true }
+}
+
+export async function reactivateTenantAction(tenantId: string) {
+  const supabase = await createClient()
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user || user.app_metadata.is_super_admin !== true) {
+    throw new Error('Unauthorized: Super Admin access required')
+  }
+
+  const serviceClient = createServiceRoleClient()
+  const { error } = await serviceClient
+    .from('tenant_subscriptions')
+    .update({ manually_suspended: false, suspension_reason: null })
+    .eq('tenant_id', tenantId)
+
+  if (error) {
+    return { error: `Failed to reactivate tenant: ${error.message}` }
+  }
+
+  revalidatePath('/super-admin')
+  return { success: true }
 }
