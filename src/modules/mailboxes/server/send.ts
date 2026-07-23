@@ -49,7 +49,7 @@ export function buildOutboundMessage({
   return { raw: `${headers}\r\n\r\n${bodyText}`, messageId }
 }
 
-export type SendResult = { ok: true } | { ok: false; error: string; revoked?: boolean }
+export type SendResult = { ok: true; sourceMessageId?: string } | { ok: false; error: string; revoked?: boolean }
 
 async function sendViaGmail(
   serviceClient: SupabaseClient<Database>,
@@ -70,14 +70,33 @@ async function sendViaGmail(
   const gmail = getGmailClient(tokenResult.accessToken)
 
   try {
-    await gmail.users.messages.send({
+    const sent = await gmail.users.messages.send({
       userId: 'me',
       requestBody: {
         raw: Buffer.from(raw).toString('base64url'),
         threadId: gmailThreadId ?? undefined,
       },
     })
-    return { ok: true }
+
+    // Gmail rewrites the Message-ID header on the copy it actually stores —
+    // the value we generated in buildOutboundMessage() and put in `raw` is
+    // NOT what comes back on the next sync. If we record our own generated
+    // id as this message's source_message_id, the sync worker's dedup check
+    // (keyed on source_message_id) won't recognize the synced copy as the
+    // same message and will insert a duplicate row. Fetch the real header
+    // Gmail assigned so the local record matches what sync will see.
+    let sourceMessageId: string | undefined
+    if (sent.data.id) {
+      const meta = await gmail.users.messages.get({
+        userId: 'me',
+        id: sent.data.id,
+        format: 'metadata',
+        metadataHeaders: ['Message-ID'],
+      })
+      sourceMessageId = meta.data.payload?.headers?.find((h) => h.name?.toLowerCase() === 'message-id')?.value ?? undefined
+    }
+
+    return { ok: true, sourceMessageId }
   } catch (err: any) {
     return { ok: false, error: err?.response?.data?.error?.message || err?.message || 'Gmail send failed' }
   }

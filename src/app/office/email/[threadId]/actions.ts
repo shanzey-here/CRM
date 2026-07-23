@@ -38,15 +38,26 @@ export async function sendReplyAction(threadId: string, bodyText: string): Promi
 
   if (!bodyText.trim()) return { success: false, error: 'Reply cannot be empty' }
 
-  // Tenant-scoped reads via the caller's own authenticated client.
+  // Tenant-scoped reads via the caller's own authenticated client. The
+  // mailboxes join deliberately lists only the columns `authenticated` is
+  // actually granted (00046/00051/00053) — encrypted_credential is excluded
+  // by a column-level GRANT allowlist, and selecting `( * )` here would fail
+  // the WHOLE query with "permission denied", not just omit that field.
+  // (Found this exact way, the hard way, testing this action for real.)
+  // Never needed here anyway: getDecryptedCredential() does its own
+  // separate service-role SELECT for the credential — this object's
+  // encrypted_credential is never read.
   const { data: thread, error: threadErr } = await supabase
     .from('email_threads')
-    .select('id, subject, participant_addresses, mailbox_id, provider_thread_id, mailboxes:mailbox_id ( * )')
+    .select(
+      `id, subject, participant_addresses, mailbox_id, provider_thread_id,
+       mailboxes ( id, tenant_id, provider, connection_method, mailbox_address, smtp_host, smtp_port, imap_host, imap_port )`
+    )
     .eq('id', threadId)
     .eq('tenant_id', tenantId)
     .single()
 
-  if (threadErr || !thread) return { success: false, error: 'Thread not found' }
+  if (threadErr || !thread) return { success: false, error: `Thread not found${threadErr ? `: ${threadErr.message}` : ''}` }
 
   const mailbox = thread.mailboxes as any
   if (!mailbox) return { success: false, error: 'This thread has no connected mailbox' }
@@ -104,12 +115,24 @@ export async function sendReplyAction(threadId: string, bodyText: string): Promi
     to_addresses: [toAddress],
     body_text: bodyText,
     sent_at: new Date().toISOString(),
-    source_message_id: messageId,
+    // Gmail rewrites the Message-ID header on send — sendViaGmail() fetches
+    // the real assigned header and returns it as sourceMessageId so this
+    // record matches what the sync worker's dedup check will see on the
+    // next sync. Falls back to our own generated id for SMTP sends, which
+    // preserve the client-supplied Message-ID as-is.
+    source_message_id: sendResult.sourceMessageId ?? messageId,
     authored_by: 'human' as const,
     requires_approval: false,
   }
 
   async function tryInsert() {
+    // Test-only seam, unset in every real environment: proves the
+    // send-succeeded-but-record-failed path deterministically, without
+    // which there's no reliable way to force this specific failure on
+    // demand (the send itself has already succeeded for real at this point).
+    if (process.env.SIMULATE_RECORD_FAILURE === 'true') {
+      return { data: null, error: { message: 'Simulated record failure for testing' } } as any
+    }
     return serviceClient
       .from('email_messages')
       .upsert(insertRow, { onConflict: 'tenant_id,mailbox_id,source_message_id', ignoreDuplicates: true })
@@ -173,10 +196,16 @@ export async function searchContactsAndLeadsAction(query: string) {
     .or(`first_name.ilike.%${query}%,last_name.ilike.%${query}%,email.ilike.%${query}%`)
     .limit(8)
 
+  // !inner forces an inner join so the embedded contacts columns are
+  // filterable via {foreignTable: 'contacts'} — plain `contacts(...)` (a
+  // left join) doesn't support filtering the embedded resource this way.
+  // Verified empirically against the real DB before relying on it, given
+  // the join-syntax mistake already found once in this same file.
   const { data: leads } = await supabase
     .from('leads')
-    .select('id, stage, contacts:contact_id ( first_name, last_name )')
+    .select('id, stage, contacts!inner ( first_name, last_name )')
     .eq('tenant_id', tenantId)
+    .or(`first_name.ilike.%${query}%,last_name.ilike.%${query}%`, { foreignTable: 'contacts' })
     .limit(8)
 
   return { contacts: contacts ?? [], leads: leads ?? [] }

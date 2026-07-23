@@ -30,8 +30,8 @@ export default async function EmailInboxPage({
     .from('email_threads')
     .select(
       `id, subject, participant_addresses, last_message_at, mailbox_id, contact_id, lead_id,
-       contacts:contact_id ( first_name, last_name ),
-       leads:lead_id ( contact_id, contacts:contact_id ( first_name, last_name ) )`
+       contacts ( first_name, last_name ),
+       leads ( contact_id, contacts ( first_name, last_name ) )`
     )
     .eq('tenant_id', tenantId)
     .order('last_message_at', { ascending: false, nullsFirst: false })
