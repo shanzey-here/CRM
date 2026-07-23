@@ -10,6 +10,8 @@ const imapConnectSchema = z.object({
   mailbox_address: z.string().email(),
   host: z.string().min(1),
   port: z.coerce.number().int().min(1).max(65535),
+  smtp_host: z.string().min(1),
+  smtp_port: z.coerce.number().int().min(1).max(65535),
   password: z.string().min(1),
 })
 
@@ -41,6 +43,8 @@ export async function connectImapMailboxAction(formData: FormData) {
     mailbox_address: formData.get('mailbox_address'),
     host: formData.get('host'),
     port: formData.get('port'),
+    smtp_host: formData.get('smtp_host'),
+    smtp_port: formData.get('smtp_port'),
     password: formData.get('password'),
   })
 
@@ -53,6 +57,8 @@ export async function connectImapMailboxAction(formData: FormData) {
     mailboxAddress: parsed.data.mailbox_address,
     host: parsed.data.host,
     port: parsed.data.port,
+    smtpHost: parsed.data.smtp_host,
+    smtpPort: parsed.data.smtp_port,
     password: parsed.data.password,
   })
 
