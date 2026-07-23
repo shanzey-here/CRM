@@ -355,6 +355,140 @@ export type Database = {
           },
         ]
       }
+      email_messages: {
+        Row: {
+          authored_by: Database["public"]["Enums"]["email_authored_by"]
+          body_html: string | null
+          body_text: string | null
+          created_at: string
+          direction: Database["public"]["Enums"]["email_direction"]
+          from_address: string
+          id: string
+          occurred_at: string | null
+          received_at: string | null
+          requires_approval: boolean
+          sent_at: string | null
+          source_message_id: string | null
+          tenant_id: string
+          thread_id: string
+          to_addresses: string[] | null
+        }
+        Insert: {
+          authored_by: Database["public"]["Enums"]["email_authored_by"]
+          body_html?: string | null
+          body_text?: string | null
+          created_at?: string
+          direction: Database["public"]["Enums"]["email_direction"]
+          from_address: string
+          id?: string
+          occurred_at?: string | null
+          received_at?: string | null
+          requires_approval?: boolean
+          sent_at?: string | null
+          source_message_id?: string | null
+          tenant_id: string
+          thread_id: string
+          to_addresses?: string[] | null
+        }
+        Update: {
+          authored_by?: Database["public"]["Enums"]["email_authored_by"]
+          body_html?: string | null
+          body_text?: string | null
+          created_at?: string
+          direction?: Database["public"]["Enums"]["email_direction"]
+          from_address?: string
+          id?: string
+          occurred_at?: string | null
+          received_at?: string | null
+          requires_approval?: boolean
+          sent_at?: string | null
+          source_message_id?: string | null
+          tenant_id?: string
+          thread_id?: string
+          to_addresses?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_messages_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_messages_thread_fk"
+            columns: ["thread_id", "tenant_id"]
+            isOneToOne: false
+            referencedRelation: "email_threads"
+            referencedColumns: ["id", "tenant_id"]
+          },
+        ]
+      }
+      email_threads: {
+        Row: {
+          contact_id: string | null
+          created_at: string
+          id: string
+          last_message_at: string | null
+          lead_id: string | null
+          mailbox_id: string
+          participant_addresses: string[] | null
+          subject: string | null
+          tenant_id: string
+        }
+        Insert: {
+          contact_id?: string | null
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+          lead_id?: string | null
+          mailbox_id: string
+          participant_addresses?: string[] | null
+          subject?: string | null
+          tenant_id: string
+        }
+        Update: {
+          contact_id?: string | null
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+          lead_id?: string | null
+          mailbox_id?: string
+          participant_addresses?: string[] | null
+          subject?: string | null
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_threads_contact_fk"
+            columns: ["contact_id", "tenant_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id", "tenant_id"]
+          },
+          {
+            foreignKeyName: "email_threads_lead_fk"
+            columns: ["lead_id", "tenant_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id", "tenant_id"]
+          },
+          {
+            foreignKeyName: "email_threads_mailbox_fk"
+            columns: ["mailbox_id", "tenant_id"]
+            isOneToOne: false
+            referencedRelation: "mailboxes"
+            referencedColumns: ["id", "tenant_id"]
+          },
+          {
+            foreignKeyName: "email_threads_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inventory_items: {
         Row: {
           created_at: string
@@ -870,6 +1004,50 @@ export type Database = {
           },
         ]
       }
+      mailboxes: {
+        Row: {
+          connection_method: Database["public"]["Enums"]["mailbox_connection_method"]
+          created_at: string
+          encrypted_credential: string | null
+          id: string
+          is_active: boolean
+          last_synced_at: string | null
+          provider: Database["public"]["Enums"]["mailbox_provider"]
+          tenant_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          connection_method: Database["public"]["Enums"]["mailbox_connection_method"]
+          created_at?: string
+          encrypted_credential?: string | null
+          id?: string
+          is_active?: boolean
+          last_synced_at?: string | null
+          provider: Database["public"]["Enums"]["mailbox_provider"]
+          tenant_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          connection_method?: Database["public"]["Enums"]["mailbox_connection_method"]
+          created_at?: string
+          encrypted_credential?: string | null
+          id?: string
+          is_active?: boolean
+          last_synced_at?: string | null
+          provider?: Database["public"]["Enums"]["mailbox_provider"]
+          tenant_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mailboxes_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payment_schedules: {
         Row: {
           amount: number
@@ -1064,6 +1242,38 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "public_lead_submission_log_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      public_signup_log: {
+        Row: {
+          created_at: string | null
+          id: string
+          ip_address: unknown
+          outcome: string
+          tenant_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          ip_address: unknown
+          outcome: string
+          tenant_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown
+          outcome?: string
+          tenant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "public_signup_log_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -1735,12 +1945,14 @@ export type Database = {
           address_line_1: string | null
           address_line_2: string | null
           address_postcode: string | null
+          ai_quoting_mode: Database["public"]["Enums"]["ai_quoting_mode"]
           balance_due_days_before_move: number
           company_legal_name: string | null
           created_at: string
           email: string | null
           id: string
           logo_url: string | null
+          onboarding_state: string | null
           phone: string | null
           primary_color: string | null
           tenant_id: string
@@ -1756,12 +1968,14 @@ export type Database = {
           address_line_1?: string | null
           address_line_2?: string | null
           address_postcode?: string | null
+          ai_quoting_mode?: Database["public"]["Enums"]["ai_quoting_mode"]
           balance_due_days_before_move?: number
           company_legal_name?: string | null
           created_at?: string
           email?: string | null
           id?: string
           logo_url?: string | null
+          onboarding_state?: string | null
           phone?: string | null
           primary_color?: string | null
           tenant_id: string
@@ -1777,12 +1991,14 @@ export type Database = {
           address_line_1?: string | null
           address_line_2?: string | null
           address_postcode?: string | null
+          ai_quoting_mode?: Database["public"]["Enums"]["ai_quoting_mode"]
           balance_due_days_before_move?: number
           company_legal_name?: string | null
           created_at?: string
           email?: string | null
           id?: string
           logo_url?: string | null
+          onboarding_state?: string | null
           phone?: string | null
           primary_color?: string | null
           tenant_id?: string
@@ -1807,9 +2023,11 @@ export type Database = {
           created_at: string | null
           current_period_end: string | null
           id: string
+          manually_suspended: boolean
           price_id: string | null
           status: Database["public"]["Enums"]["tenant_status"]
           stripe_subscription_id: string | null
+          suspension_reason: string | null
           tenant_id: string
           updated_at: string | null
         }
@@ -1818,9 +2036,11 @@ export type Database = {
           created_at?: string | null
           current_period_end?: string | null
           id?: string
+          manually_suspended?: boolean
           price_id?: string | null
           status?: Database["public"]["Enums"]["tenant_status"]
           stripe_subscription_id?: string | null
+          suspension_reason?: string | null
           tenant_id: string
           updated_at?: string | null
         }
@@ -1829,9 +2049,11 @@ export type Database = {
           created_at?: string | null
           current_period_end?: string | null
           id?: string
+          manually_suspended?: boolean
           price_id?: string | null
           status?: Database["public"]["Enums"]["tenant_status"]
           stripe_subscription_id?: string | null
+          suspension_reason?: string | null
           tenant_id?: string
           updated_at?: string | null
         }
@@ -2115,8 +2337,11 @@ export type Database = {
         | "call"
         | "task"
         | "system"
+      ai_quoting_mode: "off" | "assist" | "quote_review" | "auto_send"
       assignment_role: "driver" | "porter" | "lead_crew" | "supervisor"
       contact_type: "residential" | "commercial" | "property_manager"
+      email_authored_by: "human" | "ai_draft_pending" | "ai_sent"
+      email_direction: "inbound" | "outbound"
       invoice_status:
         | "draft"
         | "sent"
@@ -2133,6 +2358,8 @@ export type Database = {
         | "confirmed_booking"
         | "completed"
         | "archived"
+      mailbox_connection_method: "oauth" | "imap_password"
+      mailbox_provider: "gmail" | "outlook" | "imap_generic"
       payment_method: "card" | "apple_pay" | "google_pay" | "bank_transfer"
       payment_status: "pending" | "succeeded" | "failed" | "refunded"
       priority_level: "low" | "medium" | "high"
@@ -2292,8 +2519,11 @@ export const Constants = {
         "task",
         "system",
       ],
+      ai_quoting_mode: ["off", "assist", "quote_review", "auto_send"],
       assignment_role: ["driver", "porter", "lead_crew", "supervisor"],
       contact_type: ["residential", "commercial", "property_manager"],
+      email_authored_by: ["human", "ai_draft_pending", "ai_sent"],
+      email_direction: ["inbound", "outbound"],
       invoice_status: [
         "draft",
         "sent",
@@ -2312,6 +2542,8 @@ export const Constants = {
         "completed",
         "archived",
       ],
+      mailbox_connection_method: ["oauth", "imap_password"],
+      mailbox_provider: ["gmail", "outlook", "imap_generic"],
       payment_method: ["card", "apple_pay", "google_pay", "bank_transfer"],
       payment_status: ["pending", "succeeded", "failed", "refunded"],
       priority_level: ["low", "medium", "high"],
