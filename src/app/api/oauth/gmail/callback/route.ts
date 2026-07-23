@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createServiceRoleClient } from '@/lib/supabase/service-role'
-import { exchangeGmailCode, getGmailClient } from '@/modules/mailboxes/server/gmail-oauth'
+import { exchangeGmailCode, getGmailAccessToken, getGmailClient } from '@/modules/mailboxes/server/gmail-oauth'
 import { createOAuthMailbox } from '@/modules/mailboxes/server/repository'
 
 function redirectToSettings(request: NextRequest, params: Record<string, string>) {

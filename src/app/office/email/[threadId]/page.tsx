@@ -20,8 +20,8 @@ export default async function ThreadDetailPage({ params }: { params: Promise<{ t
     .from('email_threads')
     .select(
       `id, subject, participant_addresses, mailbox_id, contact_id, lead_id,
-       mailboxes:mailbox_id ( id, mailbox_address, provider ),
-       contacts:contact_id ( id, first_name, last_name )`
+       mailboxes ( id, mailbox_address, provider ),
+       contacts ( id, first_name, last_name )`
     )
     .eq('id', threadId)
     .eq('tenant_id', tenantId)

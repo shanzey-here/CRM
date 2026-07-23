@@ -40,8 +40,12 @@ export async function updateSession(request: NextRequest) {
   // Public paths that don't require authentication
   // /api/public is the public, unauthenticated lead-capture endpoint.
   // /proposal is the public proposal page (non-guessable token-based access).
-  // Both enforce their own tenant resolution in code instead of relying on session.
-  const isPublicPath = path.startsWith('/login') || path.startsWith('/signup') || path.startsWith('/auth') || path === '/' || path.startsWith('/api/public') || path.startsWith('/api/webhooks') || path.startsWith('/proposal')
+  // /api/cron routes authenticate themselves via a Bearer CRON_SECRET header —
+  // an external scheduler never carries a Supabase session cookie, so this path
+  // must be exempted here or every cron hit gets redirected to /login before
+  // the route's own auth check ever runs.
+  // All of the above enforce their own tenant/secret resolution in code instead of relying on session.
+  const isPublicPath = path.startsWith('/login') || path.startsWith('/signup') || path.startsWith('/auth') || path === '/' || path.startsWith('/api/public') || path.startsWith('/api/webhooks') || path.startsWith('/proposal') || path.startsWith('/api/cron')
 
   // Redirect unauthenticated users trying to access protected paths
   if (!user && !isPublicPath) {
