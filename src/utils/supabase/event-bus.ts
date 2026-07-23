@@ -2,23 +2,30 @@ import { SupabaseClient } from '@supabase/supabase-js'
 
 /**
  * Emits a domain event to the outbox table for reliable cross-module communication.
- * 
+ *
  * @param supabase An authenticated Supabase client (Server or Client component)
  * @param eventType The specific event that occurred (e.g., 'lead.stage_changed')
  * @param sourceModule The domain module originating the event (e.g., 'crm', 'jobs')
  * @param payload The structured data related to the event
+ * @param tenantId Optional explicit tenant override — only honored by
+ *   emit_domain_event() for service_role callers (enforced in the RPC
+ *   itself). Required for background workers with no user session to derive
+ *   current_tenant_id() from, e.g. the mailbox sync worker processing many
+ *   tenants' mailboxes in one run.
  * @returns The UUID of the newly inserted event
  */
 export async function emitEvent(
   supabase: SupabaseClient,
   eventType: string,
   sourceModule: string,
-  payload: Record<string, any> = {}
+  payload: Record<string, any> = {},
+  tenantId?: string
 ): Promise<{ data: string | null; error: Error | null }> {
   const { data, error } = await supabase.rpc('emit_domain_event', {
     p_event_type: eventType,
     p_source_module: sourceModule,
     p_payload: payload,
+    ...(tenantId ? { p_tenant_id: tenantId } : {}),
   })
 
   if (error) {
