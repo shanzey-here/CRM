@@ -1048,6 +1048,8 @@ export type Database = {
           last_synced_at: string | null
           mailbox_address: string | null
           provider: Database["public"]["Enums"]["mailbox_provider"]
+          smtp_host: string | null
+          smtp_port: number | null
           tenant_id: string
           updated_at: string | null
         }
@@ -1063,6 +1065,8 @@ export type Database = {
           last_synced_at?: string | null
           mailbox_address?: string | null
           provider: Database["public"]["Enums"]["mailbox_provider"]
+          smtp_host?: string | null
+          smtp_port?: number | null
           tenant_id: string
           updated_at?: string | null
         }
@@ -1078,6 +1082,8 @@ export type Database = {
           last_synced_at?: string | null
           mailbox_address?: string | null
           provider?: Database["public"]["Enums"]["mailbox_provider"]
+          smtp_host?: string | null
+          smtp_port?: number | null
           tenant_id?: string
           updated_at?: string | null
         }

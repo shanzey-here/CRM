@@ -57,6 +57,21 @@ export function ConnectImapForm() {
           className="px-3 py-2 border border-slate-300 rounded text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
         />
         <input
+          name="smtp_host"
+          type="text"
+          placeholder="smtp.example.com (for sending)"
+          required
+          className="px-3 py-2 border border-slate-300 rounded text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+        />
+        <input
+          name="smtp_port"
+          type="number"
+          placeholder="587"
+          defaultValue={587}
+          required
+          className="px-3 py-2 border border-slate-300 rounded text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+        />
+        <input
           name="password"
           type="password"
           placeholder="Password or app password"

@@ -47,7 +47,14 @@ export async function createOAuthMailbox(
 export async function createImapMailbox(
   serviceClient: SupabaseClient<Database>,
   tenantId: string,
-  { mailboxAddress, host, port, password }: { mailboxAddress: string; host: string; port: number; password: string }
+  {
+    mailboxAddress,
+    host,
+    port,
+    smtpHost,
+    smtpPort,
+    password,
+  }: { mailboxAddress: string; host: string; port: number; smtpHost: string; smtpPort: number; password: string }
 ) {
   const encrypted = encryptCredential(password)
 
@@ -61,6 +68,8 @@ export async function createImapMailbox(
         mailbox_address: mailboxAddress,
         imap_host: host,
         imap_port: port,
+        smtp_host: smtpHost,
+        smtp_port: smtpPort,
         encrypted_credential: toBytea(encrypted),
         is_active: true,
         last_sync_error: null,
