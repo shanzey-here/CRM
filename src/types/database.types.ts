@@ -357,6 +357,7 @@ export type Database = {
       }
       email_messages: {
         Row: {
+          ai_metadata: Json | null
           authored_by: Database["public"]["Enums"]["email_authored_by"]
           body_html: string | null
           body_text: string | null
@@ -375,6 +376,7 @@ export type Database = {
           to_addresses: string[] | null
         }
         Insert: {
+          ai_metadata?: Json | null
           authored_by: Database["public"]["Enums"]["email_authored_by"]
           body_html?: string | null
           body_text?: string | null
@@ -393,6 +395,7 @@ export type Database = {
           to_addresses?: string[] | null
         }
         Update: {
+          ai_metadata?: Json | null
           authored_by?: Database["public"]["Enums"]["email_authored_by"]
           body_html?: string | null
           body_text?: string | null
