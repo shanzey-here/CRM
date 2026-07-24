@@ -162,6 +162,146 @@ export async function sendReplyAction(threadId: string, bodyText: string): Promi
   return { success: true, recorded: true, messageId: inserted.id }
 }
 
+export type ApproveAiDraftResult =
+  | { success: true; recorded: true }
+  | { success: true; recorded: false; warning: string }
+  | { success: false; error: string }
+
+// Approves and sends a pending AI draft (authored_by = 'ai_draft_pending').
+// Updates the existing row IN PLACE rather than inserting a new one —
+// preserves message identity through review instead of duplicating it. See
+// the plan's ordering note: occurred_at is NULL while pending (sorts last),
+// and becomes the real send time on approval — identical to how a human
+// reply already sorts, no special-casing needed.
+export async function approveAiDraftAction(messageId: string, editedBodyText?: string): Promise<ApproveAiDraftResult> {
+  const guard = await requireOfficeStaff()
+  if ('error' in guard) return { success: false, error: guard.error }
+  const { supabase, tenantId } = guard
+
+  const { data: draft, error: draftErr } = await supabase
+    .from('email_messages')
+    .select('id, thread_id, mailbox_id, body_text, authored_by')
+    .eq('id', messageId)
+    .eq('tenant_id', tenantId)
+    .single()
+
+  if (draftErr || !draft) return { success: false, error: `Draft not found${draftErr ? `: ${draftErr.message}` : ''}` }
+  if (draft.authored_by !== 'ai_draft_pending') return { success: false, error: 'This message is not a pending AI draft' }
+
+  const bodyText = (editedBodyText ?? draft.body_text ?? '').trim()
+  if (!bodyText) return { success: false, error: 'Reply cannot be empty' }
+
+  const { data: thread, error: threadErr } = await supabase
+    .from('email_threads')
+    .select(
+      `id, subject, participant_addresses, provider_thread_id,
+       mailboxes ( id, tenant_id, provider, connection_method, mailbox_address, smtp_host, smtp_port, imap_host, imap_port )`
+    )
+    .eq('id', draft.thread_id)
+    .eq('tenant_id', tenantId)
+    .single()
+
+  if (threadErr || !thread) return { success: false, error: `Thread not found${threadErr ? `: ${threadErr.message}` : ''}` }
+
+  const mailbox = thread.mailboxes as any
+  if (!mailbox) return { success: false, error: 'This thread has no connected mailbox' }
+
+  const { data: threadMessages } = await supabase
+    .from('email_messages')
+    .select('id, source_message_id, from_address, direction')
+    .eq('thread_id', draft.thread_id)
+    .eq('tenant_id', tenantId)
+    .order('occurred_at', { ascending: true, nullsFirst: false })
+
+  const priorMessages = (threadMessages ?? []).filter((m) => m.id !== messageId)
+  const messageIds = priorMessages.map((m) => m.source_message_id).filter((id): id is string => !!id)
+  const inReplyTo = messageIds.length > 0 ? messageIds[messageIds.length - 1] : null
+  const references = messageIds.length > 0 ? messageIds.join(' ') : null
+
+  const lastInbound = [...priorMessages].reverse().find((m) => m.direction === 'inbound')
+  const toAddress =
+    lastInbound?.from_address ||
+    (thread.participant_addresses ?? []).find((a) => a.toLowerCase() !== (mailbox.mailbox_address ?? '').toLowerCase()) ||
+    ''
+
+  if (!toAddress) return { success: false, error: 'Could not determine a recipient for this reply' }
+
+  const { raw, messageId: generatedMessageId } = buildOutboundMessage({
+    from: mailbox.mailbox_address,
+    to: toAddress,
+    subject: thread.subject || '(no subject)',
+    bodyText,
+    inReplyTo,
+    references,
+  })
+
+  const serviceClient = createServiceRoleClient()
+  const sendResult = await sendMessage(serviceClient, mailbox, raw, thread.provider_thread_id, toAddress)
+
+  if (!sendResult.ok) {
+    return { success: false, error: sendResult.error }
+  }
+
+  // Sent for real — a record-keeping failure below must never be reported
+  // as a send failure, same invariant as sendReplyAction.
+  const { error: updateErr } = await serviceClient
+    .from('email_messages')
+    .update({
+      body_text: bodyText,
+      to_addresses: [toAddress],
+      sent_at: new Date().toISOString(),
+      source_message_id: sendResult.sourceMessageId ?? generatedMessageId,
+      authored_by: 'ai_sent',
+      requires_approval: false,
+    })
+    .eq('id', messageId)
+    .eq('tenant_id', tenantId)
+
+  if (updateErr) {
+    return {
+      success: true,
+      recorded: false,
+      warning: "Your reply was sent, but we couldn't update this thread's record of it — check the mailbox's Sent folder.",
+    }
+  }
+
+  await serviceClient.from('email_threads').update({ last_message_at: new Date().toISOString() }).eq('id', draft.thread_id)
+
+  revalidatePath(`/office/email/${draft.thread_id}`)
+  return { success: true, recorded: true }
+}
+
+// Discards a pending AI draft without sending. The authored_by filter in
+// the WHERE clause is an explicit safety guard — this can never delete a
+// real human- or AI-sent message, even if a stale/wrong id were passed in.
+export async function discardAiDraftAction(messageId: string): Promise<{ success: boolean; error?: string }> {
+  const guard = await requireOfficeStaff()
+  if ('error' in guard) return { success: false, error: guard.error }
+  const { supabase, tenantId } = guard
+
+  const { data: draft } = await supabase
+    .from('email_messages')
+    .select('id, thread_id')
+    .eq('id', messageId)
+    .eq('tenant_id', tenantId)
+    .eq('authored_by', 'ai_draft_pending')
+    .maybeSingle()
+
+  if (!draft) return { success: false, error: 'Pending draft not found' }
+
+  const { error } = await supabase
+    .from('email_messages')
+    .delete()
+    .eq('id', messageId)
+    .eq('tenant_id', tenantId)
+    .eq('authored_by', 'ai_draft_pending')
+
+  if (error) return { success: false, error: error.message }
+
+  revalidatePath(`/office/email/${draft.thread_id}`)
+  return { success: true }
+}
+
 export async function associateThreadAction(threadId: string, { contactId, leadId }: { contactId?: string; leadId?: string }) {
   const guard = await requireOfficeStaff()
   if ('error' in guard) return { error: guard.error }

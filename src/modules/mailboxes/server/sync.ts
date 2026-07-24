@@ -5,6 +5,7 @@ import { Database } from '@/types/database.types'
 import { getGmailAccessToken, getGmailClient } from './gmail-oauth'
 import { getDecryptedCredential, markMailboxSyncSuccess, markMailboxSyncFailure, getActiveMailboxes } from './repository'
 import { emitEvent } from '@/utils/supabase/event-bus'
+import { maybeDraftAiReply } from '@/modules/ai-email/server/orchestrate'
 
 type MailboxRow = Database['public']['Tables']['mailboxes']['Row']
 
@@ -257,6 +258,14 @@ async function upsertMessage(
         { thread_id: threadId, message_id: data![0].id, from_address: fromAddress, mailbox_id: mailbox.id },
         mailbox.tenant_id
       )
+
+      // Inline, not a separate async path — this codebase's only mechanism
+      // decoupled from a live user request is this cron-triggered worker
+      // itself (see 00044_phase2_email_db.sql's comment marking this exact
+      // hook point). maybeDraftAiReply never throws — a drafting failure
+      // must never break sync or lose the inbound message, which is already
+      // safely persisted above.
+      await maybeDraftAiReply(serviceClient, mailbox, threadId, data![0].id)
     }
   }
 

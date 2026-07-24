@@ -1,4 +1,5 @@
 import { User, Bot, Clock } from 'lucide-react'
+import { AiDraftReview } from './ai-draft-review'
 
 type Message = {
   id: string
@@ -71,7 +72,11 @@ export function MessageList({ messages }: { messages: Message[] }) {
                 {message.occurred_at ? new Date(message.occurred_at).toLocaleString('en-GB') : 'not yet sent'}
               </span>
             </div>
-            <p className="text-sm text-slate-700 whitespace-pre-wrap">{message.body_text || '(no text content)'}</p>
+            {message.authored_by === 'ai_draft_pending' ? (
+              <AiDraftReview messageId={message.id} initialBody={message.body_text || ''} />
+            ) : (
+              <p className="text-sm text-slate-700 whitespace-pre-wrap">{message.body_text || '(no text content)'}</p>
+            )}
           </div>
         )
       })}
