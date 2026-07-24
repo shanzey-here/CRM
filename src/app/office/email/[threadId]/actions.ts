@@ -178,18 +178,39 @@ export async function approveAiDraftAction(messageId: string, editedBodyText?: s
   if ('error' in guard) return { success: false, error: guard.error }
   const { supabase, tenantId } = guard
 
+  // Atomic claim — the only place a double-send race is actually closed.
+  // A plain SELECT-then-check (what this used to be) lets two concurrent
+  // calls for the same messageId both pass the authored_by check and both
+  // reach sendMessage() below, genuinely double-sending a real email. This
+  // UPDATE only ever matches for one concurrent caller: Postgres serializes
+  // the two writes to the same row, and the loser's WHERE clause (still
+  // requiring claimed_at IS NULL) evaluates false once the winner's claim
+  // has committed.
   const { data: draft, error: draftErr } = await supabase
     .from('email_messages')
-    .select('id, thread_id, mailbox_id, body_text, authored_by')
+    .update({ claimed_at: new Date().toISOString() })
     .eq('id', messageId)
     .eq('tenant_id', tenantId)
-    .single()
+    .eq('authored_by', 'ai_draft_pending')
+    .is('claimed_at', null)
+    .select('id, thread_id, mailbox_id, body_text')
+    .maybeSingle()
 
-  if (draftErr || !draft) return { success: false, error: `Draft not found${draftErr ? `: ${draftErr.message}` : ''}` }
-  if (draft.authored_by !== 'ai_draft_pending') return { success: false, error: 'This message is not a pending AI draft' }
+  if (draftErr || !draft) {
+    return { success: false, error: 'This draft has already been approved or discarded' }
+  }
+
+  // Releases the claim so the dispatcher can retry — only valid for a
+  // failure that happens BEFORE sendMessage() is ever called. Once
+  // sendMessage() has been attempted, releasing becomes unsafe (see the
+  // block below the send call) so this helper is never used past that point.
+  async function releaseClaimAndFail(error: string): Promise<ApproveAiDraftResult> {
+    await supabase.from('email_messages').update({ claimed_at: null }).eq('id', messageId).eq('tenant_id', tenantId)
+    return { success: false, error }
+  }
 
   const bodyText = (editedBodyText ?? draft.body_text ?? '').trim()
-  if (!bodyText) return { success: false, error: 'Reply cannot be empty' }
+  if (!bodyText) return releaseClaimAndFail('Reply cannot be empty')
 
   const { data: thread, error: threadErr } = await supabase
     .from('email_threads')
@@ -201,10 +222,10 @@ export async function approveAiDraftAction(messageId: string, editedBodyText?: s
     .eq('tenant_id', tenantId)
     .single()
 
-  if (threadErr || !thread) return { success: false, error: `Thread not found${threadErr ? `: ${threadErr.message}` : ''}` }
+  if (threadErr || !thread) return releaseClaimAndFail(`Thread not found${threadErr ? `: ${threadErr.message}` : ''}`)
 
   const mailbox = thread.mailboxes as any
-  if (!mailbox) return { success: false, error: 'This thread has no connected mailbox' }
+  if (!mailbox) return releaseClaimAndFail('This thread has no connected mailbox')
 
   const { data: threadMessages } = await supabase
     .from('email_messages')
@@ -224,7 +245,7 @@ export async function approveAiDraftAction(messageId: string, editedBodyText?: s
     (thread.participant_addresses ?? []).find((a) => a.toLowerCase() !== (mailbox.mailbox_address ?? '').toLowerCase()) ||
     ''
 
-  if (!toAddress) return { success: false, error: 'Could not determine a recipient for this reply' }
+  if (!toAddress) return releaseClaimAndFail('Could not determine a recipient for this reply')
 
   const { raw, messageId: generatedMessageId } = buildOutboundMessage({
     from: mailbox.mailbox_address,
@@ -239,11 +260,18 @@ export async function approveAiDraftAction(messageId: string, editedBodyText?: s
   const sendResult = await sendMessage(serviceClient, mailbox, raw, thread.provider_thread_id, toAddress)
 
   if (!sendResult.ok) {
-    return { success: false, error: sendResult.error }
+    // The send itself never happened — this is the LAST point at which
+    // releasing the claim is safe. Every path after this line must never
+    // clear claimed_at, even on failure.
+    return releaseClaimAndFail(sendResult.error)
   }
 
-  // Sent for real — a record-keeping failure below must never be reported
-  // as a send failure, same invariant as sendReplyAction.
+  // Sent for real. From here on claimed_at is NEVER cleared, even if the
+  // record-keeping update below fails — clearing it would let a future
+  // approve attempt call sendMessage() again and genuinely double-send an
+  // email that already went out. Same "sent but not recorded" distinction
+  // sendReplyAction already established, applied to the claim itself, not
+  // just the response message.
   const { error: updateErr } = await serviceClient
     .from('email_messages')
     .update({
@@ -256,6 +284,7 @@ export async function approveAiDraftAction(messageId: string, editedBodyText?: s
     })
     .eq('id', messageId)
     .eq('tenant_id', tenantId)
+    // No claimed_at release here on error — intentional, see comment above.
 
   if (updateErr) {
     return {
@@ -263,6 +292,9 @@ export async function approveAiDraftAction(messageId: string, editedBodyText?: s
       recorded: false,
       warning: "Your reply was sent, but we couldn't update this thread's record of it — check the mailbox's Sent folder.",
     }
+    // Row stays authored_by='ai_draft_pending' with claimed_at still set —
+    // any future approve attempt's claim step finds no matching row
+    // (claimed_at IS NOT NULL) and fails cleanly. It can never re-send.
   }
 
   await serviceClient.from('email_threads').update({ last_message_at: new Date().toISOString() }).eq('id', draft.thread_id)
@@ -274,6 +306,13 @@ export async function approveAiDraftAction(messageId: string, editedBodyText?: s
 // Discards a pending AI draft without sending. The authored_by filter in
 // the WHERE clause is an explicit safety guard — this can never delete a
 // real human- or AI-sent message, even if a stale/wrong id were passed in.
+// The claimed_at IS NULL predicate additionally guards two race cases: (1)
+// a draft can't be discarded out from under an in-flight approve happening
+// concurrently, and (2) a draft that's permanently stuck claimed after a
+// send-succeeded-but-record-failed outcome (see approveAiDraftAction) can
+// never be silently discarded — that row was actually sent for real, and
+// discarding it would make an already-delivered email vanish as if it
+// never happened.
 export async function discardAiDraftAction(messageId: string): Promise<{ success: boolean; error?: string }> {
   const guard = await requireOfficeStaff()
   if ('error' in guard) return { success: false, error: guard.error }
@@ -285,6 +324,7 @@ export async function discardAiDraftAction(messageId: string): Promise<{ success
     .eq('id', messageId)
     .eq('tenant_id', tenantId)
     .eq('authored_by', 'ai_draft_pending')
+    .is('claimed_at', null)
     .maybeSingle()
 
   if (!draft) return { success: false, error: 'Pending draft not found' }
@@ -295,6 +335,7 @@ export async function discardAiDraftAction(messageId: string): Promise<{ success
     .eq('id', messageId)
     .eq('tenant_id', tenantId)
     .eq('authored_by', 'ai_draft_pending')
+    .is('claimed_at', null)
 
   if (error) return { success: false, error: error.message }
 
