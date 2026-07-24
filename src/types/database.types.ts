@@ -117,6 +117,44 @@ export type Database = {
           },
         ]
       }
+      ai_draft_resolutions: {
+        Row: {
+          id: string
+          tenant_id: string
+          mailbox_id: string | null
+          thread_id: string | null
+          message_id: string | null
+          outcome: Database["public"]["Enums"]["ai_draft_resolution_outcome"]
+          resolved_at: string
+        }
+        Insert: {
+          id?: string
+          tenant_id: string
+          mailbox_id?: string | null
+          thread_id?: string | null
+          message_id?: string | null
+          outcome: Database["public"]["Enums"]["ai_draft_resolution_outcome"]
+          resolved_at?: string
+        }
+        Update: {
+          id?: string
+          tenant_id?: string
+          mailbox_id?: string | null
+          thread_id?: string | null
+          message_id?: string | null
+          outcome?: Database["public"]["Enums"]["ai_draft_resolution_outcome"]
+          resolved_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_draft_resolutions_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       addresses: {
         Row: {
           access_notes: string | null
@@ -2392,6 +2430,7 @@ export type Database = {
         | "call"
         | "task"
         | "system"
+      ai_draft_resolution_outcome: "approved_unedited" | "approved_edited" | "discarded"
       ai_quoting_mode: "off" | "assist" | "quote_review" | "auto_send"
       assignment_role: "driver" | "porter" | "lead_crew" | "supervisor"
       contact_type: "residential" | "commercial" | "property_manager"
@@ -2574,6 +2613,7 @@ export const Constants = {
         "task",
         "system",
       ],
+      ai_draft_resolution_outcome: ["approved_unedited", "approved_edited", "discarded"],
       ai_quoting_mode: ["off", "assist", "quote_review", "auto_send"],
       assignment_role: ["driver", "porter", "lead_crew", "supervisor"],
       contact_type: ["residential", "commercial", "property_manager"],

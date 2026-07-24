@@ -15,7 +15,7 @@ async function main() {
   if (!('accessToken' in tokenResult)) { console.log('token error:', tokenResult); return }
 
   const gmail = getGmailClient(tokenResult.accessToken)
-  const res = await gmail.users.messages.list({ userId: 'me', q: 'in:sent subject:"Queue test - quote 1"', maxResults: 10 })
+  const res = await gmail.users.messages.list({ userId: 'me', q: 'in:sent subject:"Quota-free test - auto_send"', maxResults: 10 })
   console.log('Gmail search results (in:sent):', JSON.stringify(res.data, null, 2))
 
   for (const m of res.data.messages ?? []) {
