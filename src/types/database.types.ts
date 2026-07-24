@@ -361,6 +361,7 @@ export type Database = {
           authored_by: Database["public"]["Enums"]["email_authored_by"]
           body_html: string | null
           body_text: string | null
+          claimed_at: string | null
           created_at: string
           direction: Database["public"]["Enums"]["email_direction"]
           from_address: string
@@ -380,6 +381,7 @@ export type Database = {
           authored_by: Database["public"]["Enums"]["email_authored_by"]
           body_html?: string | null
           body_text?: string | null
+          claimed_at?: string | null
           created_at?: string
           direction: Database["public"]["Enums"]["email_direction"]
           from_address: string
@@ -399,6 +401,7 @@ export type Database = {
           authored_by?: Database["public"]["Enums"]["email_authored_by"]
           body_html?: string | null
           body_text?: string | null
+          claimed_at?: string | null
           created_at?: string
           direction?: Database["public"]["Enums"]["email_direction"]
           from_address?: string
