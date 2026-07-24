@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { getAiAssistantSettings, hasActiveMailbox } from '@/modules/settings/ai-assistant/server/repository'
+import { getAiAssistantSettings, hasActiveMailbox, getGraduationStatus } from '@/modules/settings/ai-assistant/server/repository'
 import { ModeSelector } from './components/mode-selector'
 
 export const dynamic = 'force-dynamic'
@@ -23,10 +23,16 @@ export default async function AiAssistantSettingsPage() {
   // warning below disappears on its own once a mailbox is actually
   // connected and this page is reloaded.
   const mailboxConnected = await hasActiveMailbox(supabase, tenantId)
+  const graduationStatus = await getGraduationStatus(supabase, tenantId)
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-slate-900 mb-1">AI Assistant</h1>
+      <div className="flex items-start justify-between gap-4 mb-1">
+        <h1 className="text-2xl font-bold text-slate-900">AI Assistant</h1>
+        <a href="/office/email/auto-sent-log" className="text-sm text-emerald-600 hover:underline whitespace-nowrap">
+          View recently auto-sent &rarr;
+        </a>
+      </div>
       <p className="text-sm text-slate-500 mb-8">
         Control whether AI drafts or sends email replies for your connected inbox, and how much
         review each reply gets before it reaches a customer.
@@ -42,7 +48,7 @@ export default async function AiAssistantSettingsPage() {
         </div>
       )}
 
-      <ModeSelector currentMode={settings.ai_quoting_mode} />
+      <ModeSelector currentMode={settings.ai_quoting_mode} graduationStatus={graduationStatus} />
     </div>
   )
 }

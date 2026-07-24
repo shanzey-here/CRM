@@ -299,6 +299,22 @@ export async function approveAiDraftAction(messageId: string, editedBodyText?: s
 
   await serviceClient.from('email_threads').update({ last_message_at: new Date().toISOString() }).eq('id', draft.thread_id)
 
+  // Additive resolution-log entry for the auto_send trust-graduation
+  // metric — only on the full success path (never for the recorded:false
+  // case above, which is an infrastructure failure, not a signal about
+  // draft quality). Best-effort: a logging failure here must never fail
+  // the action itself, matching how emitEvent() calls elsewhere never
+  // block their primary operation.
+  const wasEdited = bodyText !== (draft.body_text ?? '').trim()
+  const { error: resolutionErr } = await supabase.from('ai_draft_resolutions').insert({
+    tenant_id: tenantId,
+    mailbox_id: draft.mailbox_id,
+    thread_id: draft.thread_id,
+    message_id: messageId,
+    outcome: wasEdited ? 'approved_edited' : 'approved_unedited',
+  })
+  if (resolutionErr) console.error('[ai-draft-resolutions] Failed to log approval resolution:', resolutionErr.message)
+
   revalidatePath(`/office/email/${draft.thread_id}`)
   return { success: true, recorded: true }
 }
@@ -320,7 +336,7 @@ export async function discardAiDraftAction(messageId: string): Promise<{ success
 
   const { data: draft } = await supabase
     .from('email_messages')
-    .select('id, thread_id')
+    .select('id, thread_id, mailbox_id')
     .eq('id', messageId)
     .eq('tenant_id', tenantId)
     .eq('authored_by', 'ai_draft_pending')
@@ -338,6 +354,17 @@ export async function discardAiDraftAction(messageId: string): Promise<{ success
     .is('claimed_at', null)
 
   if (error) return { success: false, error: error.message }
+
+  // Additive resolution-log entry, same reasoning as approveAiDraftAction —
+  // best-effort, never fails the action itself.
+  const { error: resolutionErr } = await supabase.from('ai_draft_resolutions').insert({
+    tenant_id: tenantId,
+    mailbox_id: draft.mailbox_id,
+    thread_id: draft.thread_id,
+    message_id: messageId,
+    outcome: 'discarded',
+  })
+  if (resolutionErr) console.error('[ai-draft-resolutions] Failed to log discard resolution:', resolutionErr.message)
 
   revalidatePath(`/office/email/${draft.thread_id}`)
   return { success: true }

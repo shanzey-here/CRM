@@ -30,11 +30,17 @@ const MODES: { value: Mode; label: string; description: string }[] = [
   },
 ]
 
-export function ModeSelector({ currentMode }: { currentMode: Mode }) {
+type GraduationStatus = { total: number; unedited: number; rate: number; qualifies: boolean }
+
+export function ModeSelector({ currentMode, graduationStatus }: { currentMode: Mode; graduationStatus: GraduationStatus }) {
   const [selected, setSelected] = useState<Mode>(currentMode)
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const [saved, setSaved] = useState(false)
+
+  // Already on auto_send: no re-gating (no ongoing/anomaly monitoring in
+  // v1, by design) — only the moment of switching TO it is gated.
+  const autoSendLocked = currentMode !== 'auto_send' && !graduationStatus.qualifies
 
   function handleSave() {
     setError(null)
@@ -54,30 +60,43 @@ export function ModeSelector({ currentMode }: { currentMode: Mode }) {
       {error && <div className="p-3 bg-red-50 border border-red-200 rounded text-red-700 text-xs">{error}</div>}
 
       <div className="space-y-2">
-        {MODES.map((mode) => (
-          <label
-            key={mode.value}
-            className={`flex items-start gap-3 p-4 rounded-lg border cursor-pointer transition-colors ${
-              selected === mode.value ? 'border-emerald-500 bg-emerald-50/50' : 'border-slate-200 bg-white hover:bg-slate-50'
-            }`}
-          >
-            <input
-              type="radio"
-              name="ai_quoting_mode"
-              value={mode.value}
-              checked={selected === mode.value}
-              onChange={() => {
-                setSelected(mode.value)
-                setSaved(false)
-              }}
-              className="mt-1"
-            />
-            <div>
-              <p className="text-sm font-semibold text-slate-900">{mode.label}</p>
-              <p className="text-xs text-slate-500 mt-0.5">{mode.description}</p>
-            </div>
-          </label>
-        ))}
+        {MODES.map((mode) => {
+          const isLocked = mode.value === 'auto_send' && autoSendLocked
+          return (
+            <label
+              key={mode.value}
+              className={`flex items-start gap-3 p-4 rounded-lg border transition-colors ${
+                isLocked
+                  ? 'cursor-not-allowed opacity-60 border-slate-200 bg-slate-50'
+                  : `cursor-pointer ${selected === mode.value ? 'border-emerald-500 bg-emerald-50/50' : 'border-slate-200 bg-white hover:bg-slate-50'}`
+              }`}
+            >
+              <input
+                type="radio"
+                name="ai_quoting_mode"
+                value={mode.value}
+                checked={selected === mode.value}
+                disabled={isLocked}
+                onChange={() => {
+                  setSelected(mode.value)
+                  setSaved(false)
+                }}
+                className="mt-1"
+              />
+              <div>
+                <p className="text-sm font-semibold text-slate-900">{mode.label}</p>
+                <p className="text-xs text-slate-500 mt-0.5">{mode.description}</p>
+                {isLocked && (
+                  <p className="text-xs text-amber-700 mt-1">
+                    Available once you&apos;ve approved 20 AI drafts with minimal edits — you&apos;re at{' '}
+                    {graduationStatus.total}/20
+                    {graduationStatus.total > 0 ? `, ${Math.round(graduationStatus.rate * 100)}% unedited so far` : ''}.
+                  </p>
+                )}
+              </div>
+            </label>
+          )
+        })}
       </div>
 
       <div className="flex items-center gap-3 pt-2">

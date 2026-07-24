@@ -184,6 +184,11 @@ export async function maybeDraftAiReply(
       knownGap,
       ...(extractionModel ? { extractionModel } : {}),
       ...(quoteComputed ? { quoteComputed: true, quoteId, computedPrice } : {}),
+      // Precise, mode-agnostic marker for "this went out with zero human
+      // review" — assist mode's routine-reply path uses this exact same
+      // outcome.autoSend branch, so this is not the same as "tenant is on
+      // auto_send mode." Drives the auto-sent-log page's filter.
+      ...(outcome.autoSend ? { autoSent: true } : {}),
     }
 
     if (outcome.autoSend) {
