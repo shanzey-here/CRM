@@ -30,6 +30,7 @@ export default function SettingsLayout({
     ...(isTenantAdmin ? [{ name: 'Staff', href: '/office/settings/staff' }] : []),
     ...(isTenantAdmin ? [{ name: 'Billing', href: '/office/settings/billing' }] : []),
     ...(isTenantAdmin ? [{ name: 'Mailboxes', href: '/office/settings/mailboxes' }] : []),
+    ...(isTenantAdmin ? [{ name: 'AI Assistant', href: '/office/settings/ai-assistant' }] : []),
   ]
 
   return (
