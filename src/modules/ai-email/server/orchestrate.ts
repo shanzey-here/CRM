@@ -1,11 +1,14 @@
 import { SupabaseClient } from '@supabase/supabase-js'
 import { Database, Json } from '@/types/database.types'
 import { buildOutboundMessage, sendMessage } from '@/modules/mailboxes/server/send'
+import { getActiveInventoryItems } from '@/modules/inventory/server/repository'
 import { getLlmAdapter } from '../provider'
 import { buildSystemPrompt } from './persona'
 import { getToneSamples } from './tone'
-import { generateDraftReply, buildHoldingReply } from './draft'
+import { generateDraftReply, buildHoldingReply, buildClarifyingReply } from './draft'
 import { resolveDraftOutcome } from './gate'
+import { extractQuoteDetails, isExtractionComplete, missingFieldLabels, CatalogEntry } from './extract'
+import { createQuoteFromExtraction } from './quote-creation'
 
 type MailboxRow = Database['public']['Tables']['mailboxes']['Row']
 type EmailMessageRow = Database['public']['Tables']['email_messages']['Row']
@@ -94,10 +97,69 @@ export async function maybeDraftAiReply(
 
     const companyName = tenantSettings?.company_legal_name || mailboxAddress
     let bodyText: string
-    let draftModel: string | null
+    let draftModel: string | null = null
+    let extractionModel: string | null = null
+    let quoteComputed = false
+    let quoteId: string | null = null
+    let computedPrice: number | null = null
+
     if (needsQuote) {
-      bodyText = buildHoldingReply({ companyName, recipientName })
-      draftModel = null
+      // Structured extraction — a distinct step from classification, never
+      // extending it. Gated on the tenant's real catalog so the model can
+      // only ever select a real inventory_item_id, never invent one.
+      const { data: catalogRows } = await getActiveInventoryItems(serviceClient, mailbox.tenant_id)
+      const catalog: CatalogEntry[] = (catalogRows ?? []).map((c) => ({
+        id: c.id,
+        name: c.name,
+        room: c.room,
+        default_volume: c.default_volume,
+      }))
+
+      let extraction
+      try {
+        extraction = await extractQuoteDetails(adapter, { systemPrompt, threadText, catalog })
+        extractionModel = extraction.model
+      } catch (err) {
+        console.error('[ai-email] extract() failed, falling back to clarifying reply:', err)
+        extraction = null
+      }
+
+      if (extraction && isExtractionComplete(extraction)) {
+        const creationResult = await createQuoteFromExtraction(serviceClient, {
+          tenantId: mailbox.tenant_id,
+          threadId,
+          senderEmail: toAddress,
+          senderName: recipientName,
+          extraction,
+          catalog,
+        })
+
+        if (creationResult.success) {
+          quoteComputed = true
+          quoteId = creationResult.quoteId
+          computedPrice = creationResult.computedPrice
+
+          // The number is deterministic (from the pricing engine above);
+          // the model's only job here is prose around a given fact, same
+          // "factual constraint, never invent" principle as the persona.
+          const priceSystemPrompt = `${systemPrompt}\n\nYou now have a real computed price for this move: £${computedPrice.toFixed(2)}. State this exact figure clearly and confidently in your reply as the quote. Do not alter it, round it differently, or present it as an estimate range — it is a final figure.`
+          const draftResult = await generateDraftReply(adapter, { systemPrompt: priceSystemPrompt, threadText, toneSamples })
+          bodyText = draftResult.bodyText
+          draftModel = draftResult.model
+        } else {
+          // Extraction was complete but quote creation itself failed
+          // (e.g. geocoding/DB error) — this isn't the customer's fault, so
+          // a clarifying question would be misleading. Fall back to the
+          // original holding-reply wording instead.
+          console.error('[ai-email] createQuoteFromExtraction failed:', creationResult.error)
+          bodyText = buildHoldingReply({ companyName, recipientName })
+        }
+      } else {
+        // Incomplete extraction — the expected common case for a first
+        // inquiry. Ask, don't guess: name exactly what's missing.
+        const missing = extraction ? missingFieldLabels(extraction) : []
+        bodyText = buildClarifyingReply({ companyName, recipientName, missingFields: missing })
+      }
     } else {
       const draftResult = await generateDraftReply(adapter, { systemPrompt, threadText, toneSamples })
       bodyText = draftResult.bodyText
@@ -106,12 +168,22 @@ export async function maybeDraftAiReply(
 
     const outcome = resolveDraftOutcome(mode, needsQuote)
 
+    // knownGap: true only when auto_send would auto-send a reply for a
+    // quote-needing message where a real quote was NOT actually produced —
+    // the one case where the auto-sent reply is still a clarifying
+    // question/holding reply rather than a real price. False whenever
+    // extraction succeeded and a real price went out, and false everywhere
+    // it was already false before (off/assist-routine/quote_review).
+    const knownGap = mode === 'auto_send' && needsQuote && !quoteComputed
+
     const aiMetadata: Json = {
       model: draftModel ?? classifyModel,
       promptVersion: PROMPT_VERSION,
       needsQuote,
-      holdingReply: needsQuote,
-      knownGap: outcome.isKnownGap,
+      holdingReply: needsQuote && !quoteComputed,
+      knownGap,
+      ...(extractionModel ? { extractionModel } : {}),
+      ...(quoteComputed ? { quoteComputed: true, quoteId, computedPrice } : {}),
     }
 
     if (outcome.autoSend) {

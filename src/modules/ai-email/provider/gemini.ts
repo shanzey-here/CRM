@@ -1,4 +1,4 @@
-import { ClassifyInput, ClassifyResult, DraftInput, DraftResult, LlmAdapter } from './types'
+import { ClassifyInput, ClassifyResult, DraftInput, DraftResult, ExtractInput, ExtractResult, LlmAdapter } from './types'
 
 // Server-only — GEMINI_API_KEY is never read outside this file, matching
 // the same "server-only, never client-reachable" standard as
@@ -14,6 +14,7 @@ import { ClassifyInput, ClassifyResult, DraftInput, DraftResult, LlmAdapter } fr
 // a one-line change here; nothing upstream depends on the model string.
 const CLASSIFY_MODEL = 'gemini-flash-lite-latest'
 const DRAFT_MODEL = 'gemini-flash-latest'
+const EXTRACT_MODEL = 'gemini-flash-lite-latest'
 
 function getApiKey(): string {
   const key = process.env.GEMINI_API_KEY
@@ -90,6 +91,89 @@ class GeminiAdapter implements LlmAdapter {
 
     const bodyText = extractText(response).trim()
     return { bodyText, model: DRAFT_MODEL }
+  }
+
+  async extract({ systemPrompt, threadText, catalog }: ExtractInput): Promise<ExtractResult> {
+    const catalogBlock = catalog.length > 0
+      ? catalog.map((c) => `- id: ${c.id} | name: ${c.name}${c.room ? ` | room: ${c.room}` : ''}`).join('\n')
+      : '(no inventory catalog items are configured for this tenant)'
+
+    const response = await callGemini(EXTRACT_MODEL, {
+      systemInstruction: {
+        parts: [
+          {
+            text: [
+              systemPrompt,
+              '',
+              'You are extracting structured facts from this email thread — NOT drafting a reply, NOT deciding whether a quote is needed (that has already been decided). Extract ONLY what is actually stated or unambiguously implied in the thread. Never fill in a plausible-sounding guess.',
+              '',
+              'For each address field (line1, city, postcode) that is not clearly present in the thread, return an empty string "" — never invent a street, city, or postcode that was not actually mentioned.',
+              '',
+              `For items, select ONLY from this exact catalog of real inventory items (never invent an id or name not in this list):\n${catalogBlock}`,
+              '',
+              'If no items are clearly mentioned or implied, return an empty items array. Only include an item if the thread genuinely mentions it or something equivalent (e.g. "2-bed flat" does NOT by itself justify guessing specific furniture — only include items actually named).',
+            ].join('\n'),
+          },
+        ],
+      },
+      contents: [{ role: 'user', parts: [{ text: threadText }] }],
+      generationConfig: {
+        responseMimeType: 'application/json',
+        responseSchema: {
+          type: 'object',
+          properties: {
+            origin_line_1: { type: 'string' },
+            origin_city: { type: 'string' },
+            origin_postcode: { type: 'string' },
+            destination_line_1: { type: 'string' },
+            destination_city: { type: 'string' },
+            destination_postcode: { type: 'string' },
+            items: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  inventory_item_id: { type: 'string' },
+                  quantity: { type: 'integer' },
+                },
+                required: ['inventory_item_id', 'quantity'],
+              },
+            },
+          },
+          required: [
+            'origin_line_1', 'origin_city', 'origin_postcode',
+            'destination_line_1', 'destination_city', 'destination_postcode',
+            'items',
+          ],
+        },
+      },
+    })
+
+    const parsed = JSON.parse(extractText(response))
+
+    // Defensive: never trust an item id the model returned if it isn't
+    // genuinely in the catalog we gave it — discard, don't guess-repair.
+    const catalogIds = new Set(catalog.map((c) => c.id))
+    const items = Array.isArray(parsed.items)
+      ? parsed.items
+          .filter((i: any) => typeof i?.inventory_item_id === 'string' && catalogIds.has(i.inventory_item_id) && Number(i.quantity) > 0)
+          .map((i: any) => ({ inventoryItemId: i.inventory_item_id, quantity: Math.round(Number(i.quantity)) }))
+      : []
+
+    return {
+      origin: {
+        line1: String(parsed.origin_line_1 ?? ''),
+        city: String(parsed.origin_city ?? ''),
+        postcode: String(parsed.origin_postcode ?? ''),
+      },
+      destination: {
+        line1: String(parsed.destination_line_1 ?? ''),
+        city: String(parsed.destination_city ?? ''),
+        postcode: String(parsed.destination_postcode ?? ''),
+      },
+      items,
+      model: EXTRACT_MODEL,
+    }
   }
 }
 
