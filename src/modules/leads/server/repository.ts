@@ -118,7 +118,7 @@ export async function getLeadsNeedingFollowUp(
     .eq('tenant_id', tenantId)
     .in('stage', ['inquiry', 'quote_sent'])
     .eq('is_archived', false)
-    .order('updated_at', { ascending: true }) // Oldest first
+    .order('updated_at', { ascending: false, nullsFirst: false }) // Newest first, ignore nulls
     .limit(limit)
 
   return { success: !error, leads: data || [], error: error?.message }
