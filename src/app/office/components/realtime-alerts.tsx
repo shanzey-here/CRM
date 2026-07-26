@@ -10,29 +10,51 @@ export function RealtimeAlerts({ tenantId }: { tenantId: string }) {
   const [alerts, setAlerts] = useState<{ id: string; message: string }[]>([])
   const audioContextRef = useRef<AudioContext | null>(null)
 
+  // Initialize audio context on first user interaction to bypass autoplay policies
+  useEffect(() => {
+    const initAudio = () => {
+      if (!audioContextRef.current) {
+        const AudioContext = window.AudioContext || (window as any).webkitAudioContext
+        if (AudioContext) {
+          audioContextRef.current = new AudioContext()
+        }
+      }
+      
+      const ctx = audioContextRef.current
+      if (ctx && ctx.state === 'suspended') {
+        ctx.resume()
+      }
+    }
+
+    // Attach to common interaction events
+    window.addEventListener('click', initAudio, { once: true })
+    window.addEventListener('keydown', initAudio, { once: true })
+    window.addEventListener('touchstart', initAudio, { once: true })
+
+    return () => {
+      window.removeEventListener('click', initAudio)
+      window.removeEventListener('keydown', initAudio)
+      window.removeEventListener('touchstart', initAudio)
+      if (audioContextRef.current) {
+        audioContextRef.current.close()
+      }
+    }
+  }, [])
+
   useEffect(() => {
     const supabase = createClient()
     let channel: any = null
-
+    
     console.log('[RealtimeAlerts] Setting up subscription for tenantId:', tenantId)
 
-    // 1. Wait for session to be fully restored before subscribing to Realtime
-    // This prevents the WebSocket from connecting with an anonymous token before the JWT is loaded!
+    // Ensure session is loaded and token is set before connecting WebSocket
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session?.access_token) {
-        console.warn('[RealtimeAlerts] No active session found, Realtime will likely fail RLS.')
-        return
+      if (session?.access_token) {
+        supabase.realtime.setAuth(session.access_token)
       }
 
-      // Explicitly set the token just to be absolutely sure
-      supabase.realtime.setAuth(session.access_token)
-      console.log('[RealtimeAlerts] JWT set on Realtime connection')
-
-      // 2. Subscribe to leads table specifically for this tenant
-      // We append a random string to the channel name to avoid a known race condition in React Strict Mode
-      // where `supabase.channel()` returns an already-subscribing instance before cleanup completes.
       channel = supabase
-        .channel(`leads-inquiries-${tenantId}-${Math.random().toString(36).substring(7)}`)
+        .channel(`leads-inquiries-${tenantId}`)
         .on(
           'postgres_changes',
           {
@@ -42,7 +64,6 @@ export function RealtimeAlerts({ tenantId }: { tenantId: string }) {
             filter: `tenant_id=eq.${tenantId}`
           },
           (payload) => {
-            console.log('[RealtimeAlerts] **CALLBACK FIRED** - Received postgres_changes event:', payload)
             if (payload.new && payload.new.stage === 'inquiry') {
               const newAlert = {
                 id: payload.new.id,
@@ -58,57 +79,53 @@ export function RealtimeAlerts({ tenantId }: { tenantId: string }) {
             }
           }
         )
-        .subscribe((status, err) => {
-          console.log('[RealtimeAlerts] Subscription status:', status)
-          if (err) console.error('[RealtimeAlerts] Subscription error:', err)
-        })
+        .subscribe()
     })
 
     return () => {
       if (channel) {
         supabase.removeChannel(channel)
       }
-      if (audioContextRef.current) {
-        audioContextRef.current.close()
-      }
     }
   }, [tenantId, router])
 
   const playDingSound = () => {
     try {
-      // Browser autoplay policies require user interaction before AudioContext can play.
-      // If the user hasn't clicked anywhere, this will silently fail or warn in console, which is expected/graceful.
-      if (!audioContextRef.current) {
-        const AudioContext = window.AudioContext || (window as any).webkitAudioContext
-        if (AudioContext) {
-          audioContextRef.current = new AudioContext()
-        } else {
-          return // Fallback for unsupported browsers
-        }
-      }
-
       const ctx = audioContextRef.current
-      // Resume context if it was suspended due to autoplay policy
+      if (!ctx) return
+
       if (ctx.state === 'suspended') {
         ctx.resume()
       }
 
-      const osc = ctx.createOscillator()
-      const gainNode = ctx.createGain()
+      const t = ctx.currentTime
 
-      osc.type = 'sine'
-      osc.frequency.setValueAtTime(880, ctx.currentTime) // A5 note
-      osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.5) // Slide down to A4
+      // A softer, more professional "pop-ding" double-chime (WhatsApp/iOS style)
+      // First note (Higher)
+      const osc1 = ctx.createOscillator()
+      const gain1 = ctx.createGain()
+      osc1.type = 'sine'
+      osc1.frequency.value = 1318.51 // E6 note
+      gain1.gain.setValueAtTime(0, t)
+      gain1.gain.linearRampToValueAtTime(0.15, t + 0.02) // Softer volume (0.15 instead of 0.5)
+      gain1.gain.exponentialRampToValueAtTime(0.001, t + 0.15)
+      osc1.connect(gain1)
+      gain1.connect(ctx.destination)
+      osc1.start(t)
+      osc1.stop(t + 0.15)
 
-      gainNode.gain.setValueAtTime(0, ctx.currentTime)
-      gainNode.gain.linearRampToValueAtTime(0.5, ctx.currentTime + 0.05)
-      gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5)
-
-      osc.connect(gainNode)
-      gainNode.connect(ctx.destination)
-
-      osc.start(ctx.currentTime)
-      osc.stop(ctx.currentTime + 0.5)
+      // Second note (Lower)
+      const osc2 = ctx.createOscillator()
+      const gain2 = ctx.createGain()
+      osc2.type = 'sine'
+      osc2.frequency.value = 1046.50 // C6 note
+      gain2.gain.setValueAtTime(0, t + 0.1)
+      gain2.gain.linearRampToValueAtTime(0.15, t + 0.12)
+      gain2.gain.exponentialRampToValueAtTime(0.001, t + 0.4)
+      osc2.connect(gain2)
+      gain2.connect(ctx.destination)
+      osc2.start(t + 0.1)
+      osc2.stop(t + 0.4)
     } catch (err) {
       console.warn('Could not play audio alert:', err)
     }
