@@ -269,6 +269,50 @@ export type Database = {
           },
         ]
       }
+      connected_social_accounts: {
+        Row: {
+          id: string
+          tenant_id: string
+          platform: string
+          aggregator_profile_id: string
+          display_name: string
+          is_active: boolean
+          connected_at: string
+          created_at: string
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          tenant_id: string
+          platform: string
+          aggregator_profile_id: string
+          display_name: string
+          is_active?: boolean
+          connected_at?: string
+          created_at?: string
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          tenant_id?: string
+          platform?: string
+          aggregator_profile_id?: string
+          display_name?: string
+          is_active?: boolean
+          connected_at?: string
+          created_at?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "connected_social_accounts_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contacts: {
         Row: {
           alt_phone: string | null
@@ -2048,6 +2092,7 @@ export type Database = {
           onboarding_state: string | null
           phone: string | null
           primary_color: string | null
+          social_aggregator_profile_id: string | null
           tenant_id: string
           terms_template: string | null
           updated_at: string | null
@@ -2071,6 +2116,7 @@ export type Database = {
           onboarding_state?: string | null
           phone?: string | null
           primary_color?: string | null
+          social_aggregator_profile_id?: string | null
           tenant_id: string
           terms_template?: string | null
           updated_at?: string | null
@@ -2094,6 +2140,7 @@ export type Database = {
           onboarding_state?: string | null
           phone?: string | null
           primary_color?: string | null
+          social_aggregator_profile_id?: string | null
           tenant_id?: string
           terms_template?: string | null
           updated_at?: string | null
