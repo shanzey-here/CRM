@@ -2,8 +2,9 @@ import { createClient } from '@/lib/supabase/server'
 import { isWorkflowModuleEnabled } from '@/modules/workflows/server/repository'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Plus, Workflow, AlertCircle } from 'lucide-react'
+import { Plus, Workflow, AlertCircle, UserPlus, FileText, Star } from 'lucide-react'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { WORKFLOW_TEMPLATES } from '@/modules/workflows/templates'
 
 export const metadata = {
   title: 'Automation Workflows',
@@ -74,7 +75,41 @@ export default async function WorkflowsPage() {
         </AlertDescription>
       </Alert>
 
+      <div className="mt-10 mb-8">
+        <h2 className="text-lg font-medium text-slate-900 mb-4">Start from a template</h2>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {WORKFLOW_TEMPLATES.map((template) => {
+            const Icon = template.icon === 'UserPlus' ? UserPlus : template.icon === 'FileText' ? FileText : Star;
+            return (
+              <div key={template.id} className="relative flex flex-col rounded-lg border border-slate-200 bg-white p-5 shadow-sm hover:border-slate-300 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2">
+                <div className="flex-1">
+                  <div className={`mb-3 inline-flex rounded-lg p-2 ${template.color}`}>
+                    <Icon className="h-5 w-5" aria-hidden="true" />
+                  </div>
+                  <h3 className="text-sm font-semibold text-slate-900">
+                    <Link href={`/office/workflows/new?template=${template.id}`} className="focus:outline-none">
+                      <span className="absolute inset-0" aria-hidden="true" />
+                      {template.title}
+                    </Link>
+                  </h3>
+                  <p className="mt-1 text-sm text-slate-500 line-clamp-3">
+                    {template.description}
+                  </p>
+                </div>
+                <div className="mt-4 pt-4 border-t border-slate-100">
+                  <span className="text-sm font-medium text-indigo-600 hover:text-indigo-500 flex items-center">
+                    Use this template
+                    <span aria-hidden="true" className="ml-1">&rarr;</span>
+                  </span>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
       <div className="mt-8 flow-root">
+        <h2 className="text-lg font-medium text-slate-900 mb-4">Your Workflows</h2>
         <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
             <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">

@@ -2,9 +2,11 @@ import { createClient } from '@/lib/supabase/server'
 import { WorkflowBuilderForm } from './WorkflowBuilderForm'
 import { notFound } from 'next/navigation'
 import { WorkflowFormValues } from '@/modules/workflows/schemas'
+import { WORKFLOW_TEMPLATES } from '@/modules/workflows/templates'
 
-export default async function WorkflowEditorPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function WorkflowEditorPage({ params, searchParams }: { params: Promise<{ id: string }>, searchParams: Promise<{ template?: string }> }) {
   const { id } = await params
+  const { template } = await searchParams
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   const tenantId = user?.app_metadata?.tenant_id as string | undefined
@@ -22,7 +24,17 @@ export default async function WorkflowEditorPage({ params }: { params: Promise<{
 
   let initialData: (WorkflowFormValues & { id: string }) | undefined = undefined
 
-  if (id !== 'new') {
+  if (id === 'new') {
+    if (template) {
+      const selectedTemplate = WORKFLOW_TEMPLATES.find(t => t.id === template)
+      if (selectedTemplate) {
+        initialData = {
+          id: 'new',
+          ...selectedTemplate.config
+        }
+      }
+    }
+  } else {
     const { data: workflow, error } = await supabase
       .from('automation_workflows')
       .select('*, automation_workflow_actions(*)')
