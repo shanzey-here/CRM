@@ -360,6 +360,118 @@ export type Database = {
           },
         ]
       }
+      storage_units: {
+        Row: {
+          id: string
+          tenant_id: string
+          unit_number: string
+          capacity_cubic_feet: number
+          is_available: boolean
+          location_notes: string | null
+          created_at: string
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          tenant_id: string
+          unit_number: string
+          capacity_cubic_feet: number
+          is_available?: boolean
+          location_notes?: string | null
+          created_at?: string
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          tenant_id?: string
+          unit_number?: string
+          capacity_cubic_feet?: number
+          is_available?: boolean
+          location_notes?: string | null
+          created_at?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "storage_units_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crates: {
+        Row: {
+          id: string
+          tenant_id: string
+          crate_number: string
+          status: Database["public"]["Enums"]["crate_status"]
+          storage_unit_id: string | null
+          contact_id: string | null
+          job_id: string | null
+          rented_since: string | null
+          expected_return_date: string | null
+          created_at: string
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          tenant_id: string
+          crate_number: string
+          status?: Database["public"]["Enums"]["crate_status"]
+          storage_unit_id?: string | null
+          contact_id?: string | null
+          job_id?: string | null
+          rented_since?: string | null
+          expected_return_date?: string | null
+          created_at?: string
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          tenant_id?: string
+          crate_number?: string
+          status?: Database["public"]["Enums"]["crate_status"]
+          storage_unit_id?: string | null
+          contact_id?: string | null
+          job_id?: string | null
+          rented_since?: string | null
+          expected_return_date?: string | null
+          created_at?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crates_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crates_storage_unit_fk"
+            columns: ["storage_unit_id", "tenant_id"]
+            isOneToOne: false
+            referencedRelation: "storage_units"
+            referencedColumns: ["id", "tenant_id"]
+          },
+          {
+            foreignKeyName: "crates_contact_fk"
+            columns: ["contact_id", "tenant_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id", "tenant_id"]
+          },
+          {
+            foreignKeyName: "crates_job_fk"
+            columns: ["job_id", "tenant_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id", "tenant_id"]
+          },
+        ]
+      }
       contacts: {
         Row: {
           alt_phone: string | null
@@ -2528,6 +2640,13 @@ export type Database = {
       ai_quoting_mode: "off" | "assist" | "quote_review" | "auto_send"
       assignment_role: "driver" | "porter" | "lead_crew" | "supervisor"
       contact_type: "residential" | "commercial" | "property_manager"
+      crate_status:
+        | "in_warehouse"
+        | "reserved"
+        | "with_customer"
+        | "returned"
+        | "lost"
+        | "damaged"
       email_authored_by: "human" | "ai_draft_pending" | "ai_sent"
       email_direction: "inbound" | "outbound"
       invoice_status:
@@ -2717,6 +2836,14 @@ export const Constants = {
       ai_quoting_mode: ["off", "assist", "quote_review", "auto_send"],
       assignment_role: ["driver", "porter", "lead_crew", "supervisor"],
       contact_type: ["residential", "commercial", "property_manager"],
+      crate_status: [
+        "in_warehouse",
+        "reserved",
+        "with_customer",
+        "returned",
+        "lost",
+        "damaged",
+      ],
       email_authored_by: ["human", "ai_draft_pending", "ai_sent"],
       email_direction: ["inbound", "outbound"],
       invoice_status: [
