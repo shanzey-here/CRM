@@ -33,5 +33,20 @@ export async function emitEvent(
     return { data: null, error }
   }
 
+  // Synchronously execute any matching automation workflows
+  try {
+    const { executeWorkflows } = await import('@/modules/workflows/server/engine')
+    await executeWorkflows(
+      supabase,
+      eventType as any,
+      payload,
+      data as string,
+      tenantId
+    )
+  } catch (engineErr) {
+    // Top-level catch to absolutely guarantee workflows never break the core domain action
+    console.error(`[Event Bus] Uncaught error triggering workflow engine for ${eventType}:`, engineErr)
+  }
+
   return { data, error: null }
 }

@@ -6,7 +6,6 @@ import { getUpcomingJobs } from '@/modules/jobs/server/repository'
 import { getPendingTasks } from '@/modules/tasks/server/repository'
 import { getLeadsNeedingFollowUp } from '@/modules/leads/server/repository'
 import { getOutstandingInvoices } from '@/modules/invoicing/server/repository'
-import { ErrorBoundary } from 'react-error-boundary'
 import { format } from 'date-fns'
 
 import { WidgetError } from './components/widget-error'
@@ -32,7 +31,7 @@ function WidgetSkeleton() {
 async function UpcomingMovesWidget({ tenantId, adminSupabase }: { tenantId: string, adminSupabase: any }) {
   const { success, jobs, error } = await getUpcomingJobs(adminSupabase, tenantId, 5)
 
-  if (!success) throw new Error(error)
+  if (!success) return <WidgetError message={error || 'Unknown error'} />
   if (!jobs || jobs.length === 0) {
     return <div className="text-sm text-slate-500">No upcoming moves scheduled.</div>
   }
@@ -59,7 +58,7 @@ async function UpcomingMovesWidget({ tenantId, adminSupabase }: { tenantId: stri
 async function TasksWidget({ tenantId, adminSupabase }: { tenantId: string, adminSupabase: any }) {
   const { success, tasks, error } = await getPendingTasks(adminSupabase, tenantId, 5)
 
-  if (!success) throw new Error(error)
+  if (!success) return <WidgetError message={error || 'Unknown error'} />
   if (!tasks || tasks.length === 0) {
     return <div className="text-sm text-slate-500">No pending tasks. You're all caught up!</div>
   }
@@ -84,7 +83,7 @@ async function TasksWidget({ tenantId, adminSupabase }: { tenantId: string, admi
 async function LeadsFollowUpWidget({ tenantId, adminSupabase }: { tenantId: string, adminSupabase: any }) {
   const { success, leads, error } = await getLeadsNeedingFollowUp(adminSupabase, tenantId, 5)
 
-  if (!success) throw new Error(error)
+  if (!success) return <WidgetError message={error || 'Unknown error'} />
   if (!leads || leads.length === 0) {
     return <div className="text-sm text-slate-500">No leads need immediate follow-up.</div>
   }
@@ -110,7 +109,7 @@ async function OutstandingInvoicesWidget({ tenantId, adminSupabase }: { tenantId
   // Fix signature: getOutstandingInvoices only takes supabase, tenantId
   const { success, invoices, error } = await getOutstandingInvoices(adminSupabase, tenantId)
 
-  if (!success) throw new Error(error)
+  if (!success) return <WidgetError message={error || 'Unknown error'} />
   // Limit to 5 in memory since repository function doesn't accept limit currently
   const displayInvoices = invoices?.slice(0, 5) || []
 
@@ -180,38 +179,30 @@ export default async function OfficeDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-5">
           <h2 className="text-lg font-semibold text-slate-800 mb-4 border-b pb-2">Upcoming Moves</h2>
-          <ErrorBoundary FallbackComponent={WidgetError}>
-            <Suspense fallback={<WidgetSkeleton />}>
-              <UpcomingMovesWidget tenantId={tenantId} adminSupabase={adminSupabase} />
-            </Suspense>
-          </ErrorBoundary>
+          <Suspense fallback={<WidgetSkeleton />}>
+            <UpcomingMovesWidget tenantId={tenantId} adminSupabase={adminSupabase} />
+          </Suspense>
         </div>
 
         <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-5">
           <h2 className="text-lg font-semibold text-slate-800 mb-4 border-b pb-2">My Pending Tasks</h2>
-          <ErrorBoundary FallbackComponent={WidgetError}>
-            <Suspense fallback={<WidgetSkeleton />}>
-              <TasksWidget tenantId={tenantId} adminSupabase={adminSupabase} />
-            </Suspense>
-          </ErrorBoundary>
+          <Suspense fallback={<WidgetSkeleton />}>
+            <TasksWidget tenantId={tenantId} adminSupabase={adminSupabase} />
+          </Suspense>
         </div>
 
         <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-5">
           <h2 className="text-lg font-semibold text-slate-800 mb-4 border-b pb-2">Leads to Follow Up</h2>
-          <ErrorBoundary FallbackComponent={WidgetError}>
-            <Suspense fallback={<WidgetSkeleton />}>
-              <LeadsFollowUpWidget tenantId={tenantId} adminSupabase={adminSupabase} />
-            </Suspense>
-          </ErrorBoundary>
+          <Suspense fallback={<WidgetSkeleton />}>
+            <LeadsFollowUpWidget tenantId={tenantId} adminSupabase={adminSupabase} />
+          </Suspense>
         </div>
 
         <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-5">
           <h2 className="text-lg font-semibold text-slate-800 mb-4 border-b pb-2">Outstanding Invoices</h2>
-          <ErrorBoundary FallbackComponent={WidgetError}>
-            <Suspense fallback={<WidgetSkeleton />}>
-              <OutstandingInvoicesWidget tenantId={tenantId} adminSupabase={adminSupabase} />
-            </Suspense>
-          </ErrorBoundary>
+          <Suspense fallback={<WidgetSkeleton />}>
+            <OutstandingInvoicesWidget tenantId={tenantId} adminSupabase={adminSupabase} />
+          </Suspense>
         </div>
       </div>
     </div>

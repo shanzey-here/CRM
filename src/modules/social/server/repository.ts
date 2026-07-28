@@ -6,25 +6,21 @@ export async function isSocialModuleEnabled(
   supabase: SupabaseClient<Database>,
   tenantId: string
 ): Promise<boolean> {
-  // 1. Check if the subscription plan includes the social_media entitlement
-  const entitlements = await getTenantEntitlements(supabase, tenantId)
-  if (entitlements.social_media !== true) {
-    return false
-  }
-
-  // 2. Check if the tenant has explicitly enabled the module
-  const { data, error } = await supabase
+  // 1. Check if the tenant has explicitly enabled the module
+  const { data: moduleSettings, error } = await supabase
     .from('tenant_modules')
     .select('enabled')
     .eq('tenant_id', tenantId)
     .eq('module_key', 'social_media')
     .maybeSingle()
 
-  if (error || !data) {
-    return false
+  if (moduleSettings) {
+    return moduleSettings.enabled
   }
 
-  return data.enabled
+  // 2. Check if the subscription plan includes the social_media entitlement
+  const entitlements = await getTenantEntitlements(supabase, tenantId)
+  return entitlements.social_media === true
 }
 
 type ConnectedSocialAccount = Database['public']['Tables']['connected_social_accounts']['Row']
