@@ -179,12 +179,14 @@ export async function POST(request: NextRequest, context: { params: Promise<{ fo
   // server-side and still return success to the visitor. A real captured
   // lead must never be lost over an internal event-bus hiccup; the event
   // bus is a secondary notification path, not the source of truth.
-  const { error: eventErr } = await supabase.rpc('emit_domain_event', {
-    p_event_type: 'lead.created',
-    p_source_module: 'leads',
-    p_payload: { lead_id: lead.id, source: 'website_form' },
-    p_tenant_id: tenantId,
-  })
+  const { emitEvent } = await import('@/utils/supabase/event-bus')
+  const { error: eventErr } = await emitEvent(
+    supabase,
+    'lead.created',
+    'leads',
+    { lead_id: lead.id, source: 'website_form' },
+    tenantId
+  )
   if (eventErr) {
     console.error('[public leads] Failed to emit lead.created event:', eventErr)
   }
