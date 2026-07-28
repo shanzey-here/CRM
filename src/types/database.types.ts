@@ -313,6 +313,53 @@ export type Database = {
           },
         ]
       }
+      scheduled_posts: {
+        Row: {
+          id: string
+          tenant_id: string
+          content: string
+          account_ids: string[]
+          scheduled_for: string
+          status: Database["public"]["Enums"]["scheduled_post_status"]
+          claimed_at: string | null
+          publish_results: Json | null
+          created_at: string
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          tenant_id: string
+          content: string
+          account_ids: string[]
+          scheduled_for: string
+          status?: Database["public"]["Enums"]["scheduled_post_status"]
+          claimed_at?: string | null
+          publish_results?: Json | null
+          created_at?: string
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          tenant_id?: string
+          content?: string
+          account_ids?: string[]
+          scheduled_for?: string
+          status?: Database["public"]["Enums"]["scheduled_post_status"]
+          claimed_at?: string | null
+          publish_results?: Json | null
+          created_at?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scheduled_posts_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contacts: {
         Row: {
           alt_phone: string | null
@@ -2507,6 +2554,12 @@ export type Database = {
       quote_status: "draft" | "sent" | "accepted" | "declined" | "expired"
       saas_pricing_interval: "month" | "year"
       schedule_status: "pending" | "paid" | "overdue"
+      scheduled_post_status:
+        | "pending"
+        | "published"
+        | "partial"
+        | "failed"
+        | "cancelled"
       task_priority: "low" | "medium" | "high" | "urgent"
       task_status: "pending" | "in_progress" | "completed" | "cancelled"
       tenant_role: "tenant_admin" | "dispatcher" | "crew" | "customer"
@@ -2692,6 +2745,13 @@ export const Constants = {
       quote_status: ["draft", "sent", "accepted", "declined", "expired"],
       saas_pricing_interval: ["month", "year"],
       schedule_status: ["pending", "paid", "overdue"],
+      scheduled_post_status: [
+        "pending",
+        "published",
+        "partial",
+        "failed",
+        "cancelled",
+      ],
       task_priority: ["low", "medium", "high", "urgent"],
       task_status: ["pending", "in_progress", "completed", "cancelled"],
       tenant_role: ["tenant_admin", "dispatcher", "crew", "customer"],

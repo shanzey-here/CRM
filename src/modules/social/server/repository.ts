@@ -90,6 +90,25 @@ export async function getOrCreateAggregatorProfileId(
   return { profileId: result.profileId }
 }
 
+// Lists every active connected account for a tenant — for populating an
+// account picker (the publish path uses getConnectedAccounts() above,
+// which requires an explicit accountIds array; this is the first caller
+// that needs "all of them").
+export async function listActiveAccounts(supabase: SupabaseClient<Database>, tenantId: string): Promise<ConnectedSocialAccount[]> {
+  const { data, error } = await supabase
+    .from('connected_social_accounts')
+    .select('*')
+    .eq('tenant_id', tenantId)
+    .eq('is_active', true)
+    .order('display_name', { ascending: true })
+
+  if (error) {
+    console.error('[social] Failed to list active accounts:', error.message)
+    return []
+  }
+  return data ?? []
+}
+
 // Re-syncs connected_social_accounts from Zernio's own account list for a
 // profile — the source of truth — rather than trusting whatever query
 // params Zernio's hosted connect flow appends to the final redirect

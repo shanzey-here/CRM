@@ -15,6 +15,7 @@ export function HeaderNav() {
     { name: 'Tasks', href: '/office/tasks' },
     { name: 'Jobs', href: '/office/jobs' },
     { name: 'Email', href: '/office/email' },
+    { name: 'Social', href: '/office/social' },
     { name: 'Settings', href: '/office/settings' },
   ]
 
