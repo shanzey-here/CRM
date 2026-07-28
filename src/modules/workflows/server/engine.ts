@@ -113,7 +113,8 @@ export async function executeWorkflows(
               status: 'pending',
               due_date: new Date(Date.now() + 86400000 * 3).toISOString(), // default +3 days
               lead_id: payload.lead_id,
-              contact_id: payload.contact_id
+              contact_id: payload.contact_id,
+              assigned_to: config.assigned_to
             })
             if (result.error) {
               throw new Error(result.error.message || JSON.stringify(result.error))
