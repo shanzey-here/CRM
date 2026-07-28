@@ -102,6 +102,7 @@ export function KanbanBoard({ initialLeads }: KanbanBoardProps) {
       )}
 
       <DndContext
+        id="kanban-board-dnd-context"
         sensors={sensors}
         collisionDetection={closestCorners}
         onDragStart={handleDragStart}
