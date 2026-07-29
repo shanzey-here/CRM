@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { CRATE_STATUS_LABELS, ALL_CRATE_STATUSES, CrateStatus } from '@/modules/storage/transitions'
+import { listCratesWithBillingIssues } from '@/modules/storage/server/repository'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,9 +15,10 @@ const STATUS_BADGE: Record<string, string> = {
   damaged: 'bg-red-50 text-red-700 ring-red-600/20',
 }
 
-export default async function StoragePage({ searchParams }: { searchParams: Promise<{ status?: string }> }) {
+export default async function StoragePage({ searchParams }: { searchParams: Promise<{ status?: string; billing_issues?: string }> }) {
   const params = await searchParams
   const statusFilter = params.status && ALL_CRATE_STATUSES.includes(params.status as CrateStatus) ? (params.status as CrateStatus) : undefined
+  const billingIssuesFilter = params.billing_issues === '1'
 
   const supabase = await createClient()
   const {
@@ -26,14 +28,36 @@ export default async function StoragePage({ searchParams }: { searchParams: Prom
   const tenantId = user.app_metadata?.tenant_id as string | undefined
   if (!tenantId) redirect('/login?error=no_tenant_context')
 
-  let query = supabase
-    .from('crates')
-    .select('id, crate_number, status, storage_unit_id, contact_id, job_id, storage_units ( unit_number ), contacts ( first_name, last_name )')
-    .eq('tenant_id', tenantId)
+  let crates: any[] | null = null
+  let error: { message: string } | null = null
 
-  if (statusFilter) query = query.eq('status', statusFilter)
+  if (billingIssuesFilter) {
+    const issueCrates = await listCratesWithBillingIssues(supabase, tenantId)
+    const crateIds = issueCrates.map((c) => c.id)
+    if (crateIds.length > 0) {
+      const result = await supabase
+        .from('crates')
+        .select('id, crate_number, status, storage_unit_id, contact_id, job_id, storage_units ( unit_number ), contacts ( first_name, last_name )')
+        .eq('tenant_id', tenantId)
+        .in('id', crateIds)
+        .order('crate_number', { ascending: true })
+      crates = result.data
+      error = result.error
+    } else {
+      crates = []
+    }
+  } else {
+    let query = supabase
+      .from('crates')
+      .select('id, crate_number, status, storage_unit_id, contact_id, job_id, storage_units ( unit_number ), contacts ( first_name, last_name )')
+      .eq('tenant_id', tenantId)
 
-  const { data: crates, error } = await query.order('crate_number', { ascending: true })
+    if (statusFilter) query = query.eq('status', statusFilter)
+
+    const result = await query.order('crate_number', { ascending: true })
+    crates = result.data
+    error = result.error
+  }
 
   return (
     <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
@@ -55,7 +79,7 @@ export default async function StoragePage({ searchParams }: { searchParams: Prom
       <div className="mt-6 flex items-center gap-2 flex-wrap">
         <Link
           href="/office/storage"
-          className={`text-xs px-3 py-1.5 rounded-full font-medium ${!statusFilter ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+          className={`text-xs px-3 py-1.5 rounded-full font-medium ${!statusFilter && !billingIssuesFilter ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
         >
           All
         </Link>
@@ -63,11 +87,17 @@ export default async function StoragePage({ searchParams }: { searchParams: Prom
           <Link
             key={status}
             href={`/office/storage?status=${status}`}
-            className={`text-xs px-3 py-1.5 rounded-full font-medium ${statusFilter === status ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+            className={`text-xs px-3 py-1.5 rounded-full font-medium ${statusFilter === status && !billingIssuesFilter ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
           >
             {CRATE_STATUS_LABELS[status]}
           </Link>
         ))}
+        <Link
+          href="/office/storage?billing_issues=1"
+          className={`text-xs px-3 py-1.5 rounded-full font-medium ${billingIssuesFilter ? 'bg-red-600 text-white' : 'bg-red-50 text-red-700 hover:bg-red-100'}`}
+        >
+          Billing issues
+        </Link>
       </div>
 
       {error && <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded text-red-700 text-sm">Failed to load crates: {error.message}</div>}

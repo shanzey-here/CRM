@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { listStorageUnits, getCrateStatusHistory } from '@/modules/storage/server/repository'
+import { listStorageUnits, getCrateStatusHistory, getCrateCharges } from '@/modules/storage/server/repository'
 import { CRATE_STATUS_LABELS, CrateStatus } from '@/modules/storage/transitions'
 import { CrateStatusControl } from './components/crate-status-control'
 import { StorageUnitSelect } from './components/storage-unit-select'
@@ -34,6 +34,7 @@ export default async function CrateDetailPage({ params }: { params: Promise<{ id
 
   const units = await listStorageUnits(supabase, tenantId)
   const history = await getCrateStatusHistory(supabase, tenantId, id)
+  const charges = await getCrateCharges(supabase, tenantId, id)
 
   const contact = Array.isArray(crate.contacts) ? crate.contacts[0] : crate.contacts
   const job = Array.isArray(crate.jobs) ? crate.jobs[0] : crate.jobs
@@ -84,6 +85,39 @@ export default async function CrateDetailPage({ params }: { params: Promise<{ id
                 <span className="text-xs text-slate-400">{new Date(entry.occurred_at).toLocaleString()}</span>
               </li>
             ))}
+          </ul>
+        )}
+      </div>
+
+      <div className="p-5 rounded-lg border border-slate-200 bg-white mt-6">
+        <h2 className="text-sm font-semibold text-slate-900 mb-3">Billing history</h2>
+        {charges.length === 0 ? (
+          <p className="text-sm text-slate-400">No automatic charges yet.</p>
+        ) : (
+          <ul className="space-y-2">
+            {charges.map((charge) => {
+              const badge =
+                charge.status === 'charged'
+                  ? 'bg-emerald-50 text-emerald-700'
+                  : charge.status === 'requires_action'
+                    ? 'bg-amber-50 text-amber-700'
+                    : charge.status === 'failed'
+                      ? 'bg-red-50 text-red-700'
+                      : 'bg-slate-50 text-slate-600'
+              return (
+                <li key={charge.id} className="flex items-start justify-between text-sm gap-3">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${badge}`}>{charge.status}</span>
+                      <span className="text-slate-700">{charge.charge_type === 'overdue_fee' ? 'Overdue fee' : 'Lost fee'}</span>
+                      <span className="text-slate-500">£{Number(charge.amount).toFixed(2)}</span>
+                    </div>
+                    {charge.error && <p className="text-xs text-red-500 mt-0.5">{charge.error}</p>}
+                  </div>
+                  <span className="text-xs text-slate-400 whitespace-nowrap">{new Date(charge.created_at).toLocaleString()}</span>
+                </li>
+              )
+            })}
           </ul>
         )}
       </div>

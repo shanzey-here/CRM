@@ -29,6 +29,8 @@ export function PricingForm({ settings }: Props) {
       per_cubic_foot_rate: settings?.per_cubic_foot_rate || 0,
       labor_hourly_rate: settings?.labor_hourly_rate || 0,
       labour_hours_per_cubicft: settings?.labour_hours_per_cubicft || 0.1,
+      crate_overdue_rate_per_day: settings?.crate_overdue_rate_per_day || 0,
+      crate_lost_fee: settings?.crate_lost_fee || 0,
       surcharges: settings?.surcharges || [],
     },
   })
@@ -48,6 +50,8 @@ export function PricingForm({ settings }: Props) {
         formData.append('per_cubic_foot_rate', String(data.per_cubic_foot_rate))
         formData.append('labor_hourly_rate', String(data.labor_hourly_rate))
         formData.append('labour_hours_per_cubicft', String(data.labour_hours_per_cubicft))
+        formData.append('crate_overdue_rate_per_day', String(data.crate_overdue_rate_per_day))
+        formData.append('crate_lost_fee', String(data.crate_lost_fee))
         formData.append('surcharges', JSON.stringify(data.surcharges))
 
         await updatePricingAction(formData)
@@ -155,6 +159,42 @@ export function PricingForm({ settings }: Props) {
             />
             {errors.labour_hours_per_cubicft && (
               <p className="text-sm text-red-600 mt-1">{errors.labour_hours_per_cubicft.message}</p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Crate Billing */}
+      <div className="bg-white rounded-lg border border-slate-200 p-6 space-y-4">
+        <h3 className="text-lg font-semibold text-slate-900">Crate Billing</h3>
+        <p className="text-sm text-slate-500">
+          Leave a rate at £0 to leave that charge type off — automatic crate billing never charges a rate you haven't set.
+        </p>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-900 mb-1">Overdue Rate (£ per day)</label>
+            <input
+              type="number"
+              step="0.01"
+              {...register('crate_overdue_rate_per_day', { valueAsNumber: true })}
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+            />
+            {errors.crate_overdue_rate_per_day && (
+              <p className="text-sm text-red-600 mt-1">{errors.crate_overdue_rate_per_day.message}</p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-900 mb-1">Lost Crate Fee (£, one-time)</label>
+            <input
+              type="number"
+              step="0.01"
+              {...register('crate_lost_fee', { valueAsNumber: true })}
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+            />
+            {errors.crate_lost_fee && (
+              <p className="text-sm text-red-600 mt-1">{errors.crate_lost_fee.message}</p>
             )}
           </div>
         </div>

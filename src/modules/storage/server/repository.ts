@@ -241,3 +241,35 @@ export async function getCrateStatusHistory(supabase: SupabaseClient<Database>, 
     }
   })
 }
+
+type CrateCharge = Database['public']['Tables']['crate_charges']['Row']
+
+export async function getCrateCharges(supabase: SupabaseClient<Database>, tenantId: string, crateId: string): Promise<CrateCharge[]> {
+  const { data } = await supabase
+    .from('crate_charges')
+    .select('*')
+    .eq('tenant_id', tenantId)
+    .eq('crate_id', crateId)
+    .order('created_at', { ascending: false })
+  return data ?? []
+}
+
+// Tenant-wide visibility into ongoing/repeated billing failures — a
+// persistently-declining card would otherwise silently generate a new
+// failed/requires_action row every day with nothing surfacing it beyond
+// opening that one crate's detail page. Cheap filtered view, same spirit
+// as the auto-sent-log/workflow-execution-log giving visibility into an
+// otherwise per-record, unattended process.
+export async function listCratesWithBillingIssues(supabase: SupabaseClient<Database>, tenantId: string): Promise<Crate[]> {
+  const { data: issues } = await supabase
+    .from('crate_charges')
+    .select('crate_id')
+    .eq('tenant_id', tenantId)
+    .in('status', ['failed', 'requires_action'])
+
+  const crateIds = [...new Set((issues ?? []).map((i) => i.crate_id))]
+  if (crateIds.length === 0) return []
+
+  const { data: crates } = await supabase.from('crates').select('*').eq('tenant_id', tenantId).in('id', crateIds).order('crate_number', { ascending: true })
+  return crates ?? []
+}
