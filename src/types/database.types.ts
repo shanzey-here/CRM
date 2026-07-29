@@ -472,6 +472,73 @@ export type Database = {
           },
         ]
       }
+      crate_charges: {
+        Row: {
+          id: string
+          tenant_id: string
+          crate_id: string
+          charge_type: Database["public"]["Enums"]["crate_charge_type"]
+          period_start: string
+          amount: number
+          invoice_id: string | null
+          stripe_payment_intent_id: string | null
+          status: Database["public"]["Enums"]["crate_charge_status"]
+          error: string | null
+          created_at: string
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          tenant_id: string
+          crate_id: string
+          charge_type: Database["public"]["Enums"]["crate_charge_type"]
+          period_start: string
+          amount: number
+          invoice_id?: string | null
+          stripe_payment_intent_id?: string | null
+          status?: Database["public"]["Enums"]["crate_charge_status"]
+          error?: string | null
+          created_at?: string
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          tenant_id?: string
+          crate_id?: string
+          charge_type?: Database["public"]["Enums"]["crate_charge_type"]
+          period_start?: string
+          amount?: number
+          invoice_id?: string | null
+          stripe_payment_intent_id?: string | null
+          status?: Database["public"]["Enums"]["crate_charge_status"]
+          error?: string | null
+          created_at?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crate_charges_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crate_charges_crate_fk"
+            columns: ["crate_id", "tenant_id"]
+            isOneToOne: false
+            referencedRelation: "crates"
+            referencedColumns: ["id", "tenant_id"]
+          },
+          {
+            foreignKeyName: "crate_charges_invoice_fk"
+            columns: ["invoice_id", "tenant_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id", "tenant_id"]
+          },
+        ]
+      }
       contacts: {
         Row: {
           alt_phone: string | null
@@ -490,6 +557,8 @@ export type Database = {
           updated_at: string | null
           updated_by: string | null
           user_id: string | null
+          stripe_customer_id: string | null
+          default_payment_method_id: string | null
         }
         Insert: {
           alt_phone?: string | null
@@ -508,6 +577,8 @@ export type Database = {
           updated_at?: string | null
           updated_by?: string | null
           user_id?: string | null
+          stripe_customer_id?: string | null
+          default_payment_method_id?: string | null
         }
         Update: {
           alt_phone?: string | null
@@ -526,6 +597,8 @@ export type Database = {
           updated_at?: string | null
           updated_by?: string | null
           user_id?: string | null
+          stripe_customer_id?: string | null
+          default_payment_method_id?: string | null
         }
         Relationships: [
           {
@@ -1478,6 +1551,8 @@ export type Database = {
           surcharges: Json | null
           tenant_id: string
           updated_at: string | null
+          crate_overdue_rate_per_day: number
+          crate_lost_fee: number
         }
         Insert: {
           base_rate?: number
@@ -1490,6 +1565,8 @@ export type Database = {
           surcharges?: Json | null
           tenant_id: string
           updated_at?: string | null
+          crate_overdue_rate_per_day?: number
+          crate_lost_fee?: number
         }
         Update: {
           base_rate?: number
@@ -1502,6 +1579,8 @@ export type Database = {
           surcharges?: Json | null
           tenant_id?: string
           updated_at?: string | null
+          crate_overdue_rate_per_day?: number
+          crate_lost_fee?: number
         }
         Relationships: [
           {
@@ -2596,6 +2675,36 @@ export type Database = {
         }
         Returns: Json
       }
+      create_crate_charge_invoice: {
+        Args: {
+          p_tenant_id: string
+          p_crate_id: string
+          p_contact_id: string
+          p_charge_type: Database["public"]["Enums"]["crate_charge_type"]
+          p_period_start: string
+          p_amount: number
+          p_description: string
+        }
+        Returns: Json
+      }
+      record_crate_charge_payment: {
+        Args: {
+          p_tenant_id: string
+          p_crate_charge_id: string
+          p_stripe_intent_id: string
+          p_amount: number
+        }
+        Returns: Json
+      }
+      mark_crate_charge_failed: {
+        Args: {
+          p_tenant_id: string
+          p_crate_charge_id: string
+          p_status: Database["public"]["Enums"]["crate_charge_status"]
+          p_error: string
+        }
+        Returns: undefined
+      }
       save_quote_inventory: {
         Args: {
           p_items: Database["public"]["CompositeTypes"]["quote_inventory_input"][]
@@ -2647,6 +2756,8 @@ export type Database = {
         | "returned"
         | "lost"
         | "damaged"
+      crate_charge_type: "overdue_fee" | "lost_fee"
+      crate_charge_status: "pending" | "charged" | "failed" | "requires_action"
       email_authored_by: "human" | "ai_draft_pending" | "ai_sent"
       email_direction: "inbound" | "outbound"
       invoice_status:
@@ -2844,6 +2955,8 @@ export const Constants = {
         "lost",
         "damaged",
       ],
+      crate_charge_type: ["overdue_fee", "lost_fee"],
+      crate_charge_status: ["pending", "charged", "failed", "requires_action"],
       email_authored_by: ["human", "ai_draft_pending", "ai_sent"],
       email_direction: ["inbound", "outbound"],
       invoice_status: [

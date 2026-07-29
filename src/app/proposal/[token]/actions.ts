@@ -4,7 +4,7 @@ import { headers } from 'next/headers'
 import crypto from 'crypto'
 import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { getQuoteByPublicToken, saveQuoteSignature, markQuoteAccepted } from '@/modules/quotes/server/repository'
-import { createDepositPaymentIntent } from '@/modules/payments/server/stripe'
+import { createDepositPaymentIntent, getOrCreateStripeCustomer } from '@/modules/payments/server/stripe'
 
 export async function generatePaymentIntentAction(
   token: string,
@@ -79,11 +79,21 @@ export async function generatePaymentIntentAction(
       return { success: false, error: 'Tenant is not configured for payments. Contact support.' }
     }
 
+    // Real card-on-file step: ensures this contact has a Stripe Customer so
+    // the deposit payment method can be saved (setup_future_usage below)
+    // and reused later for automatic crate-overdue/lost billing.
+    const customerResult = await getOrCreateStripeCustomer(supabase, quote.tenant_id, quote.contact_id)
+    if ('error' in customerResult) {
+      return { success: false, error: `Failed to prepare payment: ${customerResult.error}` }
+    }
+
     const paymentIntent = await createDepositPaymentIntent({
       amount: Number(quote.deposit_amount),
       tenantConnectedAccountId: tenant.stripe_connected_account_id,
       quoteId: quote.id,
       tenantId: quote.tenant_id,
+      stripeCustomerId: customerResult.stripeCustomerId,
+      contactId: quote.contact_id,
     })
 
     if (!paymentIntent.client_secret) {
