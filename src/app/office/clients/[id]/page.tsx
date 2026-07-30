@@ -43,6 +43,20 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
   const { getTenantStaff } = await import('@/modules/users/server/repository')
   const { data: tenantStaff } = await getTenantStaff(supabase, tenantId)
 
+  // 6. Fetch LTV (if entitled)
+  const { getContactLtv } = await import('@/modules/analytics/server/repository')
+  let ltv: number | null = null
+  let ltvError: string | null = null
+  try {
+    ltv = await getContactLtv(supabase, tenantId, id)
+  } catch (e: any) {
+    if (e?.code === 'PT403') {
+      ltvError = 'Advanced Analytics required'
+    } else {
+      ltvError = 'Unavailable'
+    }
+  }
+
   return (
     <div className="p-8 max-w-5xl mx-auto space-y-6">
       {/* Header */}
@@ -129,6 +143,22 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
                   <p className="text-sm text-slate-600">
                     {new Date(contact.created_at).toLocaleDateString()}
                   </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className="h-5 w-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mt-0.5">
+                  <span className="text-xs font-bold">$</span>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-slate-900">Total Collected Revenue (LTV)</p>
+                  {ltv !== null ? (
+                    <p className="text-lg font-bold text-emerald-600">
+                      ${ltv.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </p>
+                  ) : (
+                    <p className="text-sm text-slate-500 italic mt-0.5">{ltvError}</p>
+                  )}
                 </div>
               </div>
             </CardContent>
