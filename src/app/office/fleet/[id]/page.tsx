@@ -1,5 +1,4 @@
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
+import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Database } from '@/types/database.types'
@@ -13,15 +12,15 @@ import DocumentUploadForm from './components/document-upload-form'
 import MaintenanceLogForm from './components/maintenance-log-form'
 
 export default async function VehicleDetailPage({ params }: { params: { id: string } }) {
-  const supabase = createServerComponentClient<Database>({ cookies })
-  const { data: { session } } = await supabase.auth.getSession()
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
 
-  if (!session) {
+  if (!user) {
     redirect('/auth/signin')
   }
 
-  const tenantId = session.user.app_metadata.tenant_id
-  const tenantRole = session.user.app_metadata.tenant_role
+  const tenantId = user.app_metadata.tenant_id
+  const tenantRole = user.app_metadata.tenant_role
 
   if (!tenantId || tenantRole === 'customer') {
     redirect('/office')

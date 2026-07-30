@@ -1,7 +1,6 @@
 'use server'
 
-import { createServerActionClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
+import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { Database } from '@/types/database.types'
 import { 
@@ -12,20 +11,20 @@ import {
 } from '@/modules/fleet/server/repository'
 
 async function requireAdminOrDispatcher() {
-  const supabase = createServerActionClient<Database>({ cookies })
-  const { data: { session }, error } = await supabase.auth.getSession()
+  const supabase = await createClient()
+  const { data: { user }, error } = await supabase.auth.getUser()
   
-  if (error || !session) throw new Error('Unauthorized')
+  if (error || !user) throw new Error('Unauthorized')
   
-  const tenantId = session.user.app_metadata.tenant_id
-  const tenantRole = session.user.app_metadata.tenant_role
+  const tenantId = user.app_metadata.tenant_id
+  const tenantRole = user.app_metadata.tenant_role
   
   if (!tenantId) throw new Error('No tenant context')
   if (tenantRole !== 'tenant_admin' && tenantRole !== 'dispatcher') {
     throw new Error('Forbidden: Only admins and dispatchers can perform this action')
   }
   
-  return { supabase, session, tenantId, tenantRole }
+  return { supabase, session: { user }, tenantId, tenantRole }
 }
 
 export async function createVehicleAction(formData: FormData) {
