@@ -43,49 +43,51 @@ export function RealtimeAlerts({ tenantId }: { tenantId: string }) {
 
   useEffect(() => {
     const supabase = createClient()
-    let channel: any = null
+    let isMounted = true
     
     console.log('[RealtimeAlerts] Setting up subscription for tenantId:', tenantId)
 
+    const channel = supabase.channel(`leads-inquiries-${tenantId}`)
+    
+    channel.on(
+      'postgres_changes',
+      {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'leads',
+        filter: `tenant_id=eq.${tenantId}`
+      },
+      (payload) => {
+        if (payload.new && payload.new.stage === 'inquiry') {
+          const newAlert = {
+            id: payload.new.id,
+            message: 'New Inquiry Received!'
+          }
+          setAlerts((prev) => [...prev, newAlert])
+          playDingSound()
+          router.refresh() 
+
+          setTimeout(() => {
+            setAlerts((prev) => prev.filter((a) => a.id !== newAlert.id))
+          }, 5000)
+        }
+      }
+    )
+
     // Ensure session is loaded and token is set before connecting WebSocket
     supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!isMounted) return
+      
       if (session?.access_token) {
         supabase.realtime.setAuth(session.access_token)
       }
-
-      channel = supabase
-        .channel(`leads-inquiries-${tenantId}`)
-        .on(
-          'postgres_changes',
-          {
-            event: 'INSERT',
-            schema: 'public',
-            table: 'leads',
-            filter: `tenant_id=eq.${tenantId}`
-          },
-          (payload) => {
-            if (payload.new && payload.new.stage === 'inquiry') {
-              const newAlert = {
-                id: payload.new.id,
-                message: 'New Inquiry Received!'
-              }
-              setAlerts((prev) => [...prev, newAlert])
-              playDingSound()
-              router.refresh() 
-
-              setTimeout(() => {
-                setAlerts((prev) => prev.filter((a) => a.id !== newAlert.id))
-              }, 5000)
-            }
-          }
-        )
-        .subscribe()
+      
+      channel.subscribe()
     })
 
     return () => {
-      if (channel) {
-        supabase.removeChannel(channel)
-      }
+      isMounted = false
+      supabase.removeChannel(channel)
     }
   }, [tenantId, router])
 

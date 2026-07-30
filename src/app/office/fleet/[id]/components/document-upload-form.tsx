@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createClient } from '@/lib/supabase/client'
 import { addVehicleDocumentAction } from '../../actions'
 
 type DocumentUploadFormProps = {
@@ -14,7 +14,7 @@ export default function DocumentUploadForm({ vehicleId, tenantId }: DocumentUplo
   const [error, setError] = useState<string | null>(null)
   const [open, setOpen] = useState(false)
 
-  const supabase = createClientComponentClient()
+  const supabase = createClient()
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
