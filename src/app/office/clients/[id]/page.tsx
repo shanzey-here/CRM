@@ -1,14 +1,29 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound, redirect } from 'next/navigation'
-import { getContactById, getContactAddresses } from '@/modules/clients/server/repository'
+import { getContactById, getContactAddresses, getContactRelocationHistory } from '@/modules/clients/server/repository'
 import { getTimeline } from '@/modules/activities/server/repository'
 import { EditContactForm } from './components/edit-contact-form'
 import { TimelineView } from '../../components/timeline-view'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-import { MapPin, Mail, Phone, Building, Calendar, ArrowLeft } from 'lucide-react'
+import { MapPin, Mail, Phone, Building, Calendar, ArrowLeft, Truck } from 'lucide-react'
 import Link from 'next/link'
+
+const JOB_STATUS_BADGE: Record<string, string> = {
+  scheduled: 'bg-blue-50 text-blue-700',
+  in_progress: 'bg-amber-50 text-amber-700',
+  completed: 'bg-emerald-50 text-emerald-700',
+  cancelled: 'bg-red-50 text-red-700',
+}
+
+function formatCurrency(amount: number) {
+  return `$${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+}
+
+function formatDate(dateStr: string) {
+  return new Date(dateStr).toLocaleDateString()
+}
 
 export const dynamic = 'force-dynamic'
 
@@ -44,7 +59,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
   const { data: tenantStaff } = await getTenantStaff(supabase, tenantId)
 
   // 6. Fetch LTV (if entitled)
-  const { getContactLtv } = await import('@/modules/analytics/server/repository')
+  const { getContactLtv, getRepeatCustomers } = await import('@/modules/analytics/server/repository')
   let ltv: number | null = null
   let ltvError: string | null = null
   try {
@@ -56,6 +71,42 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
       ltvError = 'Unavailable'
     }
   }
+
+  // 7. Repeat-customer badge — reuses get_repeat_customers() as-is, tenant-wide,
+  // checked for membership of this contact. Silently omitted if not entitled/errored,
+  // since it's a flourish rather than a headline number like LTV.
+  let isRepeatCustomer = false
+  try {
+    const repeatCustomers = await getRepeatCustomers(supabase, tenantId)
+    isRepeatCustomer = repeatCustomers.some((r) => r.contact_id === id)
+  } catch {
+    isRepeatCustomer = false
+  }
+
+  // 8. Relocation history — every job (any status) + non-accepted (declined/expired) quotes
+  const { jobs: historyJobs, nonAcceptedQuotes } = await getContactRelocationHistory(supabase, tenantId, id)
+
+  type TimelineEvent =
+    | { kind: 'job'; sortDate: string; job: (typeof historyJobs)[number] }
+    | { kind: 'quote'; sortDate: string; quote: (typeof nonAcceptedQuotes)[number] }
+
+  const jobEvents: TimelineEvent[] = historyJobs.map((j) => ({
+    kind: 'job',
+    sortDate: j.move_date ?? j.created_at,
+    job: j,
+  }))
+  const quoteEvents: TimelineEvent[] = nonAcceptedQuotes.map((q) => ({
+    kind: 'quote',
+    sortDate: q.valid_until ?? q.created_at,
+    quote: q,
+  }))
+  const relocationTimeline = [...jobEvents, ...quoteEvents].sort((a, b) => b.sortDate.localeCompare(a.sortDate))
+
+  const completedJobs = historyJobs.filter((j) => j.status === 'completed')
+  const completedMoveDates = completedJobs.map((j) => j.move_date).filter((d): d is string => !!d).sort()
+  const totalMoves = completedJobs.length
+  const firstMoveDate = completedMoveDates[0] ?? null
+  const mostRecentMoveDate = completedMoveDates[completedMoveDates.length - 1] ?? null
 
   return (
     <div className="p-8 max-w-5xl mx-auto space-y-6">
@@ -77,6 +128,11 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
               {contact.type.charAt(0).toUpperCase() + contact.type.slice(1)}
             </Badge>
             {contact.is_archived && <Badge variant="destructive">Archived</Badge>}
+            {isRepeatCustomer && (
+              <Badge variant="secondary" className="bg-amber-50 text-amber-700">
+                Repeat Customer
+              </Badge>
+            )}
           </div>
           {contact.company_name && (
             <p className="text-slate-500 flex items-center mt-1 text-sm">
@@ -225,15 +281,109 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
             </CardContent>
           </Card>
 
-          {/* Placeholder for Leads/Jobs timeline */}
+          {/* Relocation History */}
           <Card className="shadow-sm border-slate-200">
             <CardHeader className="bg-slate-50/50 pb-4">
-              <CardTitle className="text-lg">Recent Moves</CardTitle>
+              <CardTitle className="text-lg">Relocation History</CardTitle>
+              <CardDescription>Every job and non-accepted quote on record for this contact</CardDescription>
             </CardHeader>
-            <CardContent className="pt-4">
-              <div className="text-center py-8 text-slate-500 text-sm border-2 border-dashed border-slate-200 rounded-lg">
-                Lead and job history will appear here.
+            <CardContent className="pt-4 space-y-5">
+              {/* Summary stats */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div className="p-3 rounded-lg bg-slate-50 border border-slate-100">
+                  <p className="text-xs text-slate-500">Total Moves</p>
+                  <p className="text-lg font-bold text-slate-900">{totalMoves}</p>
+                </div>
+                <div className="p-3 rounded-lg bg-slate-50 border border-slate-100">
+                  <p className="text-xs text-slate-500">Total LTV</p>
+                  <p className="text-lg font-bold text-emerald-600">
+                    {ltv !== null ? formatCurrency(ltv) : '—'}
+                  </p>
+                </div>
+                <div className="p-3 rounded-lg bg-slate-50 border border-slate-100">
+                  <p className="text-xs text-slate-500">First Move</p>
+                  <p className="text-sm font-medium text-slate-900">
+                    {firstMoveDate ? formatDate(firstMoveDate) : '—'}
+                  </p>
+                </div>
+                <div className="p-3 rounded-lg bg-slate-50 border border-slate-100">
+                  <p className="text-xs text-slate-500">Most Recent Move</p>
+                  <p className="text-sm font-medium text-slate-900">
+                    {mostRecentMoveDate ? formatDate(mostRecentMoveDate) : '—'}
+                  </p>
+                </div>
               </div>
+
+              {/* Chronological timeline */}
+              {relocationTimeline.length === 0 ? (
+                <div className="text-center py-8 text-slate-500 text-sm border-2 border-dashed border-slate-200 rounded-lg">
+                  No jobs or quotes recorded for this contact yet.
+                </div>
+              ) : (
+                <ul className="space-y-2">
+                  {relocationTimeline.map((event) => {
+                    if (event.kind === 'job') {
+                      const job = event.job
+                      const quoteData = job.quote
+                      const quote = Array.isArray(quoteData) ? quoteData[0] : quoteData
+                      const origin = job.origin_address
+                      const dest = job.destination_address
+                      return (
+                        <li key={`job-${job.id}`}>
+                          <Link
+                            href={`/office/jobs/${job.id}`}
+                            className="flex items-center justify-between gap-3 text-sm p-3 rounded-lg border border-slate-200 bg-white hover:border-emerald-300 hover:bg-emerald-50/30 transition-colors"
+                          >
+                            <div className="flex items-center gap-3 min-w-0">
+                              <Truck className="h-4 w-4 text-slate-400 shrink-0" />
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <Badge variant="secondary" className={`text-xs uppercase ${JOB_STATUS_BADGE[job.status] || ''}`}>
+                                    {job.status.replace('_', ' ')}
+                                  </Badge>
+                                  <span className="text-slate-700 truncate">
+                                    {origin?.city || 'Unknown'} &rarr; {dest?.city || 'Unknown'}
+                                  </span>
+                                </div>
+                                <p className="text-xs text-slate-400 mt-0.5">
+                                  {job.move_date ? formatDate(job.move_date) : `Booked ${formatDate(job.created_at)}`}
+                                </p>
+                              </div>
+                            </div>
+                            <span className="text-sm font-medium text-slate-900 shrink-0">
+                              {quote?.total_price != null ? formatCurrency(quote.total_price) : '—'}
+                            </span>
+                          </Link>
+                        </li>
+                      )
+                    }
+
+                    const quote = event.quote
+                    return (
+                      <li key={`quote-${quote.id}`}>
+                        <div className="flex items-center justify-between gap-3 text-sm p-3 rounded-lg border border-dashed border-slate-200 bg-slate-50/50">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="h-4 w-4 shrink-0" />
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-2">
+                                <Badge variant="outline" className="text-xs uppercase text-slate-500">
+                                  Quote &mdash; {quote.status}
+                                </Badge>
+                              </div>
+                              <p className="text-xs text-slate-400 mt-0.5">
+                                {quote.valid_until ? `Valid until ${formatDate(quote.valid_until)}` : formatDate(quote.created_at)}
+                              </p>
+                            </div>
+                          </div>
+                          <span className="text-sm font-medium text-slate-500 shrink-0">
+                            {formatCurrency(quote.total_price)}
+                          </span>
+                        </div>
+                      </li>
+                    )
+                  })}
+                </ul>
+              )}
             </CardContent>
           </Card>
 

@@ -211,6 +211,65 @@ export async function getContactAddresses(
   }
 }
 
+// ============================================================================
+// RELOCATION HISTORY
+// ============================================================================
+
+export type RelocationHistoryJob = {
+  id: string
+  status: string
+  move_date: string | null
+  created_at: string
+  origin_address: { city: string; postcode: string } | null
+  destination_address: { city: string; postcode: string } | null
+  quote: { id: string; total_price: number } | { id: string; total_price: number }[] | null
+}
+
+export type RelocationHistoryQuote = {
+  id: string
+  status: string
+  total_price: number
+  valid_until: string | null
+  created_at: string
+}
+
+export async function getContactRelocationHistory(
+  supabase: SupabaseClient<Database>,
+  tenantId: string,
+  contactId: string
+): Promise<{
+  jobs: RelocationHistoryJob[]
+  nonAcceptedQuotes: RelocationHistoryQuote[]
+  error: Error | null
+}> {
+  const [jobsResult, quotesResult] = await Promise.all([
+    supabase
+      .from('jobs')
+      .select(`
+        id, status, move_date, created_at,
+        origin_address:addresses!jobs_origin_address_fk(city, postcode),
+        destination_address:addresses!jobs_destination_address_fk(city, postcode),
+        quote:quotes(id, total_price)
+      `)
+      .eq('tenant_id', tenantId)
+      .eq('contact_id', contactId),
+    supabase
+      .from('quotes')
+      .select('id, status, total_price, valid_until, created_at')
+      .eq('tenant_id', tenantId)
+      .eq('contact_id', contactId)
+      .in('status', ['declined', 'expired']),
+  ])
+
+  const error = jobsResult.error || quotesResult.error || null
+
+  return {
+    jobs: (jobsResult.data as any) || [],
+    nonAcceptedQuotes: quotesResult.data || [],
+    error,
+  }
+}
+
 export async function linkContactAddress(
   supabase: SupabaseClient<Database>,
   tenantId: string,
