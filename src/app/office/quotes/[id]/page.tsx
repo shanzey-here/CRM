@@ -10,6 +10,11 @@ import { RouteSummary } from './components/route-summary'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+
+function formatCurrency(amount: number) {
+  return `$${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+}
 
 export const dynamic = 'force-dynamic'
 
@@ -110,11 +115,48 @@ export default async function QuoteWorkspacePage({ params }: { params: Promise<{
         savedTimeMinutes={quote.travel_time_minutes}
       />
 
-      <VolumeCalculator 
+      <VolumeCalculator
         quote={quote}
         initialSelections={selectedInventory || []}
         catalog={catalogItems || []}
       />
+
+      {/* Read-only pricing snapshot — whatever calculateQuotePrice() last
+          persisted onto this quote. Negotiated rates are never silent: when
+          negotiated_discount_percent is set, both the standard and
+          negotiated figures are shown, never just the smaller number. */}
+      {quote.computed_price !== null && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Pricing</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {quote.negotiated_discount_percent !== null && quote.standard_price !== null ? (
+              <>
+                <div className="flex justify-between items-center pb-2 border-b border-slate-100">
+                  <span className="text-slate-500">Standard Price</span>
+                  <span className="font-medium text-slate-400 line-through">{formatCurrency(quote.standard_price)}</span>
+                </div>
+                <div className="flex justify-between items-center pb-2 border-b border-slate-100">
+                  <span className="text-slate-500">Negotiated Rate</span>
+                  <Badge variant="secondary" className="bg-amber-50 text-amber-700">
+                    {Number(quote.negotiated_discount_percent).toFixed(2)}% off
+                  </Badge>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-700 font-medium">Final Price</span>
+                  <span className="font-bold text-emerald-600">{formatCurrency(quote.computed_price)}</span>
+                </div>
+              </>
+            ) : (
+              <div className="flex justify-between items-center">
+                <span className="text-slate-500">Computed Price</span>
+                <span className="font-medium">{formatCurrency(quote.computed_price)}</span>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }

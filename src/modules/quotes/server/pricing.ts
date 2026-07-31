@@ -4,6 +4,7 @@ import { Database } from '@/types/database.types'
 export interface PricingInput {
   tenantId: string
   quoteId: string
+  contactId: string
   totalVolume: number
   distanceMeters: number
   selectedSurcharges: string[]
@@ -16,6 +17,11 @@ export interface PricingBreakdown {
   surcharges: { key: string; amount: number }[]
   subtotal: number
   minimumAdjustment: number
+  // The engine's own result, before any negotiated-rate adjustment.
+  standardTotal: number
+  // Set only when an active contact_pricing_overrides row applied — never
+  // a silent discount, always paired with standardTotal for transparency.
+  negotiatedDiscountPercent: number | null
   total: number
 }
 
@@ -72,10 +78,28 @@ export async function calculateQuotePrice(
         .filter(Boolean) as { key: string; amount: number }[]
     }
 
+    // Negotiated-rate override — a post-computation adjustment only.
+    // calculate_quote_price() above is never touched: its inputs and SQL
+    // are identical regardless of whether a contact has an override, and
+    // a contact with none takes an identical path (one no-op lookup).
+    const standardTotal = Number(row.final_total)
+    const { data: override } = await supabase
+      .from('contact_pricing_overrides')
+      .select('discount_percent')
+      .eq('tenant_id', input.tenantId)
+      .eq('contact_id', input.contactId)
+      .eq('is_active', true)
+      .maybeSingle()
+
+    const negotiatedDiscountPercent = override ? Number(override.discount_percent) : null
+    const total = negotiatedDiscountPercent
+      ? Math.round(standardTotal * (1 - negotiatedDiscountPercent / 100) * 100) / 100
+      : standardTotal
+
     return {
       success: true,
       result: {
-        computedPrice: Number(row.final_total),
+        computedPrice: total,
         breakdown: {
           volumeCost: Number(row.volume_cost),
           distanceCost: Number(row.distance_cost),
@@ -83,7 +107,9 @@ export async function calculateQuotePrice(
           surcharges: surchargesBreakdown,
           subtotal: Number(row.subtotal),
           minimumAdjustment: Number(row.minimum_adjustment),
-          total: Number(row.final_total),
+          standardTotal,
+          negotiatedDiscountPercent,
+          total,
         },
       },
     }
@@ -108,10 +134,16 @@ export async function savePricingCalculation(
   breakdown: PricingBreakdown
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    // Update computed_price on the quote
+    // Update computed_price on the quote, plus the negotiated-rate snapshot
+    // (both null unless an override was actually applied — a contact with
+    // no override leaves these columns exactly as they were pre-branch).
     const { error: updateError } = await supabase
       .from('quotes')
-      .update({ computed_price: computedPrice })
+      .update({
+        computed_price: computedPrice,
+        standard_price: breakdown.negotiatedDiscountPercent !== null ? breakdown.standardTotal : null,
+        negotiated_discount_percent: breakdown.negotiatedDiscountPercent,
+      })
       .eq('id', quoteId)
       .eq('tenant_id', tenantId)
 

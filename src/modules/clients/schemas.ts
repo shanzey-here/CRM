@@ -45,3 +45,14 @@ export const updateAddressSchema = insertAddressSchema.partial()
 
 export type InsertAddressInput = z.infer<typeof insertAddressSchema>
 export type UpdateAddressInput = z.infer<typeof updateAddressSchema>
+
+// ============================================================================
+// CONTACT PRICING OVERRIDES (negotiated rates)
+// ============================================================================
+
+export const contactPricingOverrideSchema = z.object({
+  discount_percent: z.coerce.number().positive('Discount must be greater than 0').max(100, 'Discount cannot exceed 100%'),
+  notes: z.string().optional().nullable(),
+})
+
+export type ContactPricingOverrideInput = z.infer<typeof contactPricingOverrideSchema>
