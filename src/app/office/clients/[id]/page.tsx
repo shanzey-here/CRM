@@ -1,8 +1,10 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound, redirect } from 'next/navigation'
 import { getContactById, getContactAddresses, getContactRelocationHistory } from '@/modules/clients/server/repository'
+import { getContactPricingOverride } from '@/modules/clients/server/pricing-overrides'
 import { getTimeline } from '@/modules/activities/server/repository'
 import { EditContactForm } from './components/edit-contact-form'
+import { NegotiatedRateCard } from './components/negotiated-rate-card'
 import { TimelineView } from '../../components/timeline-view'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
@@ -107,6 +109,11 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
   const totalMoves = completedJobs.length
   const firstMoveDate = completedMoveDates[0] ?? null
   const mostRecentMoveDate = completedMoveDates[completedMoveDates.length - 1] ?? null
+
+  // 9. Negotiated rate — tenant_admin-only card. Eligibility is fully
+  // manual; not gated by the repeat-customer/LTV data above.
+  const tenantRole = user.app_metadata?.tenant_role
+  const { data: pricingOverride } = await getContactPricingOverride(supabase, tenantId, id)
 
   return (
     <div className="p-8 max-w-5xl mx-auto space-y-6">
@@ -233,6 +240,12 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
               )}
             </CardContent>
           </Card>
+
+          {/* Negotiated Rate — tenant_admin-only, a commercial/financial
+              decision, same access tier as staff/billing settings. */}
+          {tenantRole === 'tenant_admin' && (
+            <NegotiatedRateCard contactId={contact.id} override={pricingOverride} />
+          )}
         </div>
 
         {/* Right Column: Address Book & Activity */}

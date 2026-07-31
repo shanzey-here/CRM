@@ -135,6 +135,7 @@ export async function createQuoteFromExtraction(
   const pricingResult = await calculateQuotePrice(serviceClient, {
     tenantId,
     quoteId: quote.id,
+    contactId: contact.id,
     totalVolume: refreshedQuote.total_volume ?? 0,
     distanceMeters: route.distanceMeters,
     selectedSurcharges: [],
