@@ -35,6 +35,37 @@ export async function getInvoicesByJob(
   return { success: true, data: invoices }
 }
 
+export async function getInvoicesByContact(
+  supabase: SupabaseClient<Database>,
+  tenantId: string,
+  contactId: string
+): Promise<{ success: boolean; data?: InvoiceWithDetails[]; error?: string }> {
+  const { data, error } = await supabase
+    .from('invoices')
+    .select(`
+      *,
+      invoice_line_items (*),
+      payment_schedules (*),
+      payments (*)
+    `)
+    .eq('tenant_id', tenantId)
+    .eq('contact_id', contactId)
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    return { success: false, error: error.message }
+  }
+
+  const invoices = (data || []).map(row => ({
+    ...row,
+    lineItems: row.invoice_line_items || [],
+    schedules: row.payment_schedules || [],
+    payments: row.payments || []
+  })) as unknown as InvoiceWithDetails[]
+
+  return { success: true, data: invoices }
+}
+
 export async function getInvoiceById(
   supabase: SupabaseClient<Database>,
   tenantId: string,

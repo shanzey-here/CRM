@@ -1,0 +1,81 @@
+import { InvoiceWithDetails } from '@/modules/invoicing/schema'
+import { Contact } from '@/modules/clients/server/repository'
+
+// Obviously-fake data for the template editor's live preview only — never
+// persisted, never a real invoice. Lets a tenant see the effect of a layout
+// change without needing a real invoice to test against.
+export const SAMPLE_INVOICE_FOR_PREVIEW: InvoiceWithDetails = {
+  id: 'sample-invoice-id',
+  tenant_id: 'sample-tenant-id',
+  job_id: null,
+  contact_id: 'sample-contact-id',
+  invoice_number: 'INV-00042',
+  status: 'sent',
+  subtotal: 850,
+  tax_amount: 170,
+  total: 1020,
+  issued_at: '2026-01-15',
+  due_date: '2026-01-29',
+  paid_at: null,
+  notes: null,
+  created_at: '2026-01-15T09:00:00Z',
+  updated_at: null,
+  lineItems: [
+    {
+      id: 'sample-line-1',
+      tenant_id: 'sample-tenant-id',
+      invoice_id: 'sample-invoice-id',
+      description: 'Removals service — 3 bedroom house',
+      quantity: 1,
+      unit_price: 650,
+      amount: 650,
+      sort_order: 0,
+      created_at: '2026-01-15T09:00:00Z',
+    },
+    {
+      id: 'sample-line-2',
+      tenant_id: 'sample-tenant-id',
+      invoice_id: 'sample-invoice-id',
+      description: 'Packing materials',
+      quantity: 1,
+      unit_price: 120,
+      amount: 120,
+      sort_order: 1,
+      created_at: '2026-01-15T09:00:00Z',
+    },
+    {
+      id: 'sample-line-3',
+      tenant_id: 'sample-tenant-id',
+      invoice_id: 'sample-invoice-id',
+      description: 'Stairs surcharge',
+      quantity: 2,
+      unit_price: 40,
+      amount: 80,
+      sort_order: 2,
+      created_at: '2026-01-15T09:00:00Z',
+    },
+  ],
+  schedules: [],
+  payments: [],
+}
+
+export const SAMPLE_CONTACT_FOR_PREVIEW: Contact = {
+  id: 'sample-contact-id',
+  tenant_id: 'sample-tenant-id',
+  type: 'residential',
+  user_id: null,
+  first_name: 'Jordan',
+  last_name: 'Sample',
+  company_name: null,
+  email: 'jordan.sample@example.com',
+  phone: '07700 900000',
+  alt_phone: null,
+  notes: null,
+  is_archived: false,
+  created_by: null,
+  updated_by: null,
+  stripe_customer_id: null,
+  default_payment_method_id: null,
+  created_at: '2026-01-01T00:00:00Z',
+  updated_at: null,
+} as unknown as Contact

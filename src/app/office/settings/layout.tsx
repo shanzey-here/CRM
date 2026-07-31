@@ -27,6 +27,7 @@ export default function SettingsLayout({
     { name: 'Inventory Catalog', href: '/office/settings/inventory' },
     { name: 'Branding', href: '/office/settings/branding' },
     { name: 'Pricing', href: '/office/settings/pricing' },
+    { name: 'Invoice Template', href: '/office/settings/invoice-template' },
     ...(isTenantAdmin ? [{ name: 'Staff', href: '/office/settings/staff' }] : []),
     ...(isTenantAdmin ? [{ name: 'Billing', href: '/office/settings/billing' }] : []),
     ...(isTenantAdmin ? [{ name: 'Mailboxes', href: '/office/settings/mailboxes' }] : []),

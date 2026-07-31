@@ -70,6 +70,21 @@ export async function getContactById(
   return { data, error }
 }
 
+export async function getContactByUserId(
+  supabase: SupabaseClient<Database>,
+  tenantId: string,
+  userId: string
+): Promise<{ data: Contact | null; error: Error | null }> {
+  const { data, error } = await supabase
+    .from('contacts')
+    .select('*')
+    .eq('tenant_id', tenantId)
+    .eq('user_id', userId)
+    .single()
+
+  return { data, error }
+}
+
 export async function createContact(
   supabase: SupabaseClient<Database>,
   tenantId: string,
