@@ -1,0 +1,22 @@
+{
+  "name": "GoMove Crew Portal",
+  "short_name": "Crew Portal",
+  "description": "Mobile offline-capable portal for GoMove moving crews",
+  "start_url": "/crew",
+  "scope": "/crew/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ea580c",
+  "icons": [
+    {
+      "src": "/icons/crew-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/crew-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

@@ -1,13 +1,19 @@
 import type { NextConfig } from "next";
+import withSerwistInit from "@serwist/next";
+
+const withSerwist = withSerwistInit({
+  swSrc: "src/app/crew/sw.ts",
+  swDest: "public/crew-sw.js",
+  disable: process.env.NODE_ENV === "development",
+  register: false,
+  cacheOnNavigation: true,
+});
 
 const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  // Dev-only: lets headless browser test tooling hit the dev server via
-  // 127.0.0.1 (Next.js blocks cross-origin HMR requests from that host by
-  // default, which otherwise silently breaks client-side hydration).
   allowedDevOrigins: ["127.0.0.1"],
 };
 
-export default nextConfig;
+export default withSerwist(nextConfig);

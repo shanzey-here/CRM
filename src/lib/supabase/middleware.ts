@@ -45,7 +45,7 @@ export async function updateSession(request: NextRequest) {
   // must be exempted here or every cron hit gets redirected to /login before
   // the route's own auth check ever runs.
   // All of the above enforce their own tenant/secret resolution in code instead of relying on session.
-  const isPublicPath = path.startsWith('/login') || path.startsWith('/signup') || path.startsWith('/auth') || path === '/' || path.startsWith('/api/public') || path.startsWith('/api/webhooks') || path.startsWith('/proposal') || path.startsWith('/api/cron')
+  const isPublicPath = path.startsWith('/login') || path.startsWith('/signup') || path.startsWith('/auth') || path === '/' || path.startsWith('/api/public') || path.startsWith('/api/webhooks') || path.startsWith('/proposal') || path.startsWith('/api/cron') || path.startsWith('/crew/test') || path === '/crew-sw.js' || path === '/manifest.json' || path.startsWith('/_next/') || path === '/sw.js'
 
   // Redirect unauthenticated users trying to access protected paths
   if (!user && !isPublicPath) {
