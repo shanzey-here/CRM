@@ -15,6 +15,8 @@ export default async function Home() {
   const tenantRole = appMetadata.tenant_role ?? appMetadata.role
   const tenantId = appMetadata.tenant_id
 
+  console.log('[Root Route Debug] user.id:', user.id, 'app_metadata:', appMetadata)
+
   // Super admin goes to super-admin dashboard
   if (isSuperAdmin) {
     redirect('/super-admin')
