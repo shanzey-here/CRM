@@ -104,3 +104,117 @@ export async function getCrewJobDetails(jobId: string) {
     syncedAt: new Date().toISOString()
   }
 }
+
+export async function addJobPhotoAction(payload: {
+  jobId: string
+  storagePath: string
+  caption?: string
+}) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user || !user.app_metadata?.tenant_id) {
+    return { success: false, error: 'Unauthorized' }
+  }
+
+  const tenantId = user.app_metadata.tenant_id
+  const userId = user.id
+
+  const { error } = await supabase
+    .from('job_photos')
+    .insert({
+      tenant_id: tenantId,
+      job_id: payload.jobId,
+      storage_path: payload.storagePath,
+      caption: payload.caption,
+      uploaded_by: userId,
+    })
+
+  if (error) {
+    return { success: false, error: error.message }
+  }
+
+  return { success: true }
+}
+
+export async function addJobSignoffAction(payload: {
+  jobId: string
+  signatureName: string
+  base64Image: string
+}) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user || !user.app_metadata?.tenant_id) {
+    return { success: false, error: 'Unauthorized' }
+  }
+
+  const tenantId = user.app_metadata.tenant_id
+  const userId = user.id
+  
+  // Verify assignment
+  const { data: assignment, error: assignmentError } = await supabase
+    .from('job_crew_assignments')
+    .select('id')
+    .eq('tenant_id', tenantId)
+    .eq('user_id', userId)
+    .eq('job_id', payload.jobId)
+    .single()
+
+  if (assignmentError || !assignment) {
+    return { success: false, error: 'Unauthorized or not assigned to this job' }
+  }
+
+  // Create admin client to bypass storage RLS 
+  const { createClient: createAdmin } = await import('@supabase/supabase-js')
+  const supabaseAdmin = createAdmin(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+
+  const base64Data = payload.base64Image.replace(/^data:image\/\w+;base64,/, '')
+  const buffer = Buffer.from(base64Data, 'base64')
+  
+  const timestamp = new Date().getTime()
+  const storagePath = `${tenantId}/${payload.jobId}/signoff_${timestamp}.png`
+  
+  const { error: uploadError } = await supabaseAdmin.storage
+    .from('job_signatures')
+    .upload(storagePath, buffer, {
+      contentType: 'image/png',
+      upsert: false,
+    })
+    
+  if (uploadError) {
+    return { success: false, error: 'Failed to upload signature image: ' + uploadError.message }
+  }
+
+  const { createHash } = await import('crypto')
+  const documentHash = createHash('sha256').update(buffer).digest('hex')
+
+  const { error: insertError } = await supabase
+    .from('job_signoffs')
+    .insert({
+      tenant_id: tenantId,
+      job_id: payload.jobId,
+      signature_name: payload.signatureName,
+      signature_storage_path: storagePath,
+      document_hash: documentHash,
+      captured_by: userId,
+    })
+
+  if (insertError) {
+    return { success: false, error: 'Failed to insert signoff record: ' + insertError.message }
+  }
+
+  // Update job status to completed
+  const { error: updateError } = await supabase
+    .from('jobs')
+    .update({ status: 'completed' })
+    .eq('id', payload.jobId)
+    .eq('tenant_id', tenantId)
+
+  if (updateError) {
+    return { success: false, error: 'Failed to update job status: ' + updateError.message }
+  }
+
+  return { success: true }
+}

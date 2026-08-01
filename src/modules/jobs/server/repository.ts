@@ -97,6 +97,7 @@ export async function getJobDetails(
       contact:contacts(first_name, last_name, email, phone, company_name),
       origin_address:addresses!jobs_origin_address_fk(*),
       destination_address:addresses!jobs_destination_address_fk(*),
+      job_photos(*),
       quote:quotes(
         id, subtotal, surcharge_total, total_price, deposit_amount, status, total_volume, terms,
         quote_inventory(
