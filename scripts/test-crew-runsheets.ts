@@ -8,7 +8,7 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-async function setupTestData() {
+export async function setupTestData() {
   console.log('Setting up test data...')
   
   // Create or get tenant
@@ -175,4 +175,7 @@ async function runTest() {
   await browser.close()
 }
 
-runTest().catch(console.error)
+// Only run if called directly (this is a simple workaround since tsx might not set require.main)
+if (process.argv[1] && process.argv[1].includes('test-crew-runsheets')) {
+  runTest().catch(console.error)
+}
