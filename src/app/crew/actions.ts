@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { getJobDetails } from '@/modules/jobs/server/repository'
 import { addDays, format } from 'date-fns'
+import { headers } from 'next/headers'
 
 /**
  * Fetches the next 7 days of jobs assigned to the current crew member,
@@ -190,6 +191,11 @@ export async function addJobSignoffAction(payload: {
   const { createHash } = await import('crypto')
   const documentHash = createHash('sha256').update(buffer).digest('hex')
 
+  // Capture IP address for the audit log — same pattern as the
+  // quote_signatures flow (src/app/proposal/[token]/actions.ts).
+  const headersList = await headers()
+  const ipAddress = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'unknown'
+
   const { error: insertError } = await supabase
     .from('job_signoffs')
     .insert({
@@ -199,6 +205,7 @@ export async function addJobSignoffAction(payload: {
       signature_storage_path: storagePath,
       document_hash: documentHash,
       captured_by: userId,
+      ip_address: ipAddress,
     })
 
   if (insertError) {

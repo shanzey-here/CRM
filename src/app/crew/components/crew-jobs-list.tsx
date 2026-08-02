@@ -1,17 +1,30 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { getOffline, setOffline } from '@/lib/offline-storage'
+import { useEffect, useState, useCallback } from 'react'
+import { getOffline, setOffline, getPendingSignoffs } from '@/lib/offline-storage'
 import { syncCrewJobs } from '../actions'
 import { format, formatDistanceToNow } from 'date-fns'
 import Link from 'next/link'
-import { MapPin, Calendar, Clock, RefreshCw } from 'lucide-react'
+import { Calendar, Clock, RefreshCw, UploadCloud } from 'lucide-react'
 
 export function CrewJobsList() {
   const [jobs, setJobs] = useState<any[]>([])
   const [syncedAt, setSyncedAt] = useState<string | null>(null)
   const [isSyncing, setIsSyncing] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // Set of job IDs that have at least one pending-but-unsynced signoff in IDB.
+  // This is a display-only overlay — the underlying cached status is never mutated.
+  const [pendingSignoffJobIds, setPendingSignoffJobIds] = useState<Set<string>>(new Set())
+
+  // Read IDB pending-signoffs store and update the display overlay set.
+  const refreshPendingSignoffIds = useCallback(async () => {
+    try {
+      const pending = await getPendingSignoffs()
+      setPendingSignoffJobIds(new Set(pending.map(s => s.jobId)))
+    } catch {
+      // Non-fatal — worst case the overlay doesn't show; don't break the list
+    }
+  }, [])
 
   useEffect(() => {
     let mounted = true
@@ -26,16 +39,26 @@ export function CrewJobsList() {
         if (cachedSyncTime) setSyncedAt(cachedSyncTime)
       }
 
-      // 2. Sync if online
+      // 2. Reflect any pending signoffs immediately (e.g. if user navigated back from detail page)
+      await refreshPendingSignoffIds()
+
+      // 3. Sync if online
       if (navigator.onLine) {
         syncData()
       }
     }
     
     init()
+
+    // Re-check pending signoffs when we come back online (sync may have cleared some)
+    const handleOnline = () => refreshPendingSignoffIds()
+    window.addEventListener('online', handleOnline)
     
-    return () => { mounted = false }
-  }, [])
+    return () => {
+      mounted = false
+      window.removeEventListener('online', handleOnline)
+    }
+  }, [refreshPendingSignoffIds])
 
   async function syncData() {
     setIsSyncing(true)
@@ -45,17 +68,21 @@ export function CrewJobsList() {
       if (result.success && result.jobsList) {
         setJobs(result.jobsList)
         setSyncedAt(result.syncedAt || new Date().toISOString())
-        
+
         // Cache the list
         await setOffline('crew_jobs_list', result.jobsList)
         await setOffline('crew_jobs_synced_at', result.syncedAt || new Date().toISOString())
-        
+
         // Cache the individual job details
         if (result.detailedJobs) {
           for (const [jobId, details] of Object.entries(result.detailedJobs)) {
             await setOffline(`job_details_${jobId}`, details)
           }
         }
+
+        // After a real server sync, any signoffs that were pending may now be
+        // confirmed server-side. Re-read IDB so their overlay lifts immediately.
+        await refreshPendingSignoffIds()
       } else {
         setError(result.error || 'Failed to sync')
       }
@@ -112,9 +139,23 @@ export function CrewJobsList() {
                   </h3>
                   <p className="text-gray-500 text-sm">Job ID: {job.id.split('-')[0]}</p>
                 </div>
-                <span className="px-3 py-1 bg-orange-100 text-orange-800 text-xs font-semibold uppercase rounded-full">
-                  {job.status.replace('_', ' ')}
-                </span>
+                {/* Display-only overlay: amber "Pending Sync" badge if a signoff is
+                    queued locally but not yet confirmed by the server. The real
+                    jobs.status is never mutated here — this is purely visual. */}
+                {pendingSignoffJobIds.has(job.id) ? (
+                  <span className="inline-flex items-center gap-1 px-3 py-1 bg-orange-100 text-orange-700 text-xs font-semibold rounded-full">
+                    <UploadCloud className="w-3 h-3" />
+                    Pending Sync
+                  </span>
+                ) : job.status === 'completed' ? (
+                  <span className="px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-semibold uppercase rounded-full">
+                    Completed
+                  </span>
+                ) : (
+                  <span className="px-3 py-1 bg-orange-100 text-orange-800 text-xs font-semibold uppercase rounded-full">
+                    {job.status.replace(/_/g, ' ')}
+                  </span>
+                )}
               </div>
               
               <div className="flex items-center space-x-2 text-gray-600 mt-2">
