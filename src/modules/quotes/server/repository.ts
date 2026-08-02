@@ -140,7 +140,7 @@ export async function getQuoteByPublicToken(
       `
       *,
       contact:contacts!quotes_contact_fk(id, first_name, last_name, email, phone),
-      tenant:tenants!quotes_tenant_fk(id)
+      tenant:tenants(id)
     `
     )
     .eq('public_token', token)

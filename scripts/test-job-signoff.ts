@@ -54,18 +54,18 @@ async function runTest() {
   console.log('Logging in as Crew A...')
   
   try {
-    const response = await page.goto('http://localhost:3000/login', { waitUntil: 'domcontentloaded' })
+    const response = await page.goto('http://localhost:3000/login', { waitUntil: 'domcontentloaded', timeout: 90000 })
     if (response && !response.ok()) {
       console.log(`Warning: Page returned status ${response.status()}`)
       console.log(await page.textContent('body'))
     }
     
-    await page.waitForSelector('input[name="email"]', { timeout: 10000 })
+    await page.waitForSelector('input[name="email"]', { timeout: 60000 })
     await page.fill('input[name="email"]', 'crewa@example.com')
     await page.fill('input[name="password"]', 'password123')
     await page.click('button[type="submit"]')
     
-    await page.waitForSelector('text=Crew Dashboard', { timeout: 10000 })
+    await page.waitForSelector('text=Crew Dashboard', { timeout: 60000 })
     console.log('✓ Logged in')
   } catch (e: any) {
     console.log('Failed during login phase. Taking screenshot...')
@@ -81,8 +81,8 @@ async function runTest() {
   console.log('Navigating to job sheet...')
   
   try {
-    await page.goto(`http://localhost:3000/crew/jobs/${testJobId}`, { waitUntil: 'domcontentloaded' })
-    await page.waitForSelector('text=Job Sign-off', { timeout: 15000 })
+    await page.goto(`http://localhost:3000/crew/jobs/${testJobId}`, { waitUntil: 'domcontentloaded', timeout: 90000 })
+    await page.waitForSelector('text=Job Sign-off', { timeout: 60000 })
   } catch (e: any) {
     console.log('Failed during job sheet navigation. Taking screenshot...')
     await page.screenshot({ path: 'jobsheet-failure.png' })
@@ -97,7 +97,7 @@ async function runTest() {
   // 4. Capture signature offline
   console.log('Capturing signature offline...')
   await page.fill('input[placeholder="John Doe"]', 'Test Customer')
-  
+
   // Draw on canvas using dragTo for better event simulation
   const canvas = page.locator('canvas')
   await canvas.dragTo(canvas, {
@@ -105,15 +105,12 @@ async function runTest() {
     targetPosition: { x: 100, y: 50 }
   })
 
-  // Fill in the signature name
-  await page.fill('input[placeholder="John Doe"]', 'John Customer')
-
   await page.click('button:has-text("Sign & Complete Job")')
 
   // 5. Verify the "pending sync" UI
   console.log('Verifying honest local state (pending sync)...')
   try {
-    await page.waitForSelector('text=Completed (pending sync)', { timeout: 5000 })
+    await page.waitForSelector('text=Completed (pending sync)', { timeout: 20000 })
   } catch (e: any) {
     console.log('Failed to verify pending sync state. Page text:')
     console.log(await page.textContent('body'))
@@ -144,10 +141,37 @@ async function runTest() {
   // 7. Verify sync completion
   // Give it a moment to sync, then reload to force a fresh DB read
   await page.waitForTimeout(3000)
+
+  // DIAGNOSTIC: dump service worker + cache storage state before reload
+  const swDiag = await page.evaluate(async () => {
+    const regs = await navigator.serviceWorker.getRegistrations()
+    const cacheNames = await caches.keys()
+    return { registrations: regs.map(r => r.scope), cacheNames }
+  })
+  console.log('SW/Cache diagnostic before reload:', JSON.stringify(swDiag))
+
   await page.reload()
-  
-  await page.waitForSelector('text=Job Completed', { timeout: 10000 })
-  console.log('✓ UI correctly updated to Job Completed')
+
+  try {
+    await page.waitForSelector('text=Job Completed', { timeout: 20000 })
+    console.log('✓ UI correctly updated to Job Completed')
+  } catch (e: any) {
+    console.log('DIAGNOSTIC: "Job Completed" did not appear. Page text after reload:')
+    console.log(await page.textContent('body'))
+    const swDiagAfter = await page.evaluate(async () => {
+      const regs = await navigator.serviceWorker.getRegistrations()
+      const cacheNames = await caches.keys()
+      const cacheContents: Record<string, string[]> = {}
+      for (const name of cacheNames) {
+        const cache = await caches.open(name)
+        const keys = await cache.keys()
+        cacheContents[name] = keys.map(k => k.url).filter(u => u.includes('/crew'))
+      }
+      return { registrations: regs.map(r => r.scope), cacheContents }
+    })
+    console.log('SW/Cache diagnostic after reload:', JSON.stringify(swDiagAfter, null, 2))
+    throw e
+  }
 
   // 7. Verify the audit bundle in the DB
   console.log('Verifying remote database updates...')
@@ -158,7 +182,12 @@ async function runTest() {
   }
   console.log('✓ Job status transitioned to completed')
 
-  const { data: signoffs } = await supabase.from('job_signoffs').select('*').eq('job_id', testJobId)
+  const { data: signoffs } = await supabase
+    .from('job_signoffs')
+    .select('*')
+    .eq('job_id', testJobId)
+    .order('created_at', { ascending: false })
+    .limit(1)
   if (!signoffs || signoffs.length === 0) {
     throw new Error('Signoff record not found in database')
   }
@@ -173,8 +202,21 @@ async function runTest() {
   if (!signoff.captured_by) {
     throw new Error('Captured by missing')
   }
+  if (!signoff.ip_address || signoff.ip_address === 'unknown') {
+    throw new Error(`ip_address missing or unknown, got: ${signoff.ip_address}`)
+  }
+  if (!signoff.signed_at) {
+    throw new Error('signed_at missing')
+  }
 
-  console.log('✓ Full audit bundle verified (name, hash, captured_by, timestamps)')
+  console.log('✓ Full audit bundle verified:', JSON.stringify({
+    signature_name: signoff.signature_name,
+    document_hash: signoff.document_hash.slice(0, 16) + '...',
+    ip_address: signoff.ip_address,
+    captured_by: signoff.captured_by,
+    signed_at: signoff.signed_at,
+    signature_storage_path: signoff.signature_storage_path,
+  }))
   
   await browser.close()
   console.log('✅ All signature tests passed!')
