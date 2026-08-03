@@ -36,3 +36,6 @@ CREATE POLICY "users_update_own_notifications"
 -- Note: INSERT is handled strictly by the service_role in generateNotifications(), 
 -- ensuring that unauthenticated users (e.g., lead form submitters) or customers 
 -- can still trigger notifications for admins without needing broad INSERT grants.
+
+-- Enable Realtime for notifications
+ALTER PUBLICATION supabase_realtime ADD TABLE public.notifications;

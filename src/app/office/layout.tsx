@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { HeaderNav } from './components/header-nav'
-import { RealtimeAlerts } from './components/realtime-alerts'
+import { NotificationBell } from './components/notification-bell'
 
 export default async function OfficeLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -88,7 +88,8 @@ export default async function OfficeLayout({ children }: { children: React.React
               <HeaderNav />
             </div>
             <div className="flex items-center">
-              <span className="text-sm text-slate-500 mr-4">{user.email}</span>
+              <NotificationBell userId={user.id} />
+              <span className="text-sm text-slate-500 mr-4 ml-4">{user.email}</span>
             </div>
           </div>
         </div>
@@ -96,7 +97,6 @@ export default async function OfficeLayout({ children }: { children: React.React
       <main className="flex-1">
         {children}
       </main>
-      <RealtimeAlerts tenantId={tenantId} />
     </div>
   )
 }
