@@ -20,7 +20,7 @@ export function NotificationBell({ userId }: { userId: string }) {
   const router = useRouter()
   const [notifications, setNotifications] = useState<NotificationRecord[]>([])
   const [isOpen, setIsOpen] = useState(false)
-  const [toastAlerts, setToastAlerts] = useState<{ id: string; message: string }[]>([])
+  const [toastAlerts, setToastAlerts] = useState<{ id: string; title: string; message: string }[]>([])
   const audioContextRef = useRef<AudioContext | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
@@ -86,21 +86,19 @@ export function NotificationBell({ userId }: { userId: string }) {
         const newNotif = payload.new as NotificationRecord
         setNotifications((prev) => [newNotif, ...prev])
 
-        // Legacy preservation: If it's a new lead, trigger the toast and sound
-        if (newNotif.notification_type === 'new_lead') {
-          const newAlert = {
-            id: newNotif.id,
-            message: newNotif.title || 'New Inquiry Received!'
-          }
-          setToastAlerts((prev) => [...prev, newAlert])
-          playDingSound()
-          
-          setTimeout(() => {
-            setToastAlerts((prev) => prev.filter((a) => a.id !== newAlert.id))
-          }, 5000)
-        } else {
-          // Could optionally play sound for others too, but sticking strictly to the legacy preservation requirement.
+        // The real gap: notifications-ui only preserved the legacy sound/toast for 'new_lead'.
+        // We now extend this live alerting behavior to all real-time notification types (quote_accepted, task_assigned, etc).
+        const newAlert = {
+          id: newNotif.id,
+          title: newNotif.title || 'New Notification',
+          message: newNotif.message || 'Check your notifications.'
         }
+        setToastAlerts((prev) => [...prev, newAlert])
+        playDingSound()
+        
+        setTimeout(() => {
+          setToastAlerts((prev) => prev.filter((a) => a.id !== newAlert.id))
+        }, 5000)
       }
     )
 
@@ -283,8 +281,8 @@ export function NotificationBell({ userId }: { userId: string }) {
                   <Bell size={20} className="animate-pulse" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-slate-900">{alert.message}</p>
-                  <p className="text-xs text-slate-500">Check your notifications.</p>
+                  <p className="text-sm font-semibold text-slate-900">{alert.title}</p>
+                  <p className="text-xs text-slate-500">{alert.message}</p>
                 </div>
               </div>
               <button
