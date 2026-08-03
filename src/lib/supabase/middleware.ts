@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { getCorrectDashboardPath } from './dashboard-path'
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -55,19 +56,7 @@ export async function updateSession(request: NextRequest) {
   }
 
   // Determine user's correct dashboard path based on role
-  let correctDashboard = '/';
-  if (user) {
-    const appMetadata = user.app_metadata || {};
-    if (appMetadata.is_super_admin) {
-      correctDashboard = '/super-admin';
-    } else if (appMetadata.tenant_role === 'tenant_admin') {
-      correctDashboard = '/office/leads';
-    } else if (appMetadata.tenant_role === 'dispatcher') {
-      correctDashboard = '/office';
-    } else if (appMetadata.tenant_role === 'crew') {
-      correctDashboard = '/crew';
-    }
-  }
+  const correctDashboard = user ? getCorrectDashboardPath(user.app_metadata) : '/';
 
   // Redirect authenticated users away from login, home, or the old generic dashboard
   if (user && (path === '/login' || path === '/dashboard' || path === '/' || path === '/admin')) {

@@ -27,7 +27,7 @@ export default async function Home() {
     switch (tenantRole) {
       case 'tenant_admin':
       case 'dispatcher':
-        redirect('/office/leads')
+        redirect('/office')
       case 'crew':
         redirect('/crew')
       case 'customer':
