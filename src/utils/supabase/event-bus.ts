@@ -48,5 +48,19 @@ export async function emitEvent(
     console.error(`[Event Bus] Uncaught error triggering workflow engine for ${eventType}:`, engineErr)
   }
 
+  // Synchronously execute notification generation
+  try {
+    const { generateNotifications } = await import('@/modules/notifications/server/generator')
+    await generateNotifications(
+      eventType,
+      payload,
+      data as string,
+      tenantId
+    )
+  } catch (notifyErr) {
+    // Top-level catch to absolutely guarantee notifications never break the core domain action
+    console.error(`[Event Bus] Uncaught error triggering notification engine for ${eventType}:`, notifyErr)
+  }
+
   return { data, error: null }
 }

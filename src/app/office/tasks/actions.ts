@@ -61,6 +61,14 @@ export async function createTaskAction(payload: unknown) {
     revalidatePath(`/office/leads/${parsed.data.lead_id}`)
   }
 
+  if (insertData.assigned_to) {
+    await emitEvent(supabase, 'task.assigned', 'crm', { 
+      task_id: taskData.id, 
+      assigned_to: insertData.assigned_to,
+      title: insertData.title 
+    })
+  }
+
   return { success: true }
 }
 
