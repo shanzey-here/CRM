@@ -129,6 +129,17 @@ async function runBrowserTests() {
     process.exit(1)
   }
 
+  console.log('[Test] Emitting a quote.accepted event for Tenant A to verify Phase 2 sound alerts...')
+  await emitEvent(supabase, 'quote.accepted', 'crm', { job_id: crypto.randomUUID() }, tenantA)
+
+  try {
+    await pageA.waitForSelector('text=Quote Accepted', { timeout: 5000 })
+    console.log('✅ Browser A successfully received the live notification for Quote Accepted.')
+  } catch (err) {
+    console.error('❌ Browser A did not receive the Quote Accepted live notification.')
+    throw err
+  }
+
   // Browser B should NOT get the toast
   try {
     await pageB.waitForSelector('text=New Lead', { timeout: 5000 })
@@ -141,8 +152,8 @@ async function runBrowserTests() {
   console.log('[Test] Verifying Read State Interaction on Browser A...')
   // Click the Bell button to open dropdown
   await pageA.click('button:has(.lucide-bell)')
-  // Click the specific notification
-  await pageA.click('button:has-text("New Lead")')
+  // Click "Mark all read" in the dropdown
+  await pageA.click('text=Mark all read')
 
   // Wait a tick for the server action to fire
   await pageA.waitForTimeout(1000)
