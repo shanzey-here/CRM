@@ -268,9 +268,9 @@ export function NotificationBell({ userId }: { userId: string }) {
         )}
       </div>
 
-      {/* Legacy Toasts */}
+      {/* Live Toast Alerts */}
       {toastAlerts.length > 0 && (
-        <div className="fixed bottom-4 right-4 z-[100] flex flex-col gap-2">
+        <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2">
           {toastAlerts.map((alert) => (
             <div
               key={alert.id}
