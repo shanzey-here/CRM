@@ -4,9 +4,17 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 
-export function HeaderNav() {
+export function HeaderNav({ role }: { role?: string }) {
   const pathname = usePathname()
 
+  // Nav visibility is role-gated only, never entitlement-gated — a feature
+  // not on the tenant's current plan still shows its link here; the
+  // "upgrade to unlock" message renders on the destination page itself
+  // (see isSocialModuleEnabled/isStorageModuleEnabled/isWorkflowModuleEnabled
+  // and the PT403 checks in office/reports). Workflows is the one exception
+  // that IS role-gated here, because its own layout.tsx hard-redirects
+  // non-tenant_admins away (systemic automation rules are admin-only) —
+  // matching that real destination restriction, not an entitlement check.
   const links = [
     { name: 'Dashboard', href: '/office', exact: true },
     { name: 'Leads', href: '/office/leads' },
@@ -17,6 +25,8 @@ export function HeaderNav() {
     { name: 'Email', href: '/office/email' },
     { name: 'Social', href: '/office/social' },
     { name: 'Storage', href: '/office/storage' },
+    { name: 'Reports', href: '/office/reports' },
+    ...(role === 'tenant_admin' ? [{ name: 'Workflows', href: '/office/workflows' }] : []),
     { name: 'Settings', href: '/office/settings' },
   ]
 

@@ -83,9 +83,9 @@ export default async function OfficeLayout({ children }: { children: React.React
           <div className="flex justify-between h-16">
             <div className="flex">
               <div className="flex-shrink-0 flex items-center">
-                <Link href="/office/leads" className="text-xl font-bold text-emerald-600">Gomove</Link>
+                <Link href="/office" className="text-xl font-bold text-emerald-600">Gomove</Link>
               </div>
-              <HeaderNav />
+              <HeaderNav role={role} />
             </div>
             <div className="flex items-center">
               <NotificationBell userId={user.id} />
