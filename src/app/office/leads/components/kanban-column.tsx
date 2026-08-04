@@ -48,7 +48,7 @@ export function KanbanColumn({ stage, leads, isPending }: KanbanColumnProps) {
       {/* Drop zone — the node ref goes here */}
       <div
         ref={setNodeRef}
-        className="flex flex-col gap-2 p-2 flex-1 min-h-32 bg-slate-100/80 rounded-b-xl"
+        className="flex flex-col gap-2 p-2 flex-1 min-h-32 overflow-y-auto bg-slate-100/80 rounded-b-xl"
         style={{
           backgroundColor: isOver ? `${stage.color}08` : undefined,
           transition: 'background-color 150ms ease',
