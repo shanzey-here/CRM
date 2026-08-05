@@ -20,6 +20,7 @@ export async function login(formData: FormData) {
   })
 
   if (error) {
+    console.error('[Login Action] Error:', error.message, 'Email:', email)
     return { error: error.message }
   }
 
