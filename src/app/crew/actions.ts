@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { getJobDetails } from '@/modules/jobs/server/repository'
+import { generateAndSaveJobCompletionSummary } from '@/modules/jobs/server/completion-summary'
 import { addDays, format } from 'date-fns'
 import { headers } from 'next/headers'
 
@@ -221,6 +222,18 @@ export async function addJobSignoffAction(payload: {
 
   if (updateError) {
     return { success: false, error: 'Failed to update job status: ' + updateError.message }
+  }
+
+  // Auto-generate the completion summary now that the job is genuinely,
+  // server-confirmed complete. Deliberately isolated: a failure here must
+  // NEVER affect the signoff/completion result already returned above —
+  // the job is correctly complete regardless of whether this succeeds.
+  // If it fails, completion_summary stays null and can be regenerated
+  // later via the dedicated regenerate action.
+  try {
+    await generateAndSaveJobCompletionSummary(supabase, tenantId, payload.jobId)
+  } catch (summaryError) {
+    console.error('[addJobSignoffAction] Completion summary generation failed (non-blocking):', summaryError)
   }
 
   return { success: true }

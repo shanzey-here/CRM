@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { ArrowLeft, MapPin, Phone, Mail, User, Printer, Truck, Users } from 'lucide-react'
 import { EditJobForm } from './components/edit-job-form'
 import { EditActualTimesForm } from './components/edit-actual-times-form'
+import { CompletionSummaryCard } from './components/completion-summary-card'
 
 export const dynamic = 'force-dynamic'
 
@@ -84,6 +85,13 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <CompletionSummaryCard
+          jobId={job.id}
+          jobStatus={job.status}
+          summary={job.completion_summary ?? null}
+          generatedAt={job.completion_summary_generated_at ?? null}
+        />
+
         {/* Customer Information */}
         <Card>
           <CardHeader>
