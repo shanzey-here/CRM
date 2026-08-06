@@ -36,3 +36,18 @@ export const CreateJobFromQuoteSchema = z.object({
 export type CreateJobFromQuoteData = z.infer<typeof CreateJobFromQuoteSchema> & {
   invoicePlan: InvoicePlan
 }
+
+// ============================================================================
+// JOB DETAILS EDIT (excludes status, contact, quote, addresses — read-only /
+// managed through their own dedicated flows elsewhere)
+// ============================================================================
+// internal_notes: dispatcher-facing special instructions (e.g. "narrow
+// driveway, use smaller van"), separate from the quote's own notes.
+// customer_notes: post-job outcome/feedback notes, recorded after
+// completion — distinct from job_signoffs' legal signature capture.
+export const updateJobDetailsSchema = z.object({
+  internal_notes: z.string().optional().nullable(),
+  customer_notes: z.string().optional().nullable(),
+})
+
+export type UpdateJobDetailsInput = z.infer<typeof updateJobDetailsSchema>

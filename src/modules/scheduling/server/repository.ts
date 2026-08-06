@@ -1,6 +1,6 @@
 import { SupabaseClient } from '@supabase/supabase-js'
 import { Database } from '@/types/database.types'
-import { CreateJobCrewAssignmentData, CreateJobVehicleAssignmentData } from '../schema'
+import { CreateJobCrewAssignmentData, CreateJobVehicleAssignmentData, UpdateJobCrewActualTimesInput } from '../schema'
 
 function parsePostgresError(error: any): string {
   // Catch Postgres Exclusion Constraint violation
@@ -71,6 +71,30 @@ export async function assignVehicleToJob(
 
   if (error) {
     return { success: false, error: parsePostgresError(error) }
+  }
+
+  return { success: true, assignment: data }
+}
+
+export async function updateJobCrewAssignmentActualTimes(
+  supabase: SupabaseClient<Database>,
+  tenantId: string,
+  assignmentId: string,
+  updates: UpdateJobCrewActualTimesInput
+) {
+  const { data, error } = await supabase
+    .from('job_crew_assignments')
+    .update(updates)
+    .eq('id', assignmentId)
+    .eq('tenant_id', tenantId) // Explicit tenant scoping
+    .select()
+    .single()
+
+  if (error) {
+    return { success: false, error: parsePostgresError(error) }
+  }
+  if (!data) {
+    return { success: false, error: 'Crew assignment not found' }
   }
 
   return { success: true, assignment: data }

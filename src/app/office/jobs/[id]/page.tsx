@@ -7,6 +7,8 @@ import { format } from 'date-fns'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { ArrowLeft, MapPin, Phone, Mail, User, Printer, Truck, Users } from 'lucide-react'
+import { EditJobForm } from './components/edit-job-form'
+import { EditActualTimesForm } from './components/edit-actual-times-form'
 
 export const dynamic = 'force-dynamic'
 
@@ -62,16 +64,23 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
           </p>
         </div>
         
-        {/* Print Job Sheet Action */}
-        <Link 
-          href={`/print/jobs/${job.id}`} 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-950 disabled:pointer-events-none disabled:opacity-50 bg-emerald-600 text-white shadow hover:bg-emerald-700 h-9 px-4 py-2"
-        >
-          <Printer className="mr-2 h-4 w-4" />
-          Print Job Sheet
-        </Link>
+        {/* Actions */}
+        <div className="flex gap-2">
+          <EditJobForm
+            jobId={job.id}
+            internalNotes={job.internal_notes ?? null}
+            customerNotes={job.customer_notes ?? null}
+          />
+          <Link
+            href={`/print/jobs/${job.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-950 disabled:pointer-events-none disabled:opacity-50 bg-emerald-600 text-white shadow hover:bg-emerald-700 h-9 px-4 py-2"
+          >
+            <Printer className="mr-2 h-4 w-4" />
+            Print Job Sheet
+          </Link>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -162,6 +171,36 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
           </CardContent>
         </Card>
 
+        {/* Special Instructions */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Special Instructions</CardTitle>
+            <CardDescription>Job-specific logistics, separate from the quote's own notes</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {job.internal_notes ? (
+              <p className="text-sm text-slate-700 whitespace-pre-wrap">{job.internal_notes}</p>
+            ) : (
+              <p className="text-sm text-slate-400 italic">No special instructions added.</p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Post-Job Notes */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Post-Job Notes</CardTitle>
+            <CardDescription>Outcome, issues, or customer feedback after completion</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {job.customer_notes ? (
+              <p className="text-sm text-slate-700 whitespace-pre-wrap">{job.customer_notes}</p>
+            ) : (
+              <p className="text-sm text-slate-400 italic">No post-job notes added.</p>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Assignments */}
         <Card>
           <CardHeader>
@@ -178,10 +217,22 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                     <div>
                       <p className="font-medium text-slate-900">{ca.user?.full_name}</p>
                       <p className="text-xs text-slate-500">
-                        {ca.scheduled_start ? format(new Date(ca.scheduled_start), 'h:mm a') : 'TBD'} - 
+                        Scheduled: {ca.scheduled_start ? format(new Date(ca.scheduled_start), 'h:mm a') : 'TBD'} -
                         {ca.scheduled_end ? format(new Date(ca.scheduled_end), ' h:mm a') : ' TBD'}
                       </p>
+                      {(ca.actual_start || ca.actual_end) && (
+                        <p className="text-xs text-emerald-600 mt-0.5">
+                          Actual: {ca.actual_start ? format(new Date(ca.actual_start), 'h:mm a') : 'TBD'} -
+                          {ca.actual_end ? format(new Date(ca.actual_end), ' h:mm a') : ' TBD'}
+                        </p>
+                      )}
                     </div>
+                    <EditActualTimesForm
+                      jobId={job.id}
+                      assignmentId={ca.id}
+                      actualStart={ca.actual_start ?? null}
+                      actualEnd={ca.actual_end ?? null}
+                    />
                   </div>
                 ))}
               </div>

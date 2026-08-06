@@ -42,12 +42,15 @@ export function EditContactForm({ contact }: { contact: Contact }) {
       phone: contact.phone || '',
       alt_phone: contact.alt_phone || '',
       type: contact.type as 'residential' | 'commercial',
-      notes: contact.notes || ''
+      notes: contact.notes || '',
+      preferred_contact_method: (contact as any).preferred_contact_method || undefined,
+      best_time_to_call: (contact as any).best_time_to_call || '',
     }
   })
 
-  // We need to explicitly watch type for the Select component
+  // We need to explicitly watch type/preferred_contact_method for the Select components
   const typeValue = watch('type')
+  const preferredContactMethodValue = watch('preferred_contact_method')
 
   const onSubmit = async (data: UpdateContactInput) => {
     setIsSubmitting(true)
@@ -117,6 +120,32 @@ export function EditContactForm({ contact }: { contact: Contact }) {
                   <SelectItem value="commercial">Commercial</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Preferred Contact Method</Label>
+              <Select
+                value={preferredContactMethodValue || 'unset'}
+                onValueChange={(val) => setValue('preferred_contact_method', val === 'unset' ? null : val as 'phone' | 'email' | 'text')}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Not set">
+                    {{ unset: 'Not set', phone: 'Phone', email: 'Email', text: 'Text' }[preferredContactMethodValue || 'unset']}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="unset">Not set</SelectItem>
+                  <SelectItem value="phone">Phone</SelectItem>
+                  <SelectItem value="email">Email</SelectItem>
+                  <SelectItem value="text">Text</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="best_time_to_call">Best Time to Call</Label>
+              <Input id="best_time_to_call" {...register('best_time_to_call')} placeholder="e.g. Evenings after 6pm" />
             </div>
           </div>
 
