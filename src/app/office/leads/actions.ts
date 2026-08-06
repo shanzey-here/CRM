@@ -136,12 +136,20 @@ export async function updateLeadDetailsAction(
     return { success: false, error: 'Lead not found' }
   }
 
-  // 4. Update the lead (tenant-scoped query ensures cross-tenant safety)
+  // 4. Update the lead (tenant-scoped query ensures cross-tenant safety).
+  // '' passes Zod's z.string().optional().nullable() fine (it's a valid
+  // string) but Postgres's date column rejects it outright (22007) — the
+  // form already avoids sending '', but normalize here too since this
+  // action shouldn't rely solely on which UI happens to call it.
+  const updatePayload = {
+    ...parseResult.data,
+    preferred_move_date: parseResult.data.preferred_move_date === '' ? null : parseResult.data.preferred_move_date,
+  }
   const { data: updatedLead, error: updateError } = await updateLead(
     supabase,
     tenantId,
     leadId,
-    parseResult.data as any
+    updatePayload as any
   )
 
   if (updateError || !updatedLead) {

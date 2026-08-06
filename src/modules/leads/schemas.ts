@@ -14,6 +14,11 @@ export const leadStageEnum = z.enum([
   'archived',
 ])
 
+// Matches the DB's priority_level enum (shared with tasks.priority). A
+// lightweight triage signal, deliberately not a monetary value — that's
+// what the quote's own snapshotted price is for.
+export const leadPriorityEnum = z.enum(['low', 'medium', 'high'])
+
 export const insertLeadSchema = z.object({
   contact_id: z.string().uuid('A valid contact is required'),
   stage: leadStageEnum.default('inquiry'),
@@ -24,6 +29,7 @@ export const insertLeadSchema = z.object({
   estimated_volume: z.number().optional().nullable(),
   assigned_to: z.string().uuid().optional().nullable(),
   notes: z.string().optional().nullable(),
+  priority: leadPriorityEnum.optional(),
 })
 
 export const updateLeadSchema = insertLeadSchema.partial()
@@ -67,6 +73,7 @@ export const updateLeadDetailsSchema = z.object({
   estimated_volume: z.number().optional().nullable(),
   assigned_to: z.string().uuid().optional().nullable(),
   source: z.string().optional().nullable(),
+  priority: leadPriorityEnum.optional(),
 })
 
 export type UpdateLeadDetailsInput = z.infer<typeof updateLeadDetailsSchema>

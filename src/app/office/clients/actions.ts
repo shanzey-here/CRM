@@ -31,9 +31,11 @@ export async function updateContactAction(id: string, payload: UpdateContactInpu
     return { error: error.message }
   }
 
-  // 4. Revalidate exact paths
+  // 4. Revalidate exact paths — also the leads section, since this action is
+  // now reachable from the Lead detail page's Contact Info card too.
   revalidatePath(`/office/clients/${id}`)
   revalidatePath('/office/clients')
+  revalidatePath('/office/leads', 'layout')
 
   return { success: true, data }
 }

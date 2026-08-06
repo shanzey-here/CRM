@@ -24,6 +24,16 @@ export const CreateJobCrewAssignmentSchema = JobCrewAssignmentSchema.pick({
 
 export type CreateJobCrewAssignmentData = z.infer<typeof CreateJobCrewAssignmentSchema>
 
+// Real, actual timing — distinct from scheduled_start/scheduled_end (the
+// plan). Both optional/nullable: a dispatcher may only know the actual start
+// while a job is still in progress, or record neither if it ran exactly to plan.
+export const updateJobCrewActualTimesSchema = z.object({
+  actual_start: z.string().datetime().optional().nullable(),
+  actual_end: z.string().datetime().optional().nullable(),
+})
+
+export type UpdateJobCrewActualTimesInput = z.infer<typeof updateJobCrewActualTimesSchema>
+
 export const JobVehicleAssignmentSchema = z.object({
   id: z.string().uuid(),
   tenant_id: z.string().uuid(),

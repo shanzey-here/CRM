@@ -6,6 +6,10 @@ import { z } from 'zod'
 
 export const contactTypeEnum = z.enum(['residential', 'commercial'])
 
+// Matches the DB's contact_method enum. A property of the person, not any
+// single lead — a contact can have multiple leads over time.
+export const contactMethodEnum = z.enum(['phone', 'email', 'text'])
+
 export const insertContactSchema = z.object({
   type: contactTypeEnum.default('residential'),
   first_name: z.string().min(1, 'First name is required'),
@@ -15,6 +19,8 @@ export const insertContactSchema = z.object({
   phone: z.string().optional().nullable(),
   alt_phone: z.string().optional().nullable(),
   notes: z.string().optional().nullable(),
+  preferred_contact_method: contactMethodEnum.optional().nullable(),
+  best_time_to_call: z.string().optional().nullable(),
 })
 
 export const updateContactSchema = insertContactSchema.partial()
