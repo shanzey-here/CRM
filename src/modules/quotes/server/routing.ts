@@ -10,12 +10,28 @@ export type RouteCalculationResult = {
   source: 'cache' | 'api' | 'error'
 }
 
+export type LegResult = {
+  legName: string
+  originString: string
+  destinationString: string
+  distanceMeters: number | null
+  durationSeconds: number | null
+  source: 'cache' | 'api' | 'error' | 'skipped'
+}
+
+export type FullCycleRouteResult = {
+  totalDistanceMeters: number | null
+  totalDurationSeconds: number | null
+  legs: LegResult[]
+  hasError: boolean
+}
+
 /**
  * Normalizes an address row into a string suitable for hashing or passing to Google Maps.
  */
-function addressToString(addr: Address): string {
+function addressToString(addr: Partial<Address>): string {
   const parts = [addr.line_1, addr.line_2, addr.city, addr.county, addr.postcode, addr.country]
-  return parts.filter((p) => p && p.trim() !== '').join(', ')
+  return parts.filter((p) => p && typeof p === 'string' && p.trim() !== '').join(', ')
 }
 
 /**
@@ -29,10 +45,10 @@ function hashAddress(str: string): string {
  * Helper to construct the cache key. Prioritizes 4-decimal coordinates for ~11m precision,
  * falling back to the fragile string hash.
  */
-function getCacheKey(addr: Address): { key: string; isCoordinate: boolean; strValue: string } {
+function getCacheKey(addr: Partial<Address>): { key: string; isCoordinate: boolean; strValue: string } {
   const strValue = addressToString(addr)
   
-  if (addr.lat !== null && addr.lng !== null) {
+  if (addr.lat !== null && addr.lat !== undefined && addr.lng !== null && addr.lng !== undefined) {
     // 4 decimal places gives approx 11 meters of precision
     const lat = Number(addr.lat).toFixed(4)
     const lng = Number(addr.lng).toFixed(4)
@@ -45,33 +61,37 @@ function getCacheKey(addr: Address): { key: string; isCoordinate: boolean; strVa
 export async function getRouteDetails(
   supabase: SupabaseClient<Database>,
   tenantId: string,
-  origin: Address,
-  destination: Address
+  origin: Partial<Address>,
+  destination: Partial<Address>
 ): Promise<RouteCalculationResult> {
   try {
-    let currentOrigin = origin
-    let currentDestination = destination
+    let currentOrigin = { ...origin }
+    let currentDestination = { ...destination }
 
     // 1. Lazy Geocoding (if missing lat/lng)
     let addressesUpdated = false
     
-    if (currentOrigin.lat === null || currentOrigin.lng === null) {
+    if (currentOrigin.lat === null || currentOrigin.lat === undefined || currentOrigin.lng === null || currentOrigin.lng === undefined) {
       const geo = await geocodeAddress(addressToString(currentOrigin))
       if (geo) {
         currentOrigin = { ...currentOrigin, lat: geo.lat, lng: geo.lng }
         addressesUpdated = true
-        // Fire & forget DB update
-        supabase.from('addresses').update({ lat: geo.lat, lng: geo.lng }).eq('id', currentOrigin.id).eq('tenant_id', tenantId).then()
+        // Fire & forget DB update only if it has a real UUID
+        if (currentOrigin.id && currentOrigin.id.length > 20) {
+          supabase.from('addresses').update({ lat: geo.lat, lng: geo.lng }).eq('id', currentOrigin.id).eq('tenant_id', tenantId).then()
+        }
       }
     }
 
-    if (currentDestination.lat === null || currentDestination.lng === null) {
+    if (currentDestination.lat === null || currentDestination.lat === undefined || currentDestination.lng === null || currentDestination.lng === undefined) {
       const geo = await geocodeAddress(addressToString(currentDestination))
       if (geo) {
         currentDestination = { ...currentDestination, lat: geo.lat, lng: geo.lng }
         addressesUpdated = true
-        // Fire & forget DB update
-        supabase.from('addresses').update({ lat: geo.lat, lng: geo.lng }).eq('id', currentDestination.id).eq('tenant_id', tenantId).then()
+        // Fire & forget DB update only if it has a real UUID
+        if (currentDestination.id && currentDestination.id.length > 20) {
+          supabase.from('addresses').update({ lat: geo.lat, lng: geo.lng }).eq('id', currentDestination.id).eq('tenant_id', tenantId).then()
+        }
       }
     }
 
@@ -142,5 +162,115 @@ export async function getRouteDetails(
       durationSeconds: null,
       source: 'error'
     }
+  }
+}
+
+/**
+ * Calculates the full 3-leg cycle: Tenant Office -> Pickup -> Destination -> Tenant Office.
+ * Uses the tenant's configured primary office as the default origin/dispatch point.
+ */
+export async function calculateFullCycleRoute(
+  supabase: SupabaseClient<Database>,
+  tenantId: string,
+  pickupAddress: Address,
+  destinationAddress: Address
+): Promise<FullCycleRouteResult> {
+  // 1. Fetch Tenant Office Address
+  const { data: tenantSettings } = await supabase
+    .from('tenant_settings')
+    .select('address_line_1, address_line_2, address_city, address_county, address_postcode, address_country')
+    .eq('tenant_id', tenantId)
+    .single()
+    
+  let officeAddress: Partial<Address> | null = null
+  let officeString = ''
+  
+  if (tenantSettings && (tenantSettings.address_line_1 || tenantSettings.address_city || tenantSettings.address_postcode)) {
+    officeAddress = {
+      id: 'tenant-office', // pseudo-id to prevent DB save
+      line_1: tenantSettings.address_line_1,
+      line_2: tenantSettings.address_line_2,
+      city: tenantSettings.address_city,
+      county: tenantSettings.address_county,
+      postcode: tenantSettings.address_postcode,
+      country: tenantSettings.address_country,
+      lat: null,
+      lng: null
+    }
+    officeString = addressToString(officeAddress)
+  }
+
+  const pickupString = addressToString(pickupAddress)
+  const destString = addressToString(destinationAddress)
+
+  const emptyResult = (legName: string, oStr: string, dStr: string): LegResult => ({
+    legName, originString: oStr, destinationString: dStr, distanceMeters: null, durationSeconds: null, source: 'skipped'
+  })
+
+  // We need to fetch 3 legs:
+  // Leg 1: Office -> Pickup
+  // Leg 2: Pickup -> Destination
+  // Leg 3: Destination -> Office
+  
+  const legs: LegResult[] = []
+  let totalDistance = 0
+  let totalDuration = 0
+  let hasError = false
+
+  // Leg 1: Office -> Pickup
+  if (officeAddress) {
+    const leg1 = await getRouteDetails(supabase, tenantId, officeAddress, pickupAddress)
+    legs.push({
+      legName: 'Dispatch to Pickup',
+      originString: officeString,
+      destinationString: pickupString,
+      distanceMeters: leg1.distanceMeters,
+      durationSeconds: leg1.durationSeconds,
+      source: leg1.source
+    })
+    if (leg1.source === 'error') hasError = true
+    if (leg1.distanceMeters) totalDistance += leg1.distanceMeters
+    if (leg1.durationSeconds) totalDuration += leg1.durationSeconds
+  } else {
+    legs.push(emptyResult('Dispatch to Pickup (No Office Set)', 'Unknown Office', pickupString))
+  }
+
+  // Leg 2: Pickup -> Destination
+  const leg2 = await getRouteDetails(supabase, tenantId, pickupAddress, destinationAddress)
+  legs.push({
+    legName: 'Pickup to Delivery',
+    originString: pickupString,
+    destinationString: destString,
+    distanceMeters: leg2.distanceMeters,
+    durationSeconds: leg2.durationSeconds,
+    source: leg2.source
+  })
+  if (leg2.source === 'error') hasError = true
+  if (leg2.distanceMeters) totalDistance += leg2.distanceMeters
+  if (leg2.durationSeconds) totalDuration += leg2.durationSeconds
+
+  // Leg 3: Destination -> Office
+  if (officeAddress) {
+    const leg3 = await getRouteDetails(supabase, tenantId, destinationAddress, officeAddress)
+    legs.push({
+      legName: 'Delivery to Return',
+      originString: destString,
+      destinationString: officeString,
+      distanceMeters: leg3.distanceMeters,
+      durationSeconds: leg3.durationSeconds,
+      source: leg3.source
+    })
+    if (leg3.source === 'error') hasError = true
+    if (leg3.distanceMeters) totalDistance += leg3.distanceMeters
+    if (leg3.durationSeconds) totalDuration += leg3.durationSeconds
+  } else {
+    legs.push(emptyResult('Delivery to Return (No Office Set)', destString, 'Unknown Office'))
+  }
+
+  return {
+    totalDistanceMeters: hasError ? null : totalDistance,
+    totalDurationSeconds: hasError ? null : totalDuration,
+    legs,
+    hasError
   }
 }

@@ -4,7 +4,7 @@ import { getQuoteById, getQuoteInventory } from '@/modules/quotes/server/reposit
 import { getActiveInventoryItems } from '@/modules/inventory/server/repository'
 import { getLeadById } from '@/modules/leads/server/repository'
 import { getAddressById } from '@/modules/clients/server/repository'
-import { getRouteDetails } from '@/modules/quotes/server/routing'
+import { calculateFullCycleRoute, FullCycleRouteResult } from '@/modules/quotes/server/routing'
 import { VolumeCalculator } from './components/volume-calculator'
 import { RouteSummary } from './components/route-summary'
 import { ArrowLeft } from 'lucide-react'
@@ -39,7 +39,7 @@ export default async function QuoteWorkspacePage({ params }: { params: Promise<{
   // 3. Fetch Lead & Addresses & Route Calculation
   let originAddress = null
   let destinationAddress = null
-  let routeCalc = { distanceMeters: null, durationSeconds: null, source: 'error' as const }
+  let routeCalc: FullCycleRouteResult = { totalDistanceMeters: null, totalDurationSeconds: null, legs: [], hasError: true }
   let originString = ''
   let destinationString = ''
 
@@ -62,7 +62,7 @@ export default async function QuoteWorkspacePage({ params }: { params: Promise<{
       }
 
       if (originAddress && destinationAddress) {
-        routeCalc = await getRouteDetails(supabase, tenantId, originAddress, destinationAddress)
+        routeCalc = await calculateFullCycleRoute(supabase, tenantId, originAddress, destinationAddress)
       }
     }
   }

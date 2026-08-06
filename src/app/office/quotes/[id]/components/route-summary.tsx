@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { MapPin, Clock, Navigation, AlertTriangle, Save } from 'lucide-react'
 import { saveQuoteRouteAction } from '../../actions'
-import { RouteCalculationResult } from '@/modules/quotes/server/routing'
+import { FullCycleRouteResult } from '@/modules/quotes/server/routing'
 
 export function RouteSummary({
   quoteId,
@@ -23,20 +23,20 @@ export function RouteSummary({
   quoteStatus: string
   originString: string
   destinationString: string
-  initialCalculation: RouteCalculationResult
+  initialCalculation: FullCycleRouteResult
   savedDistanceMiles: number | null
   savedTimeMinutes: number | null
 }) {
   const [isPending, startTransition] = useTransition()
   const [isEditing, setIsEditing] = useState(
-    initialCalculation.source === 'error' && savedDistanceMiles === null
+    initialCalculation.hasError && savedDistanceMiles === null
   )
 
   // Use saved DB values if they exist, otherwise use the calculation
   const defaultMiles = savedDistanceMiles ?? 
-    (initialCalculation.distanceMeters ? Math.round(initialCalculation.distanceMeters * 0.000621371) : '')
+    (initialCalculation.totalDistanceMeters ? Math.round(initialCalculation.totalDistanceMeters * 0.000621371) : '')
   const defaultMinutes = savedTimeMinutes ?? 
-    (initialCalculation.durationSeconds ? Math.round(initialCalculation.durationSeconds / 60) : '')
+    (initialCalculation.totalDurationSeconds ? Math.round(initialCalculation.totalDurationSeconds / 60) : '')
 
   const [distanceMiles, setDistanceMiles] = useState<number | string>(defaultMiles)
   const [timeMinutes, setTimeMinutes] = useState<number | string>(defaultMinutes)
@@ -68,14 +68,9 @@ export function RouteSummary({
             <CardTitle className="text-lg flex items-center gap-2">
               <Navigation className="h-5 w-5 text-blue-600" /> Route & Distance
             </CardTitle>
-            <CardDescription>Distance between origin and destination</CardDescription>
+            <CardDescription>Full cycle distance (Dispatch &rarr; Pickup &rarr; Delivery &rarr; Return)</CardDescription>
           </div>
-          {initialCalculation.source === 'cache' && (
-            <Badge variant="outline" className="text-xs bg-slate-50 text-slate-500 border-slate-200">
-              Cached
-            </Badge>
-          )}
-          {initialCalculation.source === 'error' && (
+          {initialCalculation.hasError && (
             <Badge variant="outline" className="text-xs bg-red-50 text-red-600 border-red-200 flex items-center gap-1">
               <AlertTriangle className="h-3 w-3" /> API Error
             </Badge>
@@ -85,20 +80,47 @@ export function RouteSummary({
       <CardContent className="pt-4 space-y-4">
         {/* Addresses */}
         <div className="space-y-3">
-          <div className="flex gap-3 text-sm">
-            <MapPin className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
-            <p className="text-slate-700">{originString || 'No origin set'}</p>
-          </div>
-          <div className="flex gap-3 text-sm">
-            <MapPin className="h-4 w-4 text-blue-600 shrink-0 mt-0.5" />
-            <p className="text-slate-700">{destinationString || 'No destination set'}</p>
-          </div>
+          {initialCalculation.legs && initialCalculation.legs.length > 0 ? (
+            initialCalculation.legs.map((leg, idx) => (
+              <div key={idx} className="p-3 bg-white border border-slate-100 rounded-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    {leg.legName}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    {leg.source === 'cache' && (
+                      <Badge variant="outline" className="text-[10px] bg-slate-50 text-slate-500 border-slate-200 py-0 h-4">
+                        Cached
+                      </Badge>
+                    )}
+                    <span className="text-xs font-medium text-slate-700">
+                      {leg.distanceMeters ? Math.round(leg.distanceMeters * 0.000621371) + ' mi' : 'N/A'}
+                    </span>
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <div className="flex gap-2 text-xs">
+                    <div className="w-4 flex justify-center"><div className="w-1.5 h-1.5 rounded-full bg-slate-300 mt-1" /></div>
+                    <p className="text-slate-600 truncate">{leg.originString || 'Unknown'}</p>
+                  </div>
+                  <div className="flex gap-2 text-xs">
+                    <MapPin className="h-4 w-4 text-blue-600 shrink-0" />
+                    <p className="text-slate-900 truncate">{leg.destinationString || 'Unknown'}</p>
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="text-sm text-slate-500">
+              No route data available.
+            </div>
+          )}
         </div>
 
         {/* Fallback / Edit Mode */}
         {isEditing ? (
           <div className="p-4 bg-slate-50 border border-slate-100 rounded-lg space-y-4 mt-4">
-            {initialCalculation.source === 'error' && (
+            {initialCalculation.hasError && (
               <div className="text-xs text-red-600 mb-2">
                 Google Maps routing failed. Please enter the distance manually.
               </div>

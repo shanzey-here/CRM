@@ -3,7 +3,7 @@ import { Database } from '@/types/database.types'
 import { createAddress } from '@/modules/clients/server/repository'
 import { createLead } from '@/modules/leads/server/repository'
 import { createQuote, saveQuoteInventory } from '@/modules/quotes/server/repository'
-import { getRouteDetails } from '@/modules/quotes/server/routing'
+import { calculateFullCycleRoute } from '@/modules/quotes/server/routing'
 import { calculateQuotePrice, savePricingCalculation } from '@/modules/quotes/server/pricing'
 import { findOrCreateContactByEmail } from './contact-resolution'
 import { CatalogEntry } from './extract'
@@ -108,14 +108,14 @@ export async function createQuoteFromExtraction(
   if (!inventoryResult.success) return { success: false, error: `Failed to save inventory: ${inventoryResult.error}` }
 
   // 7. Real distance — same cache-backed function the manual quote page uses.
-  const route = await getRouteDetails(serviceClient, tenantId, originAddress, destinationAddress)
-  if (route.distanceMeters === null) return { success: false, error: 'Failed to compute route distance' }
+  const route = await calculateFullCycleRoute(serviceClient, tenantId, originAddress, destinationAddress)
+  if (route.hasError || route.totalDistanceMeters === null) return { success: false, error: 'Failed to compute route distance' }
 
   const { error: routeUpdateErr } = await serviceClient
     .from('quotes')
     .update({
-      travel_distance_miles: Math.round(route.distanceMeters * 0.000621371),
-      travel_time_minutes: route.durationSeconds ? Math.round(route.durationSeconds / 60) : null,
+      travel_distance_miles: Math.round(route.totalDistanceMeters * 0.000621371),
+      travel_time_minutes: route.totalDurationSeconds ? Math.round(route.totalDurationSeconds / 60) : null,
     })
     .eq('id', quote.id)
     .eq('tenant_id', tenantId)
@@ -137,7 +137,7 @@ export async function createQuoteFromExtraction(
     quoteId: quote.id,
     contactId: contact.id,
     totalVolume: refreshedQuote.total_volume ?? 0,
-    distanceMeters: route.distanceMeters,
+    distanceMeters: route.totalDistanceMeters,
     selectedSurcharges: [],
   })
   if (!pricingResult.success || !pricingResult.result) {
