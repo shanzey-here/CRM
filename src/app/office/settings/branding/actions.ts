@@ -60,7 +60,9 @@ export async function updateBrandingAction(formData: FormData) {
   })
 
   if (!parsed.success) {
-    throw new Error('Invalid input data')
+    throw new Error(
+      `Invalid input: ${JSON.stringify(parsed.error.flatten())}`
+    )
   }
 
   const { error } = await updateTenantSettings(supabase, tenantId, parsed.data)

@@ -1,8 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { updateBrandingAction } from '@/app/office/settings/branding/actions'
-import { updatePricingAction } from '@/app/office/settings/pricing/actions'
+import { updateBrandingWizardAction, updatePricingWizardAction } from '../wizard-actions'
 import { skipOnboardingAction, completeOnboardingAction } from '../actions'
 import { Loader2, Check } from 'lucide-react'
 
@@ -61,8 +60,17 @@ export function WizardClient({ initialBranding, initialPricing }: any) {
   const handleBrandingSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsLoading(true)
-    const formData = new FormData(e.currentTarget)
-    await updateBrandingAction(formData)
+    // Extract values directly from the form element and pass a plain object.
+    // We CANNOT pass FormData to a manually-invoked Server Action — Next.js
+    // serializes arguments as JSON, and FormData is not JSON-serializable;
+    // it arrives on the server as {}. Plain objects work correctly.
+    const form = e.currentTarget
+    const companyLegalName = (form.elements.namedItem('company_legal_name') as HTMLInputElement)?.value || null
+    const primaryColor = (form.elements.namedItem('primary_color') as HTMLInputElement)?.value || '#1a56db'
+    await updateBrandingWizardAction({
+      company_legal_name: companyLegalName,
+      primary_color: primaryColor,
+    })
     setStep(2)
     setIsLoading(false)
   }
@@ -70,8 +78,19 @@ export function WizardClient({ initialBranding, initialPricing }: any) {
   const handlePricingSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsLoading(true)
-    const formData = new FormData(e.currentTarget)
-    await updatePricingAction(formData)
+    // Same reason as handleBrandingSubmit: pass a plain object, not FormData.
+    // Field names here also match pricingSettingsSchema exactly (not the
+    // legacy names used in the old wizard form that didn't match the action).
+    const form = e.currentTarget
+    const getValue = (name: string) =>
+      parseFloat((form.elements.namedItem(name) as HTMLInputElement)?.value || '0')
+    await updatePricingWizardAction({
+      base_rate: getValue('base_rate'),
+      per_mile_rate: getValue('per_mile_rate'),
+      per_cubic_foot_rate: getValue('per_cubic_foot_rate'),
+      labor_hourly_rate: getValue('labor_hourly_rate'),
+      labour_hours_per_cubicft: getValue('labour_hours_per_cubicft'),
+    })
     setStep(3)
     setIsLoading(false)
   }
@@ -166,44 +185,61 @@ export function WizardClient({ initialBranding, initialPricing }: any) {
             <form onSubmit={handlePricingSubmit} className="space-y-6 max-w-md">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-300">Base Rate ($)</label>
+                  <label className="text-sm font-medium text-slate-300">Base Rate (£)</label>
                   <input 
                     name="base_rate" 
-                    type="number" step="0.01" min="0"
-                    defaultValue={initialPricing?.base_rate || 50} 
+                    type="number" step="0.01" min="0.01"
+                    defaultValue={initialPricing?.base_rate ?? 100} 
                     required
                     className="w-full bg-slate-950 border border-slate-800 rounded-md px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 outline-none"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-300">Per Mile Rate ($)</label>
+                  <label className="text-sm font-medium text-slate-300">Per Mile Rate (£)</label>
                   <input 
                     name="per_mile_rate" 
-                    type="number" step="0.01" min="0"
-                    defaultValue={initialPricing?.per_mile_rate || 2.50} 
+                    type="number" step="0.01" min="0.01"
+                    defaultValue={initialPricing?.per_mile_rate ?? 1} 
                     required
                     className="w-full bg-slate-950 border border-slate-800 rounded-md px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 outline-none"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-300">Volume Rate ($/cuft)</label>
+                  {/* name must match pricingSettingsSchema field: per_cubic_foot_rate */}
+                  <label className="text-sm font-medium text-slate-300">Volume Rate (£/cu ft)</label>
                   <input 
-                    name="per_cuft_rate" 
-                    type="number" step="0.01" min="0"
-                    defaultValue={initialPricing?.per_cuft_rate || 1.20} 
+                    name="per_cubic_foot_rate" 
+                    type="number" step="0.01" min="0.01"
+                    defaultValue={initialPricing?.per_cubic_foot_rate ?? 0.5} 
                     required
                     className="w-full bg-slate-950 border border-slate-800 rounded-md px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 outline-none"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-300">Labor Rate ($/hr)</label>
+                  {/* name must match pricingSettingsSchema field: labor_hourly_rate */}
+                  <label className="text-sm font-medium text-slate-300">Labor Rate (£/hr)</label>
                   <input 
-                    name="labor_rate_per_hour" 
-                    type="number" step="0.01" min="0"
-                    defaultValue={initialPricing?.labor_rate_per_hour || 35} 
+                    name="labor_hourly_rate" 
+                    type="number" step="0.01" min="0.01"
+                    defaultValue={initialPricing?.labor_hourly_rate ?? 25} 
                     required
                     className="w-full bg-slate-950 border border-slate-800 rounded-md px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 outline-none"
                   />
+                </div>
+                <div className="space-y-2 col-span-2">
+                  {/* labour_hours_per_cubicft is required by the schema (positive()).
+                      It is a technical rate used internally in quote calculation;
+                      show it here with a sensible default so new tenants are not
+                      blocked. They can adjust it later in Settings → Pricing. */}
+                  <label className="text-sm font-medium text-slate-300">Labour Hours per Cu Ft</label>
+                  <input 
+                    name="labour_hours_per_cubicft" 
+                    type="number" step="0.01" min="0.01"
+                    defaultValue={initialPricing?.labour_hours_per_cubicft ?? 0.1} 
+                    required
+                    className="w-full bg-slate-950 border border-slate-800 rounded-md px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                  />
+                  <p className="text-xs text-slate-500">Used internally to estimate crew time per cubic foot. You can refine this in Settings → Pricing.</p>
                 </div>
               </div>
 
