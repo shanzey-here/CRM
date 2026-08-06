@@ -96,9 +96,16 @@ async function LeadsFollowUpWidget({ tenantId, adminSupabase }: { tenantId: stri
             <p className="font-medium text-slate-900">{lead.contact?.first_name} {lead.contact?.last_name}</p>
             <p className="text-xs text-slate-500">Updated: {format(new Date(lead.updated_at), 'MMM d')}</p>
           </div>
-          <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
-            {lead.stage}
-          </span>
+          <div className="flex gap-2 items-center">
+            {lead.source && (
+              <span className="bg-slate-100 text-slate-600 text-xs px-2 py-1 rounded-full capitalize">
+                {lead.source.replace(/_/g, ' ')}
+              </span>
+            )}
+            <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+              {lead.stage}
+            </span>
+          </div>
         </div>
       ))}
     </div>

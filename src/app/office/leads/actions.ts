@@ -173,3 +173,44 @@ export async function updateLeadDetailsAction(
 
   return { success: true, data: updatedLead }
 }
+
+export async function createLeadAction(payload: unknown): Promise<{ success: boolean; error?: string; data?: any }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) return { success: false, error: 'Unauthorized' }
+
+  const tenantId = user.app_metadata?.tenant_id as string | undefined
+  if (!tenantId) return { success: false, error: 'No tenant context' }
+
+  const { insertLeadSchema } = await import('@/modules/leads/schemas')
+  const parseResult = insertLeadSchema.safeParse(payload)
+  
+  if (!parseResult.success) {
+    return { success: false, error: 'Validation failed', data: parseResult.error.issues }
+  }
+
+  const { createLead } = await import('@/modules/leads/server/repository')
+  const { data: newLead, error: createError } = await createLead(
+    supabase,
+    tenantId,
+    parseResult.data
+  )
+
+  if (createError || !newLead) {
+    return { success: false, error: 'Failed to create lead' }
+  }
+
+  // Emit event
+  const { emitEvent } = await import('@/utils/supabase/event-bus')
+  await emitEvent(supabase, 'lead.created', 'crm', {
+    lead_id: newLead.id,
+    source: parseResult.data.source || 'manual',
+    created_by: user.id
+  }, tenantId)
+
+  revalidatePath('/office/leads')
+  revalidatePath(`/office/clients/${newLead.contact_id}`)
+
+  return { success: true, data: newLead }
+}

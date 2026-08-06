@@ -50,6 +50,9 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
             <Badge variant="secondary" className="uppercase text-xs tracking-wider">
               {job.status.replace('_', ' ')}
             </Badge>
+            <Badge variant="outline" className="bg-slate-50 text-slate-600 capitalize">
+              {quote?.lead?.source ? quote.lead.source.replace(/_/g, ' ') : 'Unknown Source'}
+            </Badge>
           </div>
           <p className="text-slate-500 mt-1">
             Scheduled for: {job.move_date ? format(new Date(job.move_date), 'EEEE, MMMM do, yyyy') : 'TBD'}

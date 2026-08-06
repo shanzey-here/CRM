@@ -100,6 +100,7 @@ export async function getJobDetails(
       job_photos(*),
       quote:quotes(
         id, subtotal, surcharge_total, total_price, deposit_amount, status, total_volume, terms,
+        lead:leads(source),
         quote_inventory(
           id,
           quantity,
