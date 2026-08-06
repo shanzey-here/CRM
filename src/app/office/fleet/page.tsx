@@ -96,7 +96,7 @@ export default async function FleetIndexPage() {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {vehicles.map((vehicle) => (
-              <tr key={vehicle.id} className="hover:bg-gray-50">
+              <tr key={vehicle.id} className="hover:bg-gray-50 relative group">
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                   {vehicle.name}
                 </td>
@@ -113,8 +113,8 @@ export default async function FleetIndexPage() {
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Inactive</span>
                   )}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <Link href={`/office/fleet/${vehicle.id}`} className="text-blue-600 hover:text-blue-900">
+                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative">
+                  <Link href={`/office/fleet/${vehicle.id}`} className="text-blue-600 hover:text-blue-900 after:absolute after:inset-0">
                     Manage<span className="sr-only">, {vehicle.name}</span>
                   </Link>
                 </td>

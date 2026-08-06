@@ -89,7 +89,7 @@ export default async function VehicleDetailPage({ params }: { params: { id: stri
                 }
 
                 return (
-                  <div key={doc.id} className="border border-gray-200 rounded p-4 flex justify-between items-center hover:bg-gray-50">
+                  <div key={doc.id} className="border border-gray-200 rounded p-4 flex justify-between items-center hover:bg-gray-50 relative group">
                     <div>
                       <p className="font-medium text-gray-900 capitalize flex items-center">
                         {doc.document_type} {badge}
@@ -104,7 +104,7 @@ export default async function VehicleDetailPage({ params }: { params: { id: stri
                       href={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/authenticated/vehicle-documents/${doc.file_path}`} 
                       target="_blank"
                       rel="noreferrer"
-                      className="text-sm text-blue-600 hover:underline"
+                      className="text-sm text-blue-600 hover:underline after:absolute after:inset-0"
                     >
                       View File
                     </a>

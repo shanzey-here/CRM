@@ -2,10 +2,11 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import { getJobDetails } from '@/modules/jobs/server/repository'
+import { getJobAssignments } from '@/modules/scheduling/server/repository'
 import { format } from 'date-fns'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { ArrowLeft, MapPin, Phone, Mail, User, Printer } from 'lucide-react'
+import { ArrowLeft, MapPin, Phone, Mail, User, Printer, Truck, Users } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
@@ -21,8 +22,11 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   }
   const tenantId = user.app_metadata.tenant_id
 
-  // 2. Fetch Job Details
-  const { success, jobDetails, error } = await getJobDetails(supabase, tenantId, id)
+  // 2. Fetch Job Details and Assignments
+  const [{ success, jobDetails, error }, assignmentsRes] = await Promise.all([
+    getJobDetails(supabase, tenantId, id),
+    getJobAssignments(supabase, tenantId, id)
+  ])
 
   if (!success || !jobDetails) {
     notFound()
@@ -34,6 +38,8 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   const dest = job.destination_address
   const quoteData = job.quote
   const quote = Array.isArray(quoteData) ? quoteData[0] : quoteData
+  const crewAssignments = assignmentsRes.success ? assignmentsRes.crewAssignments : []
+  const vehicleAssignments = assignmentsRes.success ? assignmentsRes.vehicleAssignments : []
 
   return (
     <div className="p-8 max-w-5xl mx-auto space-y-6">
@@ -153,6 +159,60 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                 <p className="text-slate-500 text-sm italic">No destination address provided.</p>
               )}
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Assignments */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Users className="h-5 w-5 text-slate-400" />
+              Assigned Crew
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {crewAssignments && crewAssignments.length > 0 ? (
+              <div className="space-y-3">
+                {crewAssignments.map((ca: any) => (
+                  <div key={ca.id} className="flex justify-between items-center text-sm border-b border-slate-100 pb-2 last:border-0 last:pb-0">
+                    <div>
+                      <p className="font-medium text-slate-900">{ca.user?.full_name}</p>
+                      <p className="text-xs text-slate-500">
+                        {ca.scheduled_start ? format(new Date(ca.scheduled_start), 'h:mm a') : 'TBD'} - 
+                        {ca.scheduled_end ? format(new Date(ca.scheduled_end), ' h:mm a') : ' TBD'}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-slate-500 italic">No crew assigned yet.</p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Truck className="h-5 w-5 text-slate-400" />
+              Assigned Vehicles
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {vehicleAssignments && vehicleAssignments.length > 0 ? (
+              <div className="space-y-3">
+                {vehicleAssignments.map((va: any) => (
+                  <div key={va.id} className="flex justify-between items-center text-sm border-b border-slate-100 pb-2 last:border-0 last:pb-0">
+                    <div>
+                      <p className="font-medium text-slate-900">{va.vehicle?.name}</p>
+                      <p className="text-xs text-slate-500 capitalize">{va.vehicle?.type?.replace('_', ' ')}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-slate-500 italic">No vehicles assigned yet.</p>
+            )}
           </CardContent>
         </Card>
       </div>

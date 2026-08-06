@@ -138,7 +138,11 @@ export default function ContactsClient({
               </TableRow>
             ) : (
               initialContacts.map((contact) => (
-                <TableRow key={contact.id} className="hover:bg-slate-50/50 transition-colors">
+                <TableRow 
+                  key={contact.id} 
+                  className="hover:bg-slate-50/50 transition-colors cursor-pointer"
+                  onClick={() => router.push(`/office/clients/${contact.id}`)}
+                >
                   <TableCell>
                     <div className="font-medium text-slate-900">
                       {contact.first_name} {contact.last_name || ''}

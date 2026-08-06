@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import Link from 'next/link'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
@@ -120,7 +121,7 @@ async function OutstandingInvoicesWidget({ tenantId, adminSupabase }: { tenantId
   return (
     <div className="space-y-3">
       {displayInvoices.map((inv) => (
-        <div key={inv.id} className="flex justify-between items-center text-sm border-b border-slate-100 pb-2 last:border-0">
+        <Link key={inv.id} href={`/office/invoices/${inv.id}`} className="flex justify-between items-center text-sm border-b border-slate-100 pb-2 last:border-0 hover:bg-slate-50 transition-colors p-2 -mx-2 rounded">
           <div>
             <p className="font-medium text-slate-900">{inv.job?.contact?.first_name} {inv.job?.contact?.last_name}</p>
             <p className="text-xs text-slate-500">Due: {inv.due_date ? format(new Date(inv.due_date), 'MMM d') : 'N/A'}</p>
@@ -128,7 +129,7 @@ async function OutstandingInvoicesWidget({ tenantId, adminSupabase }: { tenantId
           <div className="text-right font-semibold text-slate-900">
             £{Number(inv.total).toFixed(2)}
           </div>
-        </div>
+        </Link>
       ))}
     </div>
   )
