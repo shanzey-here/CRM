@@ -53,8 +53,9 @@ export default async function OfficeLayout({ children }: { children: React.React
   let trialDaysRemaining = null
   if (subStatus === 'trialing' && subscription?.current_period_end) {
     const { differenceInDays } = await import('date-fns')
+    const { TRIAL_WARNING_DAYS } = await import('@/modules/subscriptions/server/trial-sweep')
     const days = differenceInDays(new Date(subscription.current_period_end), new Date())
-    if (days >= 0 && days <= 3) {
+    if (days >= 0 && days <= TRIAL_WARNING_DAYS) {
       trialDaysRemaining = days
     }
   }

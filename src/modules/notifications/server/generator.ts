@@ -34,10 +34,11 @@ export async function generateNotifications(
       tenant_id: string
       target_user_id: string
       notification_type: NotificationType
-      source_event_id: string
+      source_event_id: string | null
       title: string
       message: string
       action_url: string | null
+      dedup_key?: string | null
     }[] = []
 
     if (eventType === 'lead.created') {
@@ -94,6 +95,40 @@ export async function generateNotifications(
           message: payload.title ? `You have been assigned a new task: ${payload.title}` : 'You have been assigned a new task.',
           action_url: '/office/tasks'
         })
+      }
+    } else if (eventType === 'trial.expiring_soon') {
+      // Targeted at all tenant_admin users for this tenant.
+      // NOTE: When triggered from the scheduled sweep, notifyApproachingTrials()
+      // in src/modules/subscriptions/server/trial-sweep.ts handles the insert
+      // directly (with dedup_key idempotency via ON CONFLICT DO NOTHING).
+      // This branch exists for completeness / future event-driven invocation.
+      const { data: users, error } = await serviceClient
+        .from('users')
+        .select('id')
+        .eq('tenant_id', tenantId)
+        .eq('role', 'tenant_admin')
+
+      if (!error && users) {
+        const daysRemaining = typeof payload.days_remaining === 'number' ? payload.days_remaining : null
+        const expiryLabel =
+          daysRemaining !== null && daysRemaining <= 0
+            ? 'less than a day'
+            : daysRemaining !== null
+            ? `${daysRemaining} day${daysRemaining === 1 ? '' : 's'}`
+            : 'soon'
+
+        for (const user of users) {
+          notificationsToInsert.push({
+            tenant_id: tenantId,
+            target_user_id: user.id,
+            notification_type: 'trial_expiring_soon',
+            source_event_id: eventId ?? null,
+            title: 'Your trial is expiring soon',
+            message: `Your free trial expires in ${expiryLabel}. Upgrade now to keep access to all features.`,
+            action_url: '/office/settings/billing',
+            dedup_key: payload.dedup_key ?? null,
+          })
+        }
       }
     } else if (eventType === 'error_test') {
       throw new Error('Simulated crash inside generation logic for testing error isolation')

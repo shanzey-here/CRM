@@ -8,7 +8,7 @@ import { getUserNotificationsAction, markNotificationsReadAction } from '@/modul
 
 export type NotificationRecord = {
   id: string
-  notification_type: 'new_lead' | 'quote_accepted' | 'task_assigned'
+  notification_type: 'new_lead' | 'quote_accepted' | 'task_assigned' | 'trial_expiring_soon'
   title: string
   message: string
   action_url: string | null
