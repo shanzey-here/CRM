@@ -79,13 +79,31 @@ export function CreateTenantDialog() {
                     A first admin user has been created. Please share these temporary login credentials with them securely:
                   </p>
                   <div className="bg-slate-950 border border-slate-800 rounded-lg p-4 font-mono text-sm space-y-2">
-                    <div className="flex justify-between">
+                    <div className="flex justify-between items-center group">
                       <span className="text-slate-500">Email:</span>
-                      <span className="text-white">{successData.adminEmail}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-white">{successData.adminEmail}</span>
+                        <button 
+                          onClick={() => navigator.clipboard.writeText(successData.adminEmail)}
+                          className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-white transition-all bg-slate-800 rounded"
+                          title="Copy Email"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                        </button>
+                      </div>
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between items-center group">
                       <span className="text-slate-500">Temp Password:</span>
-                      <span className="text-blue-400 font-bold">{successData.generatedPassword}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-blue-400 font-bold">{successData.generatedPassword}</span>
+                        <button 
+                          onClick={() => navigator.clipboard.writeText(successData.generatedPassword || '')}
+                          className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-white transition-all bg-slate-800 rounded"
+                          title="Copy Password"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                        </button>
+                      </div>
                     </div>
                   </div>
                   <p className="text-xs text-slate-400 text-center">
