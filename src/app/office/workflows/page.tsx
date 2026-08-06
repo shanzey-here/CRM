@@ -136,7 +136,7 @@ export default async function WorkflowsPage() {
                 <tbody className="divide-y divide-slate-200 bg-white">
                   {workflows && workflows.length > 0 ? (
                     workflows.map((workflow) => (
-                      <tr key={workflow.id}>
+                      <tr key={workflow.id} className="hover:bg-slate-50 transition-colors relative group">
                         <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-slate-900 sm:pl-6">
                           {workflow.name}
                         </td>
@@ -158,10 +158,10 @@ export default async function WorkflowsPage() {
                           </span>
                         </td>
                         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                          <Link href={`/office/workflows/${workflow.id}`} className="text-blue-600 hover:text-blue-900 mr-4">
+                          <Link href={`/office/workflows/${workflow.id}`} className="text-blue-600 hover:text-blue-900 mr-4 after:absolute after:inset-0">
                             Edit<span className="sr-only">, {workflow.name}</span>
                           </Link>
-                          <Link href={`/office/workflows/${workflow.id}/logs`} className="text-slate-600 hover:text-slate-900">
+                          <Link href={`/office/workflows/${workflow.id}/logs`} className="text-slate-600 hover:text-slate-900 relative z-10">
                             Logs<span className="sr-only">, {workflow.name}</span>
                           </Link>
                         </td>

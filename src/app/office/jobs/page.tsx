@@ -42,7 +42,7 @@ export default async function JobsListPage() {
           <tbody className="divide-y divide-slate-200">
             {success && jobs && jobs.length > 0 ? (
               jobs.map((job: any) => (
-                <tr key={job.id} className="hover:bg-slate-50 transition-colors">
+                <tr key={job.id} className="hover:bg-slate-50 transition-colors relative group">
                   <td className="px-6 py-4 font-medium text-slate-900">
                     {job.contact?.first_name} {job.contact?.last_name || ''}
                   </td>
@@ -57,7 +57,7 @@ export default async function JobsListPage() {
                   <td className="px-6 py-4 text-right">
                     <Link 
                       href={`/office/jobs/${job.id}`} 
-                      className="text-emerald-600 hover:text-emerald-700 font-medium"
+                      className="text-emerald-600 hover:text-emerald-700 font-medium after:absolute after:inset-0"
                     >
                       View Details &rarr;
                     </Link>

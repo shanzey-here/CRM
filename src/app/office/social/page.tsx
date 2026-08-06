@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import { isSocialModuleEnabled, listActiveAccounts } from '@/modules/social/server/repository'
 import { ComposerForm } from './components/composer-form'
 import { CancelButton } from './components/cancel-button'
+import { SocialPostItem } from './components/social-post-item'
 
 export const dynamic = 'force-dynamic'
 
@@ -96,55 +97,13 @@ export default async function SocialComposerPage({ searchParams }: { searchParam
       )}
 
       <div className="space-y-3">
-        {(posts ?? []).map((post) => {
-          const results = (post.publish_results as PublishResult[] | null) ?? null
-          const isFuturePending = post.status === 'pending' && new Date(post.scheduled_for).getTime() > Date.now()
-          const accountNames = post.account_ids.map((id: string) => accountsById.get(id)?.display_name ?? id.slice(0, 8)).join(', ')
-
-          return (
-            <div key={post.id} className="p-4 rounded-lg border border-slate-200 bg-white">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${STATUS_BADGE[post.status] ?? 'bg-slate-100 text-slate-700'}`}>
-                      {post.status}
-                    </span>
-                    <span className="text-xs text-slate-500">{accountNames}</span>
-                  </div>
-                  <p className="text-sm text-slate-800 mt-2 line-clamp-3">{post.content}</p>
-                  <p className="text-xs text-slate-400 mt-2">Scheduled for {new Date(post.scheduled_for).toLocaleString()}</p>
-
-                  {results && (
-                    <div className="mt-2 space-y-1">
-                      {results.map((r) => (
-                        <div key={r.accountId} className="text-xs text-slate-500">
-                          {accountsById.get(r.accountId)?.display_name ?? r.accountId.slice(0, 8)}:{' '}
-                          {r.ok ? (
-                            r.platformPostUrl ? (
-                              <a href={r.platformPostUrl} target="_blank" rel="noreferrer" className="text-emerald-600 underline">
-                                view post
-                              </a>
-                            ) : (
-                              <span className="text-emerald-600">posted</span>
-                            )
-                          ) : (
-                            <span className="text-red-600">{r.error}</span>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {isFuturePending && (
-                  <div className="shrink-0">
-                    <CancelButton postId={post.id} />
-                  </div>
-                )}
-              </div>
-            </div>
-          )
-        })}
+        {(posts ?? []).map((post) => (
+          <SocialPostItem 
+            key={post.id} 
+            post={post} 
+            accountsByIdMap={Object.fromEntries(accountsById)} 
+          />
+        ))}
       </div>
 
       {totalPages > 1 && (

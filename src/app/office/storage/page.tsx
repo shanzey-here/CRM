@@ -129,7 +129,7 @@ export default async function StoragePage({ searchParams }: { searchParams: Prom
                 <tbody className="divide-y divide-slate-200 bg-white">
                   {crates && crates.length > 0 ? (
                     crates.map((crate: any) => (
-                      <tr key={crate.id}>
+                      <tr key={crate.id} className="hover:bg-slate-50 transition-colors relative group">
                         <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-slate-900 sm:pl-6">{crate.crate_number}</td>
                         <td className="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
                           <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${STATUS_BADGE[crate.status] ?? ''}`}>
@@ -141,7 +141,7 @@ export default async function StoragePage({ searchParams }: { searchParams: Prom
                           {crate.contacts ? `${crate.contacts.first_name} ${crate.contacts.last_name}` : '—'}
                         </td>
                         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                          <Link href={`/office/storage/crates/${crate.id}`} className="text-blue-600 hover:text-blue-900">
+                          <Link href={`/office/storage/crates/${crate.id}`} className="text-blue-600 hover:text-blue-900 after:absolute after:inset-0">
                             View<span className="sr-only">, {crate.crate_number}</span>
                           </Link>
                         </td>
