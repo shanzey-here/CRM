@@ -112,6 +112,7 @@ export async function getLeadsNeedingFollowUp(
     .select(`
       id,
       stage,
+      source,
       updated_at,
       contact:contacts(first_name, last_name)
     `)

@@ -264,13 +264,16 @@ export async function getContactRelocationHistory(
         id, status, move_date, created_at,
         origin_address:addresses!jobs_origin_address_fk(city, postcode),
         destination_address:addresses!jobs_destination_address_fk(city, postcode),
-        quote:quotes(id, total_price)
+        quote:quotes(
+          id, total_price,
+          lead:leads(source)
+        )
       `)
       .eq('tenant_id', tenantId)
       .eq('contact_id', contactId),
     supabase
       .from('quotes')
-      .select('id, status, total_price, valid_until, created_at')
+      .select('id, status, total_price, valid_until, created_at, lead:leads(source)')
       .eq('tenant_id', tenantId)
       .eq('contact_id', contactId)
       .in('status', ['declined', 'expired']),

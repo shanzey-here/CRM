@@ -106,6 +106,11 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
               <Badge variant="destructive">High Priority</Badge>
             )}
             {lead.is_archived && <Badge variant="destructive">Archived</Badge>}
+            {lead.source && (
+              <Badge variant="outline" className="bg-slate-50 text-slate-600 capitalize">
+                {lead.source.replace(/_/g, ' ')}
+              </Badge>
+            )}
           </div>
           {contact.company_name && (
             <p className="text-slate-500 flex items-center mt-1 text-sm">

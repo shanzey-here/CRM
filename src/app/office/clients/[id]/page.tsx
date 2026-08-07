@@ -4,6 +4,7 @@ import { getContactById, getContactAddresses, getContactRelocationHistory } from
 import { getContactPricingOverride } from '@/modules/clients/server/pricing-overrides'
 import { getTimeline } from '@/modules/activities/server/repository'
 import { EditContactForm } from './components/edit-contact-form'
+import { CreateLeadForm } from './components/create-lead-form'
 import { NegotiatedRateCard } from './components/negotiated-rate-card'
 import { TimelineView } from '../../components/timeline-view'
 import { Badge } from '@/components/ui/badge'
@@ -148,8 +149,10 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
             </p>
           )}
         </div>
-        
-        <EditContactForm contact={contact} />
+        <div className="flex gap-2">
+          <EditContactForm contact={contact} />
+          <CreateLeadForm contactId={contact.id} />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -354,6 +357,11 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
                                   <Badge variant="secondary" className={`text-xs uppercase ${JOB_STATUS_BADGE[job.status] || ''}`}>
                                     {job.status.replace('_', ' ')}
                                   </Badge>
+                                  {quote?.lead?.source && (
+                                    <span className="text-xs text-slate-500 capitalize px-1.5 py-0.5 bg-slate-100 rounded shrink-0">
+                                      {quote.lead.source.replace(/_/g, ' ')}
+                                    </span>
+                                  )}
                                   <span className="text-slate-700 truncate">
                                     {origin?.city || 'Unknown'} &rarr; {dest?.city || 'Unknown'}
                                   </span>
@@ -382,6 +390,11 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
                                 <Badge variant="outline" className="text-xs uppercase text-slate-500">
                                   Quote &mdash; {quote.status}
                                 </Badge>
+                                {quote.lead?.source && (
+                                  <span className="text-xs text-slate-500 capitalize px-1.5 py-0.5 bg-slate-100 rounded shrink-0">
+                                    {quote.lead.source.replace(/_/g, ' ')}
+                                  </span>
+                                )}
                               </div>
                               <p className="text-xs text-slate-400 mt-0.5">
                                 {quote.valid_until ? `Valid until ${formatDate(quote.valid_until)}` : formatDate(quote.created_at)}

@@ -110,6 +110,15 @@ export function LeadCard({ lead, isDragOverlay = false, isPending = false }: Lea
         <span>Move: {formatDate(lead.preferred_move_date)}</span>
       </div>
 
+      {/* Source */}
+      {!!lead.source && (
+        <div className="flex items-center gap-1 mt-1 text-xs text-slate-500">
+          <span className="inline-block px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 capitalize">
+            {lead.source.replace(/_/g, ' ')}
+          </span>
+        </div>
+      )}
+
       {/* Time in stage — highlighted in amber/red when stale */}
       <div
         className={[
@@ -119,7 +128,7 @@ export function LeadCard({ lead, isDragOverlay = false, isPending = false }: Lea
         title={isStale ? `This lead has been in this stage for ${diffDays} days` : undefined}
       >
         <Clock className="h-3 w-3 shrink-0" />
-        <span>
+        <span suppressHydrationWarning>
           {timeInStage(lead.updated_at, lead.created_at)}
           {isStale && ' ⚠'}
         </span>
