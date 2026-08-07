@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { HeaderNav } from './components/header-nav'
+import { SidebarNav } from './components/header-nav'
 import { NotificationBell } from './components/notification-bell'
 
 export default async function OfficeLayout({ children }: { children: React.ReactNode }) {
@@ -62,42 +62,52 @@ export default async function OfficeLayout({ children }: { children: React.React
 
   // 5. Layout Render
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
-      {subStatus === 'past_due' && (
-        <div className="bg-amber-600 px-4 py-3 text-white text-sm font-medium text-center shadow-inner">
-          Your last payment failed. Please update your billing information to avoid service interruption.{' '}
-          <Link href="/office/settings/billing" className="underline hover:text-amber-100">
-            Manage Billing
-          </Link>
+    <div className="min-h-screen bg-slate-50 flex">
+      {/* Sidebar (Fixed) */}
+      <div className="fixed inset-y-0 left-0 w-64 bg-white border-r border-slate-200 flex flex-col shadow-sm z-50">
+        <div className="h-16 flex items-center px-6 border-b border-slate-100 shrink-0">
+          <Link href="/office" className="text-xl font-bold text-[var(--color-primary)]">Gomove</Link>
         </div>
-      )}
-      {trialDaysRemaining !== null && (
-        <div className="bg-amber-500 px-4 py-3 text-amber-950 text-sm font-medium text-center shadow-inner">
-          Your free trial expires in {trialDaysRemaining === 0 ? 'less than a day' : `${trialDaysRemaining} days`}. Please update your billing information to avoid service interruption.{' '}
-          <Link href="/office/settings/billing" className="underline hover:text-amber-950 font-bold">
-            Manage Billing
-          </Link>
+        <div className="flex-1 overflow-y-auto py-4 px-3">
+          <SidebarNav role={role} />
         </div>
-      )}
-      <header className="bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex">
-              <div className="flex-shrink-0 flex items-center">
-                <Link href="/office" className="text-xl font-bold text-emerald-600">Gomove</Link>
-              </div>
-              <HeaderNav role={role} />
-            </div>
-            <div className="flex items-center">
-              <NotificationBell userId={user.id} />
-              <span className="text-sm text-slate-500 mr-4 ml-4">{user.email}</span>
-            </div>
+        <div className="p-4 border-t border-slate-100 bg-slate-50/50 shrink-0">
+          <div className="text-sm font-medium text-slate-900 truncate" title={user.email}>{user.email}</div>
+          <form action="/auth/signout" method="POST" className="mt-2">
+            <button type="submit" className="text-xs font-medium text-slate-500 hover:text-red-600 transition-colors">Log Out</button>
+          </form>
+        </div>
+      </div>
+
+      {/* Main Content Area */}
+      <div className="flex-1 ml-64 flex flex-col min-h-screen">
+        {/* Global Banners */}
+        {subStatus === 'past_due' && (
+          <div className="bg-amber-600 px-4 py-3 text-white text-sm font-medium text-center shadow-inner">
+            Your last payment failed. Please update your billing information to avoid service interruption.{' '}
+            <Link href="/office/settings/billing" className="underline hover:text-amber-100">
+              Manage Billing
+            </Link>
           </div>
-        </div>
-      </header>
-      <main className="flex-1">
-        {children}
-      </main>
+        )}
+        {trialDaysRemaining !== null && (
+          <div className="bg-amber-500 px-4 py-3 text-amber-950 text-sm font-medium text-center shadow-inner">
+            Your free trial expires in {trialDaysRemaining === 0 ? 'less than a day' : `${trialDaysRemaining} days`}. Please update your billing information to avoid service interruption.{' '}
+            <Link href="/office/settings/billing" className="underline hover:text-amber-950 font-bold">
+              Manage Billing
+            </Link>
+          </div>
+        )}
+
+        {/* Minimal Top Header */}
+        <header className="h-16 bg-white/80 backdrop-blur-sm border-b border-slate-200 flex items-center justify-end px-8 sticky top-0 z-40 shrink-0">
+          <NotificationBell userId={user.id} />
+        </header>
+
+        <main className="flex-1">
+          {children}
+        </main>
+      </div>
     </div>
   )
 }

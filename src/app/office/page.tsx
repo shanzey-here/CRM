@@ -47,7 +47,7 @@ async function UpcomingMovesWidget({ tenantId, adminSupabase }: { tenantId: stri
             <p className="text-xs text-slate-500">Status: {job.status}</p>
           </div>
           <div className="text-right">
-            <span className="bg-emerald-100 text-emerald-800 text-xs px-2 py-1 rounded-full">
+            <span className="bg-slate-100 text-slate-700 text-xs px-2.5 py-0.5 rounded-md font-medium">
               {job.move_date ? format(new Date(job.move_date), 'MMM d, yyyy') : 'TBD'}
             </span>
           </div>
@@ -73,7 +73,7 @@ async function TasksWidget({ tenantId, adminSupabase }: { tenantId: string, admi
             <p className="font-medium text-slate-900">{task.title}</p>
             {task.due_date && <p className="text-xs text-slate-500">Due: {format(new Date(task.due_date), 'MMM d')}</p>}
           </div>
-          <span className="bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded-full">
+          <span className="bg-amber-50 text-amber-700 border border-amber-200 text-xs px-2.5 py-0.5 rounded-md font-medium">
             {task.status}
           </span>
         </div>
@@ -100,11 +100,11 @@ async function LeadsFollowUpWidget({ tenantId, adminSupabase }: { tenantId: stri
           </div>
           <div className="flex gap-2 items-center">
             {lead.source && (
-              <span className="bg-slate-100 text-slate-600 text-xs px-2 py-1 rounded-full capitalize">
+              <span className="bg-slate-50 text-slate-700 border border-slate-200 text-xs px-2.5 py-0.5 rounded-md font-medium capitalize">
                 {lead.source.replace(/_/g, ' ')}
               </span>
             )}
-            <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+            <span className="bg-blue-50 text-blue-700 border border-blue-200 text-xs px-2.5 py-0.5 rounded-md font-medium">
               {lead.stage}
             </span>
           </div>
@@ -177,42 +177,47 @@ export default async function OfficeDashboard() {
   )
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-      {showOnboardingReminder && <OnboardingReminderBanner />}
+    <div className="relative">
+      {/* Subtle Gradient Mesh for Header Only */}
+      <div className="absolute inset-x-0 top-0 h-[300px] -z-10 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-blue-100/40 via-white to-transparent pointer-events-none" />
       
-      <div className="mb-2">
-        <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
-        <p className="text-slate-500 text-sm mt-1">Overview of your operations and pending actions. (RLS Bypass Active)</p>
-      </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 relative z-10">
+        {showOnboardingReminder && <OnboardingReminderBanner />}
+        
+        <div className="mb-2">
+          <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
+          <p className="text-slate-500 text-sm mt-1">Overview of your operations and pending actions. (RLS Bypass Active)</p>
+        </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <MotionCard index={0} className="p-5">
-          <h2 className="text-lg font-semibold text-slate-800 mb-4 border-b pb-2">Upcoming Moves</h2>
-          <Suspense fallback={<WidgetSkeleton />}>
-            <UpcomingMovesWidget tenantId={tenantId} adminSupabase={adminSupabase} />
-          </Suspense>
-        </MotionCard>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <MotionCard index={0} className="p-5 shadow-sm border border-slate-200 bg-white ring-0">
+            <h2 className="text-lg font-semibold text-slate-900 mb-4 border-b border-slate-100 pb-2">Upcoming Moves</h2>
+            <Suspense fallback={<WidgetSkeleton />}>
+              <UpcomingMovesWidget tenantId={tenantId} adminSupabase={adminSupabase} />
+            </Suspense>
+          </MotionCard>
 
-        <MotionCard index={1} className="p-5">
-          <h2 className="text-lg font-semibold text-slate-800 mb-4 border-b pb-2">My Pending Tasks</h2>
-          <Suspense fallback={<WidgetSkeleton />}>
-            <TasksWidget tenantId={tenantId} adminSupabase={adminSupabase} />
-          </Suspense>
-        </MotionCard>
+          <MotionCard index={1} className="p-5 shadow-sm border border-slate-200 bg-white ring-0">
+            <h2 className="text-lg font-semibold text-slate-900 mb-4 border-b border-slate-100 pb-2">My Pending Tasks</h2>
+            <Suspense fallback={<WidgetSkeleton />}>
+              <TasksWidget tenantId={tenantId} adminSupabase={adminSupabase} />
+            </Suspense>
+          </MotionCard>
 
-        <MotionCard index={2} className="p-5">
-          <h2 className="text-lg font-semibold text-slate-800 mb-4 border-b pb-2">Leads to Follow Up</h2>
-          <Suspense fallback={<WidgetSkeleton />}>
-            <LeadsFollowUpWidget tenantId={tenantId} adminSupabase={adminSupabase} />
-          </Suspense>
-        </MotionCard>
+          <MotionCard index={2} className="p-5 shadow-sm border border-slate-200 bg-white ring-0">
+            <h2 className="text-lg font-semibold text-slate-900 mb-4 border-b border-slate-100 pb-2">Leads to Follow Up</h2>
+            <Suspense fallback={<WidgetSkeleton />}>
+              <LeadsFollowUpWidget tenantId={tenantId} adminSupabase={adminSupabase} />
+            </Suspense>
+          </MotionCard>
 
-        <MotionCard index={3} className="p-5">
-          <h2 className="text-lg font-semibold text-slate-800 mb-4 border-b pb-2">Outstanding Invoices</h2>
-          <Suspense fallback={<WidgetSkeleton />}>
-            <OutstandingInvoicesWidget tenantId={tenantId} adminSupabase={adminSupabase} />
-          </Suspense>
-        </MotionCard>
+          <MotionCard index={3} className="p-5 shadow-sm border border-slate-200 bg-white ring-0">
+            <h2 className="text-lg font-semibold text-slate-900 mb-4 border-b border-slate-100 pb-2">Outstanding Invoices</h2>
+            <Suspense fallback={<WidgetSkeleton />}>
+              <OutstandingInvoicesWidget tenantId={tenantId} adminSupabase={adminSupabase} />
+            </Suspense>
+          </MotionCard>
+        </div>
       </div>
     </div>
   )
