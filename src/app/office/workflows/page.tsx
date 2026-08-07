@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { isWorkflowModuleEnabled } from '@/modules/workflows/server/repository'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Plus, Workflow, AlertCircle, UserPlus, FileText, Star } from 'lucide-react'
+import { Plus, AlertCircle, Lock, UserPlus, FileText, Star } from 'lucide-react'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { WORKFLOW_TEMPLATES } from '@/modules/workflows/templates'
 
@@ -20,25 +20,6 @@ export default async function WorkflowsPage() {
   }
 
   const isEnabled = await isWorkflowModuleEnabled(supabase, tenantId)
-
-  if (!isEnabled) {
-    return (
-      <div className="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-        <div className="text-center">
-          <Workflow className="mx-auto h-12 w-12 text-slate-400" />
-          <h2 className="mt-2 text-lg font-medium text-slate-900">Automation Workflows</h2>
-          <p className="mt-1 text-sm text-slate-500">
-            Build custom automated rules (e.g. "if a lead is created, assign a task").
-          </p>
-          <div className="mt-6">
-            <div className="inline-flex items-center rounded-md bg-yellow-50 px-3 py-2 text-sm font-medium text-yellow-800 ring-1 ring-inset ring-yellow-600/20">
-              Not available on your current plan
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
 
   const { data: workflows, error } = await supabase
     .from('automation_workflows')
@@ -66,6 +47,20 @@ export default async function WorkflowsPage() {
           </Link>
         </div>
       </div>
+
+      {!isEnabled && (
+        <Alert className="mt-6 bg-amber-50 text-amber-900 border-amber-200">
+          <Lock className="h-4 w-4 text-amber-600" />
+          <AlertTitle>You&apos;re exploring Workflows in preview mode</AlertTitle>
+          <AlertDescription className="text-amber-800">
+            Browse templates and build a workflow to see exactly how it works. Saving or activating a
+            real workflow requires upgrading your plan.{' '}
+            <Link href="/office/settings/billing" className="font-medium underline underline-offset-2">
+              View plans
+            </Link>
+          </AlertDescription>
+        </Alert>
+      )}
 
       <Alert className="mt-6 bg-slate-50 text-slate-800 border-slate-200">
         <AlertCircle className="h-4 w-4" />

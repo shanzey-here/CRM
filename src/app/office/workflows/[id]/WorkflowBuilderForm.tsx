@@ -4,7 +4,8 @@ import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { Plus, Trash2, ArrowUp, ArrowDown, AlertCircle, Save } from 'lucide-react'
+import Link from 'next/link'
+import { Plus, Trash2, ArrowUp, ArrowDown, AlertCircle, Save, Lock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
@@ -29,6 +30,7 @@ export function WorkflowBuilderForm({ initialData, isAiEmailEnabled }: Props) {
   const router = useRouter()
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [blockedByEntitlement, setBlockedByEntitlement] = useState(false)
 
   const defaultValues: WorkflowFormValues = initialData || {
     name: '',
@@ -59,11 +61,16 @@ export function WorkflowBuilderForm({ initialData, isAiEmailEnabled }: Props) {
   async function onSubmit(data: WorkflowFormValues) {
     setIsSaving(true)
     setError(null)
+    setBlockedByEntitlement(false)
     const result = await saveWorkflow(data, initialData?.id)
     setIsSaving(false)
 
     if (result.error) {
-      setError(result.error)
+      if ('reason' in result && result.reason === 'entitlement') {
+        setBlockedByEntitlement(true)
+      } else {
+        setError(result.error)
+      }
     } else {
       router.push('/office/workflows')
       router.refresh()
@@ -77,6 +84,21 @@ export function WorkflowBuilderForm({ initialData, isAiEmailEnabled }: Props) {
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      {blockedByEntitlement && (
+        <Alert className="bg-indigo-50 border-indigo-200 text-indigo-900">
+          <Lock className="h-4 w-4 text-indigo-600" />
+          <AlertTitle>Upgrade to save this workflow</AlertTitle>
+          <AlertDescription className="text-indigo-800">
+            Your current plan doesn&apos;t include Automation Workflows. You can keep building and
+            exploring this workflow freely — upgrading your plan is all that&apos;s needed to save
+            and activate it.{' '}
+            <Link href="/office/settings/billing" className="font-medium underline underline-offset-2">
+              View plans
+            </Link>
+          </AlertDescription>
         </Alert>
       )}
 
@@ -289,12 +311,28 @@ export function WorkflowBuilderForm({ initialData, isAiEmailEnabled }: Props) {
                         </div>
                         <div className="col-span-2 sm:col-span-1">
                           <Label>Due Offset (Days)</Label>
-                          <Input 
-                            type="number" 
-                            {...form.register(`actions.${index}.action_config.due_offset_days` as const, { valueAsNumber: true })} 
-                            className="mt-1 bg-white" 
+                          <Input
+                            type="number"
+                            value={
+                              (form.watch(`actions.${index}.action_config` as const) as any)?.due_offset_days ?? ''
+                            }
+                            onChange={(e) => {
+                              const raw = e.target.value
+                              form.setValue(
+                                `actions.${index}.action_config.due_offset_days` as const,
+                                raw === '' ? undefined : Number(raw)
+                              )
+                            }}
+                            className="mt-1 bg-white"
                             placeholder="e.g. 2"
                           />
+                          {form.formState.errors.actions?.[index] &&
+                            'action_config' in form.formState.errors.actions[index]! &&
+                            (form.formState.errors.actions[index] as any).action_config?.due_offset_days && (
+                              <p className="mt-1 text-sm text-red-600">
+                                {(form.formState.errors.actions[index] as any).action_config.due_offset_days.message}
+                              </p>
+                            )}
                         </div>
                       </div>
                     )}
