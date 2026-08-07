@@ -45,7 +45,7 @@ export function TenantActions({ tenantId, isSuspended }: { tenantId: string, isS
         <button 
           type="submit" 
           disabled={loading}
-          className="text-emerald-400 hover:text-emerald-300 text-sm font-medium transition-colors"
+          className="text-emerald-600 hover:text-emerald-700 text-sm font-medium transition-colors"
         >
           {loading ? 'Reactivating...' : 'Reactivate'}
         </button>
@@ -57,22 +57,22 @@ export function TenantActions({ tenantId, isSuspended }: { tenantId: string, isS
     <>
       <button 
         onClick={() => setIsOpen(true)}
-        className="text-red-400 hover:text-red-300 text-sm font-medium transition-colors"
+        className="border-2 border-[var(--color-destructive)] text-[var(--color-destructive)] bg-transparent hover:bg-red-50 hover:text-red-700 font-medium rounded-md px-3 py-1.5 transition-colors text-sm"
       >
         Suspend
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-lg p-6 w-full max-w-md shadow-xl">
-            <h3 className="text-lg font-semibold text-white mb-2">Suspend Tenant</h3>
-            <p className="text-sm text-slate-400 mb-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
+          <div className="bg-white/95 backdrop-blur-md border border-slate-200 rounded-xl p-6 w-full max-w-md shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+            <h3 className="text-lg font-semibold text-slate-900 mb-2">Suspend Tenant</h3>
+            <p className="text-sm text-slate-500 mb-4">
               This will immediately lock all staff out of the system. This action is audited.
             </p>
             
             <form onSubmit={handleAction} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">
+                <label className="block text-sm font-medium text-slate-700 mb-1">
                   Reason for Suspension
                 </label>
                 <input
@@ -80,23 +80,23 @@ export function TenantActions({ tenantId, isSuspended }: { tenantId: string, isS
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
                   placeholder="e.g. Policy violation"
-                  className="w-full bg-slate-950 border border-slate-800 rounded px-3 py-2 text-white focus:outline-none focus:border-red-500"
+                  className="w-full bg-white border border-slate-300 rounded-md px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[var(--color-destructive)] focus:border-transparent"
                   required
                 />
               </div>
 
               {error && (
-                <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded text-sm">
+                <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-md text-sm">
                   {error}
                 </div>
               )}
 
-              <div className="flex justify-end gap-3 pt-2">
+              <div className="flex justify-end gap-3 pt-4">
                 <button
                   type="button"
                   onClick={() => setIsOpen(false)}
                   disabled={loading}
-                  className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors"
+                  className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
                 >
                   Cancel
                 </button>
