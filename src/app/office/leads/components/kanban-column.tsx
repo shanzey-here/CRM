@@ -38,7 +38,7 @@ export function KanbanColumn({ stage, leads, isPending, index }: KanbanColumnPro
   return (
     <motion.div
       {...motionProps}
-      className="flex flex-col shrink-0 w-72 rounded-xl overflow-hidden"
+      className="flex flex-col shrink-0 w-72 rounded-xl overflow-hidden bg-slate-50 border border-slate-200 shadow-sm ring-0"
       style={{
         boxShadow: isOver
           ? `0 0 0 2px ${stage.color}50, 0 4px 20px ${stage.color}20`
@@ -47,14 +47,12 @@ export function KanbanColumn({ stage, leads, isPending, index }: KanbanColumnPro
       }}
     >
       {/* Column Header */}
-      <div
-        className="flex items-center justify-between px-4 py-3 text-white font-semibold text-sm"
-        style={{ backgroundColor: stage.color }}
-      >
-        <span>{stage.label}</span>
-        <span
-          className="flex items-center justify-center w-6 h-6 rounded-full bg-white/20 text-xs font-bold"
-        >
+      <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-slate-200">
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: stage.color }} />
+          <span className="font-semibold text-slate-900 text-sm">{stage.label}</span>
+        </div>
+        <span className="flex items-center justify-center px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-xs font-semibold">
           {leads.length}
         </span>
       </div>
