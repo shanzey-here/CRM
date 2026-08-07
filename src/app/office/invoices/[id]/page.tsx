@@ -5,16 +5,18 @@ import { getInvoiceById } from '@/modules/invoicing/server/repository'
 import { format } from 'date-fns'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { EditDraftInvoiceForm } from './components/edit-draft-invoice-form'
 
 export const dynamic = 'force-dynamic'
 
-export default async function InvoiceDetailPage({ params }: { params: { id: string } }) {
+export default async function InvoiceDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user || !user.app_metadata.tenant_id) redirect('/login')
 
   const tenantId = user.app_metadata.tenant_id
-  const { success, data: invoice, error } = await getInvoiceById(supabase, tenantId, params.id)
+  const { success, data: invoice, error } = await getInvoiceById(supabase, tenantId, id)
 
   if (!success || !invoice) notFound()
 
@@ -29,11 +31,28 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
             </Badge>
           </div>
           <p className="text-slate-500 mt-1">
-            Created: {format(new Date(invoice.created_at), 'MMM d, yyyy')} 
+            Created: {format(new Date(invoice.created_at), 'MMM d, yyyy')}
             {invoice.due_date && ` • Due: ${format(new Date(invoice.due_date), 'MMM d, yyyy')}`}
           </p>
+          {invoice.status === 'draft' && invoice.payments.length > 0 && (
+            <p className="text-xs text-amber-600 mt-1">
+              This draft invoice already has a payment recorded against it and can no longer be edited.
+            </p>
+          )}
         </div>
         <div className="flex items-center gap-3">
+          {invoice.status === 'draft' && invoice.payments.length === 0 && (
+            <EditDraftInvoiceForm
+              invoiceId={invoice.id}
+              notes={invoice.notes}
+              lineItems={invoice.lineItems.map((li) => ({
+                description: li.description,
+                quantity: Number(li.quantity),
+                unit_price: Number(li.unit_price),
+                sort_order: li.sort_order,
+              }))}
+            />
+          )}
           <Button variant="outline" asChild>
             <Link href={`/customer/invoices/${invoice.id}`} target="_blank">
               View Customer Portal

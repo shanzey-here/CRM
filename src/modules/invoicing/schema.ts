@@ -69,3 +69,25 @@ export type InvoiceWithDetails = Invoice & {
   schedules: PaymentSchedule[]
   payments: Payment[]
 }
+
+// ============================================================================
+// DRAFT INVOICE EDITING
+// ============================================================================
+// amount is deliberately absent — it's always quantity * unit_price,
+// recomputed server-side inside update_draft_invoice, never accepted from
+// the client. subtotal/total are similarly never part of this input; they're
+// always derived from the sum of these line items.
+export const editInvoiceLineItemSchema = z.object({
+  description: z.string().min(1, 'Description is required'),
+  quantity: z.number().positive('Quantity must be greater than 0'),
+  unit_price: z.number().min(0, 'Unit price cannot be negative'),
+  sort_order: z.number().int(),
+})
+
+export const updateDraftInvoiceSchema = z.object({
+  notes: z.string().optional().nullable(),
+  lineItems: z.array(editInvoiceLineItemSchema).min(1, 'At least one line item is required'),
+})
+
+export type EditInvoiceLineItemInput = z.infer<typeof editInvoiceLineItemSchema>
+export type UpdateDraftInvoiceInput = z.infer<typeof updateDraftInvoiceSchema>
