@@ -130,12 +130,13 @@ export function KanbanBoard({ initialLeads }: KanbanBoardProps) {
         onDragEnd={handleDragEnd}
       >
         <div className="flex gap-4 overflow-x-auto pb-4 pl-6 flex-1 after:content-[''] after:w-6 after:shrink-0">
-          {KANBAN_STAGES.map((stage) => (
+          {KANBAN_STAGES.map((stage, index) => (
             <KanbanColumn
               key={stage.id}
               stage={stage}
-              leads={leadsByStage(stage.id)}
+              leads={leadsByStage(stage.id as KanbanStage)}
               isPending={isPending}
+              index={index}
             />
           ))}
         </div>

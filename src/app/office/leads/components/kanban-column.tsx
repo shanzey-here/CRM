@@ -2,6 +2,7 @@
 
 import { useDroppable } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
+import { motion, useReducedMotion } from 'framer-motion'
 import { LeadCard } from './lead-card'
 import type { Lead } from '@/modules/leads/server/repository'
 import type { KanbanStage } from '../actions'
@@ -16,14 +17,27 @@ interface KanbanColumnProps {
   stage: ColumnDef
   leads: Lead[]
   isPending: boolean
+  index: number
 }
 
-export function KanbanColumn({ stage, leads, isPending }: KanbanColumnProps) {
+export function KanbanColumn({ stage, leads, isPending, index }: KanbanColumnProps) {
   // The column itself is a drop target — its id matches the stage value
   const { setNodeRef, isOver } = useDroppable({ id: stage.id })
+  const shouldReduceMotion = useReducedMotion()
+
+  const motionProps = shouldReduceMotion ? {} : {
+    initial: { opacity: 0, y: 15 },
+    animate: { opacity: 1, y: 0 },
+    transition: {
+      duration: 0.25,
+      delay: index * 0.05,
+      ease: [0.25, 0.1, 0.25, 1.0],
+    }
+  }
 
   return (
-    <div
+    <motion.div
+      {...motionProps}
       className="flex flex-col shrink-0 w-72 rounded-xl overflow-hidden"
       style={{
         boxShadow: isOver
@@ -69,6 +83,6 @@ export function KanbanColumn({ stage, leads, isPending }: KanbanColumnProps) {
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   )
 }

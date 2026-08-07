@@ -70,8 +70,8 @@ export function LeadCard({ lead, isDragOverlay = false, isPending = false }: Lea
       style={style}
       onClick={handleCardClick}
       className={[
-        'group relative bg-white rounded-lg border px-3 py-3 select-none',
-        'transition-all duration-150 cursor-pointer',
+        'group relative bg-white rounded-xl border px-3 py-3 select-none',
+        'transition-all cursor-pointer',
         isDragging && !isDragOverlay
           ? 'opacity-40 scale-95 border-dashed border-slate-300 shadow-none'
           : 'border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5',
