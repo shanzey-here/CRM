@@ -20,10 +20,14 @@ export async function saveWorkflow(data: WorkflowFormValues, workflowId?: string
     return { error: 'No tenant context found' }
   }
 
-  // 2. Validate Entitlement
+  // 2. Validate Entitlement — the real, unbypassable gate. The builder UI is
+  // openly explorable by free-tier tenants (see office/workflows/page.tsx),
+  // so this re-check is the only thing actually preventing a free-tier tenant
+  // from persisting a real workflow — never trust that the client only got
+  // here because the UI allowed it.
   const isEnabled = await isWorkflowModuleEnabled(supabase, tenantId)
   if (!isEnabled) {
-    return { error: 'Workflow module is not enabled for your plan' }
+    return { error: 'Workflow module is not enabled for your plan', reason: 'entitlement' as const }
   }
 
   // 3. Validate Payload
