@@ -11,6 +11,7 @@ import { format } from 'date-fns'
 
 import { WidgetError } from './components/widget-error'
 import { OnboardingReminderBanner } from './components/onboarding-reminder-banner'
+import { MotionCard } from '@/components/ui/motion-card'
 
 export const dynamic = 'force-dynamic'
 
@@ -185,33 +186,33 @@ export default async function OfficeDashboard() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-5">
+        <MotionCard index={0} className="p-5">
           <h2 className="text-lg font-semibold text-slate-800 mb-4 border-b pb-2">Upcoming Moves</h2>
           <Suspense fallback={<WidgetSkeleton />}>
             <UpcomingMovesWidget tenantId={tenantId} adminSupabase={adminSupabase} />
           </Suspense>
-        </div>
+        </MotionCard>
 
-        <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-5">
+        <MotionCard index={1} className="p-5">
           <h2 className="text-lg font-semibold text-slate-800 mb-4 border-b pb-2">My Pending Tasks</h2>
           <Suspense fallback={<WidgetSkeleton />}>
             <TasksWidget tenantId={tenantId} adminSupabase={adminSupabase} />
           </Suspense>
-        </div>
+        </MotionCard>
 
-        <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-5">
+        <MotionCard index={2} className="p-5">
           <h2 className="text-lg font-semibold text-slate-800 mb-4 border-b pb-2">Leads to Follow Up</h2>
           <Suspense fallback={<WidgetSkeleton />}>
             <LeadsFollowUpWidget tenantId={tenantId} adminSupabase={adminSupabase} />
           </Suspense>
-        </div>
+        </MotionCard>
 
-        <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-5">
+        <MotionCard index={3} className="p-5">
           <h2 className="text-lg font-semibold text-slate-800 mb-4 border-b pb-2">Outstanding Invoices</h2>
           <Suspense fallback={<WidgetSkeleton />}>
             <OutstandingInvoicesWidget tenantId={tenantId} adminSupabase={adminSupabase} />
           </Suspense>
-        </div>
+        </MotionCard>
       </div>
     </div>
   )
