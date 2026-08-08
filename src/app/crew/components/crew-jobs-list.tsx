@@ -101,19 +101,19 @@ export function CrewJobsList() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-        <div className="flex items-center space-x-2 text-sm text-gray-600">
+      <div className="flex items-center justify-between bg-white p-4 rounded-lg shadow-sm border border-slate-200">
+        <div className="flex items-center space-x-2 text-sm text-slate-600">
           <Clock className="w-4 h-4" />
           <span>
-            {syncedAt 
-              ? `Last synced: ${formatDistanceToNow(new Date(syncedAt), { addSuffix: true })}` 
+            {syncedAt
+              ? `Last synced: ${formatDistanceToNow(new Date(syncedAt), { addSuffix: true })}`
               : 'Never synced'}
           </span>
         </div>
-        <button 
+        <button
           onClick={() => syncData()}
           disabled={isSyncing}
-          className="flex items-center space-x-1 text-sm text-orange-600 hover:text-orange-700 disabled:opacity-50"
+          className="flex items-center space-x-1 text-sm text-blue-600 hover:text-blue-700 disabled:opacity-50"
         >
           <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
           <span>{isSyncing ? 'Syncing...' : 'Sync Now'}</span>
@@ -127,29 +127,29 @@ export function CrewJobsList() {
       )}
 
       {jobs.length === 0 && !isSyncing ? (
-        <div className="p-8 text-center text-gray-500 bg-white rounded-lg border border-dashed border-gray-300">
+        <div className="p-8 text-center text-slate-500 bg-white rounded-lg border border-dashed border-slate-300">
           No jobs assigned for the next 7 days.
         </div>
       ) : (
         <div className="space-y-4">
           {jobs.map(job => (
-            <Link 
-              key={job.id} 
+            <Link
+              key={job.id}
               href={`/crew/jobs/${job.id}`}
-              className="block bg-white p-5 rounded-lg shadow-sm hover:shadow-md transition-shadow border border-gray-100"
+              className="block bg-white p-5 rounded-lg shadow-sm hover:shadow-md transition-shadow border border-slate-200"
             >
               <div className="flex justify-between items-start mb-3">
                 <div>
-                  <h3 className="font-bold text-lg text-gray-900">
+                  <h3 className="font-bold text-lg text-slate-900">
                     {job.contact?.first_name} {job.contact?.last_name}
                   </h3>
-                  <p className="text-gray-500 text-sm">Job ID: {job.id.split('-')[0]}</p>
+                  <p className="text-slate-500 text-sm">Job ID: {job.id.split('-')[0]}</p>
                 </div>
                 {/* Display-only overlay: amber "Pending Sync" badge if an item is
                     queued locally but not yet confirmed by the server. The real
                     jobs.status is never mutated here — this is purely visual. */}
                 {pendingJobIds.has(job.id) ? (
-                  <span className="inline-flex items-center gap-1 px-3 py-1 bg-orange-100 text-orange-700 text-xs font-semibold rounded-full">
+                  <span className="inline-flex items-center gap-1 px-3 py-1 border-2 border-amber-400 bg-amber-50 text-amber-800 text-xs font-semibold rounded-full">
                     <UploadCloud className="w-3 h-3" />
                     Pending Sync
                   </span>
@@ -158,13 +158,13 @@ export function CrewJobsList() {
                     Completed
                   </span>
                 ) : (
-                  <span className="px-3 py-1 bg-orange-100 text-orange-800 text-xs font-semibold uppercase rounded-full">
+                  <span className="px-3 py-1 bg-slate-100 text-slate-700 text-xs font-semibold uppercase rounded-full">
                     {job.status.replace(/_/g, ' ')}
                   </span>
                 )}
               </div>
-              
-              <div className="flex items-center space-x-2 text-gray-600 mt-2">
+
+              <div className="flex items-center space-x-2 text-slate-600 mt-2">
                 <Calendar className="w-4 h-4" />
                 <span>{job.move_date ? format(new Date(job.move_date), 'EEE, MMM do, yyyy') : 'TBD'}</span>
               </div>

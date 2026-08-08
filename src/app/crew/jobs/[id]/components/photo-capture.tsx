@@ -36,15 +36,15 @@ export function PhotoCapture({ jobId, onPhotoQueued }: { jobId: string, onPhotoQ
   }
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mt-4">
-      <h3 className="text-lg font-medium text-gray-900 mb-3">Add Photo</h3>
+    <div className="bg-white p-4 rounded-lg shadow-sm border border-slate-200 mt-4">
+      <h3 className="text-lg font-medium text-slate-900 mb-3">Add Photo</h3>
       <div className="flex flex-col space-y-3">
-        <input 
-          type="text" 
+        <input
+          type="text"
           placeholder="Caption (e.g. Before condition, Damage found)"
           value={caption}
           onChange={(e) => setCaption(e.target.value)}
-          className="border border-gray-300 rounded px-3 py-2 text-sm"
+          className="border border-slate-300 rounded px-3 py-2 text-sm"
         />
         <div>
           <input 

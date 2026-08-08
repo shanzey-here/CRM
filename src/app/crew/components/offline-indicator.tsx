@@ -27,8 +27,8 @@ export function OfflineIndicator() {
   if (!isOffline) return null
 
   return (
-    <div className="bg-red-500 text-white px-4 py-2 flex items-center justify-center gap-2 text-sm font-medium z-50 sticky top-0 shadow-md">
-      <WifiOff size={16} />
+    <div className="bg-white border-b-4 border-red-500 text-red-700 px-4 py-2 flex items-center justify-center gap-2 text-sm font-bold z-50 sticky top-0 shadow-md">
+      <WifiOff size={16} className="text-red-600" />
       <span>You are currently offline. Changes will be saved locally.</span>
     </div>
   )

@@ -17,7 +17,7 @@ export default async function CrewDashboard() {
   return (
     <div className="p-8">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold text-orange-600">Crew Dashboard</h1>
+        <h1 className="text-3xl font-bold text-blue-600">Crew Dashboard</h1>
         <form action={logout}>
           <button type="submit" className="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 rounded-md hover:bg-slate-200 transition-colors">
             Log out
