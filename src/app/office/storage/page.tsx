@@ -10,7 +10,7 @@ const STATUS_BADGE: Record<string, string> = {
   in_warehouse: 'bg-slate-50 text-slate-600 ring-slate-500/10',
   reserved: 'bg-amber-50 text-amber-700 ring-amber-600/20',
   with_customer: 'bg-blue-50 text-blue-700 ring-blue-600/20',
-  returned: 'bg-indigo-50 text-indigo-700 ring-indigo-600/20',
+  returned: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20',
   lost: 'bg-red-50 text-red-700 ring-red-600/20',
   damaged: 'bg-red-50 text-red-700 ring-red-600/20',
 }
@@ -94,7 +94,7 @@ export default async function StoragePage({ searchParams }: { searchParams: Prom
         ))}
         <Link
           href="/office/storage?billing_issues=1"
-          className={`text-xs px-3 py-1.5 rounded-full font-medium ${billingIssuesFilter ? 'bg-red-600 text-white' : 'bg-red-50 text-red-700 hover:bg-red-100'}`}
+          className={`text-xs px-3 py-1.5 rounded-full font-medium ${billingIssuesFilter ? 'border-2 border-red-500 bg-white text-red-700' : 'bg-red-50 text-red-700 hover:bg-red-100'}`}
         >
           Billing issues
         </Link>

@@ -27,50 +27,50 @@ export function RepeatCustomersList() {
   }
 
   return (
-    <div className="rounded-xl border border-zinc-200 bg-white shadow-sm overflow-hidden">
-      <div className="border-b border-zinc-200 bg-zinc-50/50 px-6 py-4">
-        <h3 className="text-base font-semibold text-zinc-900 flex items-center gap-2">
-          <Users className="h-5 w-5 text-zinc-400" />
+    <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+      <div className="border-b border-slate-200 bg-slate-50/50 px-6 py-4">
+        <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2">
+          <Users className="h-5 w-5 text-slate-400" />
           Repeat Customers
         </h3>
-        <p className="text-sm text-zinc-500 mt-1">Customers with 2 or more completed jobs</p>
+        <p className="text-sm text-slate-500 mt-1">Customers with 2 or more completed jobs</p>
       </div>
 
       {isLoading ? (
         <div className="flex h-48 items-center justify-center">
-          <Loader2 className="h-6 w-6 animate-spin text-zinc-400" />
+          <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
         </div>
       ) : result?.success ? (
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-zinc-600">
-            <thead className="bg-zinc-50 text-xs uppercase text-zinc-500 border-b border-zinc-200">
+          <table className="w-full text-left text-sm text-slate-600">
+            <thead className="bg-slate-50 text-xs uppercase text-slate-500 border-b border-slate-200">
               <tr>
                 <th className="px-6 py-3 font-medium">Customer</th>
                 <th className="px-6 py-3 font-medium text-right">Completed Jobs</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-200">
+            <tbody className="divide-y divide-slate-200">
               {result.data.length === 0 ? (
                 <tr>
-                  <td colSpan={2} className="px-6 py-8 text-center text-zinc-500 italic">
+                  <td colSpan={2} className="px-6 py-8 text-center text-slate-500 italic">
                     No repeat customers found yet.
                   </td>
                 </tr>
               ) : (
                 result.data.map(customer => (
-                  <tr key={customer.contact_id} className="hover:bg-zinc-50/50">
+                  <tr key={customer.contact_id} className="hover:bg-slate-50/50">
                     <td className="px-6 py-4">
                       <Link 
                         href={`/office/contacts/${customer.contact_id}`}
-                        className="font-medium text-indigo-600 hover:text-indigo-900"
+                        className="font-medium text-blue-600 hover:text-blue-900"
                       >
                         {customer.first_name} {customer.last_name || ''}
                       </Link>
                       {customer.email && (
-                        <div className="text-xs text-zinc-400 mt-0.5">{customer.email}</div>
+                        <div className="text-xs text-slate-400 mt-0.5">{customer.email}</div>
                       )}
                     </td>
-                    <td className="px-6 py-4 text-right font-semibold text-zinc-900">
+                    <td className="px-6 py-4 text-right font-semibold text-slate-900">
                       {customer.completed_jobs_count}
                     </td>
                   </tr>

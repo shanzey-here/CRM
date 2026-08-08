@@ -11,8 +11,8 @@ export async function assignCrewAction(
   startTime: string,
   endTime: string
 ) {
-  const supabase = createClient()
-  
+  const supabase = await createClient()
+
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { success: false, error: 'Unauthorized' }
 
@@ -40,8 +40,8 @@ export async function assignVehicleAction(
   startTime: string,
   endTime: string
 ) {
-  const supabase = createClient()
-  
+  const supabase = await createClient()
+
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { success: false, error: 'Unauthorized' }
 

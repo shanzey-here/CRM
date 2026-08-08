@@ -75,7 +75,7 @@ export function LeadCard({ lead, isDragOverlay = false, isPending = false }: Lea
         isDragging && !isDragOverlay
           ? 'opacity-40 scale-95 border-dashed border-slate-300 shadow-none'
           : 'border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5',
-        isDragOverlay ? 'rotate-1 shadow-xl ring-2 ring-indigo-400/40' : '',
+        isDragOverlay ? 'rotate-1 shadow-xl ring-2 ring-blue-400/40' : '',
         isPending ? 'pointer-events-none opacity-70' : '',
       ].join(' ')}
     >

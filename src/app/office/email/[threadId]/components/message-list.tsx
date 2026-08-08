@@ -28,7 +28,7 @@ function AuthorBadge({ authoredBy, requiresApproval }: { authoredBy: string; req
   }
   if (authoredBy === 'ai_sent') {
     return (
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-purple-50 text-purple-700">
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-blue-100 text-blue-800">
         <Bot className="h-2.5 w-2.5" /> AI sent
       </span>
     )

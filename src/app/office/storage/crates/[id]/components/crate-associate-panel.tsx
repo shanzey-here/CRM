@@ -78,9 +78,9 @@ export function CrateAssociatePanel({
       <div className="flex items-center gap-2">
         <span className="text-xs font-medium text-slate-500 w-16">Job:</span>
         {currentJob ? (
-          <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-medium bg-purple-50 text-purple-700">
+          <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
             {currentJob.move_date ?? currentJob.id.slice(0, 8)} ({currentJob.status})
-            <button onClick={unlinkJob} disabled={isPending} className="text-purple-400 hover:text-purple-700">
+            <button onClick={unlinkJob} disabled={isPending} className="text-blue-500 hover:text-blue-700">
               &times;
             </button>
           </span>
