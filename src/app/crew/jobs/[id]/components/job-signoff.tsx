@@ -35,16 +35,16 @@ export function JobSignoff({ jobId, status, onSyncComplete }: JobSignoffProps) {
 
   if (pendingCount > 0) {
     return (
-      <div className="bg-orange-50 border border-orange-200 rounded-lg p-6 text-center mt-8">
+      <div className="bg-amber-50 border-2 border-amber-400 rounded-lg p-6 text-center mt-8">
         {isSyncing ? (
-          <UploadCloud className="w-8 h-8 text-orange-600 mx-auto mb-2 animate-pulse" />
+          <UploadCloud className="w-8 h-8 text-amber-700 mx-auto mb-2 animate-pulse" />
         ) : (
-          <Clock className="w-8 h-8 text-orange-600 mx-auto mb-2" />
+          <Clock className="w-8 h-8 text-amber-700 mx-auto mb-2" />
         )}
-        <h3 className="text-lg font-semibold text-orange-800">
+        <h3 className="text-lg font-semibold text-amber-800">
           {isSyncing ? 'Signed — syncing...' : 'Completed (pending sync)'}
         </h3>
-        <p className="text-sm text-orange-600">
+        <p className="text-sm text-amber-700">
           The signature is saved locally. It will automatically upload and mark the job complete once connectivity is restored.
         </p>
       </div>
@@ -94,9 +94,9 @@ export function JobSignoff({ jobId, status, onSyncComplete }: JobSignoffProps) {
         onSignatureNameChange={setSignatureName}
       />
 
-      <button 
+      <button
         onClick={handleSubmit}
-        className="w-full mt-4 bg-orange-600 text-white font-bold py-3 px-4 rounded-md hover:bg-orange-700 transition-colors"
+        className="w-full mt-4 bg-blue-600 text-white font-bold py-3 px-4 rounded-md hover:bg-blue-700 transition-colors"
       >
         Sign & Complete Job
       </button>
