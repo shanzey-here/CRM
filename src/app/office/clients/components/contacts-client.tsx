@@ -119,64 +119,129 @@ export default function ContactsClient({
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden relative">
-        <Table>
-          <TableHeader className="bg-slate-50/50">
-            <TableRow className="hover:bg-transparent">
-              <TableHead className="w-[300px]">Name / Company</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Contact Info</TableHead>
-              <TableHead className="text-right">Created</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {initialContacts.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={4} className="h-32 text-center text-slate-500">
-                  No contacts found matching your criteria.
-                </TableCell>
+      {/* Table */}
+      <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 overflow-hidden relative">
+        <div className="overflow-x-auto whitespace-nowrap">
+          <Table>
+            <TableHeader className="bg-slate-50/80 backdrop-blur-sm border-b border-slate-100">
+              <TableRow className="hover:bg-transparent border-0">
+                <TableHead className="py-3 font-medium text-slate-500">Status</TableHead>
+                <TableHead className="py-3 font-medium text-slate-500">Move Date</TableHead>
+                <TableHead className="py-3 font-medium text-slate-500">Pickup</TableHead>
+                <TableHead className="py-3 font-medium text-slate-500">Delivery</TableHead>
+                <TableHead className="py-3 font-medium text-slate-500 w-[200px]">Name / Company</TableHead>
+                <TableHead className="py-3 font-medium text-slate-500 text-right">Hours</TableHead>
+                <TableHead className="py-3 font-medium text-slate-500 text-right">Quoted / Sales</TableHead>
+                <TableHead className="py-3 font-medium text-slate-500 text-right">Men</TableHead>
+                <TableHead className="py-3 font-medium text-slate-500">Email</TableHead>
+                <TableHead className="py-3 font-medium text-slate-500">Number</TableHead>
+                <TableHead className="py-3 font-medium text-slate-500">Communication</TableHead>
+                <TableHead className="py-3 font-medium text-slate-500 max-w-[200px]">Review/Notes</TableHead>
+                <TableHead className="py-3 font-medium text-slate-500">By</TableHead>
               </TableRow>
-            ) : (
-              initialContacts.map((contact) => (
-                <TableRow 
-                  key={contact.id} 
-                  className="hover:bg-slate-50/50 transition-colors cursor-pointer"
-                  onClick={() => router.push(`/office/clients/${contact.id}`)}
-                >
-                  <TableCell>
-                    <div className="font-medium text-slate-900">
-                      {contact.first_name} {contact.last_name || ''}
-                    </div>
-                    {contact.company_name && (
-                      <div className="text-sm text-slate-500 mt-0.5">{contact.company_name}</div>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <Badge 
-                      variant="secondary"
-                      className={
-                        contact.type === 'commercial' 
-                          ? 'bg-blue-50 text-blue-700 hover:bg-blue-50' 
-                          : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-50'
-                      }
-                    >
-                      {contact.type.charAt(0).toUpperCase() + contact.type.slice(1)}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="text-sm">
-                      {contact.email && <div className="text-slate-900">{contact.email}</div>}
-                      {contact.phone && <div className="text-slate-500">{contact.phone}</div>}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right text-slate-500 text-sm">
-                    {new Date(contact.created_at).toLocaleDateString()}
+            </TableHeader>
+            <TableBody>
+              {initialContacts.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={13} className="h-32 text-center text-slate-400 font-medium">
+                    No contacts found matching your criteria.
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+              ) : (
+                initialContacts.map((contact: any) => {
+                  const lead = contact.leads?.[0]
+                  const quote = lead?.quotes?.[0]
+                  const quotedSales = quote?.final_price ?? quote?.total_price
+                  
+                  let badgeStyle = 'bg-slate-100 text-slate-600 border-transparent font-medium'
+                  let formattedStage = 'None'
+
+                  if (lead?.stage) {
+                    formattedStage = lead.stage.replace('_', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())
+                    switch (lead.stage) {
+                      case 'completed':
+                      case 'confirmed_booking':
+                        badgeStyle = 'bg-emerald-100 text-emerald-700 border-transparent font-semibold shadow-sm'
+                        break
+                      case 'archived':
+                        badgeStyle = 'bg-red-50 text-red-600 border-red-100 font-medium'
+                        break
+                      case 'survey_scheduled':
+                      case 'follow_up':
+                        badgeStyle = 'bg-amber-100 text-amber-700 border-transparent font-medium shadow-sm'
+                        break
+                      case 'inquiry':
+                      case 'quote_sent':
+                        badgeStyle = 'bg-blue-100 text-blue-700 border-transparent font-medium shadow-sm'
+                        break
+                    }
+                  }
+
+                  const emptyIndicator = <span className="text-slate-300 font-light">-</span>
+
+                  return (
+                    <TableRow 
+                      key={contact.id} 
+                      className="group hover:bg-slate-50/80 transition-all duration-200 cursor-pointer border-b border-slate-50 last:border-0"
+                      onClick={() => router.push(`/office/clients/${contact.id}`)}
+                    >
+                      <TableCell className="py-3">
+                        {lead?.stage ? (
+                          <Badge variant="outline" className={badgeStyle}>
+                            {formattedStage}
+                          </Badge>
+                        ) : (
+                          emptyIndicator
+                        )}
+                      </TableCell>
+                      <TableCell className="py-3 text-slate-600 font-medium">
+                        {lead?.preferred_move_date ? new Date(lead.preferred_move_date).toLocaleDateString() : emptyIndicator}
+                      </TableCell>
+                      <TableCell className="py-3 text-slate-500">
+                        {lead?.origin_address?.postcode || lead?.origin_address?.city || emptyIndicator}
+                      </TableCell>
+                      <TableCell className="py-3 text-slate-500">
+                        {lead?.destination_address?.postcode || lead?.destination_address?.city || emptyIndicator}
+                      </TableCell>
+                      <TableCell className="py-3">
+                        <div className="font-semibold text-slate-800 truncate max-w-[200px] group-hover:text-blue-600 transition-colors">
+                          {contact.first_name} {contact.last_name || ''}
+                        </div>
+                        {contact.company_name && (
+                          <div className="text-xs text-slate-400 mt-0.5 truncate max-w-[200px] font-medium">{contact.company_name}</div>
+                        )}
+                      </TableCell>
+                      <TableCell className="py-3 text-right text-slate-600 font-medium">
+                        {lead?.estimated_hours ?? emptyIndicator}
+                      </TableCell>
+                      <TableCell className="py-3 text-right font-semibold text-slate-800">
+                        {quotedSales != null ? new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP', maximumFractionDigits: 0 }).format(quotedSales) : emptyIndicator}
+                      </TableCell>
+                      <TableCell className="py-3 text-right text-slate-600 font-medium">
+                        {lead?.estimated_crew_size ?? emptyIndicator}
+                      </TableCell>
+                      <TableCell className="py-3 text-slate-500">
+                        {contact.email || emptyIndicator}
+                      </TableCell>
+                      <TableCell className="py-3 text-slate-500">
+                        {contact.phone || emptyIndicator}
+                      </TableCell>
+                      <TableCell className="py-3 text-slate-500 capitalize">
+                        {lead?.source ? lead.source.replace('_', ' ') : emptyIndicator}
+                      </TableCell>
+                      <TableCell className="py-3 text-slate-400 text-sm truncate max-w-[150px]" title={contact.notes || ''}>
+                        {contact.notes || emptyIndicator}
+                      </TableCell>
+                      <TableCell className="py-3 text-slate-500">
+                        {lead?.assigned_to ? <span className="text-emerald-600 font-medium">Assigned</span> : emptyIndicator}
+                      </TableCell>
+                    </TableRow>
+                  )
+                })
+              )}
+            </TableBody>
+          </Table>
+        </div>
 
         {isPending && (
           <div className="absolute inset-0 bg-white/40 backdrop-blur-[1px] flex items-center justify-center z-10" />

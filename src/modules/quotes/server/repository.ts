@@ -17,7 +17,8 @@ export async function createQuote(
       total_volume: 0,
       subtotal: 0,
       surcharge_total: 0,
-      total_price: 0,
+      total_price: input.total_price ?? 0,
+      final_price: input.final_price,
     })
     .select()
     .single()

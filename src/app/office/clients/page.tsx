@@ -1,7 +1,8 @@
-﻿import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { getContacts, ContactFilterOptions } from '@/modules/clients/server/repository'
 import ContactsClient from './components/contacts-client'
+import { CreateClientForm } from './components/create-client-form'
 
 export const dynamic = 'force-dynamic' // Ensure page does not statically cache
 
@@ -42,7 +43,7 @@ export default async function ClientsPage({
   const { data: contacts, count, error } = await getContacts(supabase, tenantId, options)
 
   if (error) {
-    console.error('Failed to fetch contacts:', error)
+    console.error('Failed to fetch contacts:', JSON.stringify(error))
   }
 
   const totalCount = count || 0
@@ -55,7 +56,7 @@ export default async function ClientsPage({
           <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Clients</h1>
           <p className="text-slate-500 mt-1">Manage your contacts and customers.</p>
         </div>
-        {/* We can add a "Create Contact" button here in the future */}
+        <CreateClientForm />
       </div>
 
       <ContactsClient 

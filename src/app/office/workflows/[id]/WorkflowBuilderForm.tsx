@@ -126,9 +126,6 @@ export function WorkflowBuilderForm({ initialData, isAiEmailEnabled }: Props) {
                 <Label htmlFor="is_active" className="text-base font-medium text-slate-900">
                   Active Status
                 </Label>
-                <span className="text-sm text-slate-500">
-                  Workflows are currently in configuration-only mode. Activating this workflow will not trigger automated actions until the Workflow Engine is released.
-                </span>
               </div>
               <Switch
                 id="is_active"

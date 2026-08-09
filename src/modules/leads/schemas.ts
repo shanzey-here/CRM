@@ -27,6 +27,8 @@ export const insertLeadSchema = z.object({
   origin_address_id: z.string().uuid().optional().nullable(),
   destination_address_id: z.string().uuid().optional().nullable(),
   estimated_volume: z.number().optional().nullable(),
+  estimated_hours: z.number().optional().nullable(),
+  estimated_crew_size: z.number().optional().nullable(),
   assigned_to: z.string().uuid().optional().nullable(),
   notes: z.string().optional().nullable(),
   priority: leadPriorityEnum.optional(),
