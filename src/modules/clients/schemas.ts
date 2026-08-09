@@ -62,3 +62,36 @@ export const contactPricingOverrideSchema = z.object({
 })
 
 export type ContactPricingOverrideInput = z.infer<typeof contactPricingOverrideSchema>
+
+// ============================================================================
+// CREATE CLIENT FORM
+// ============================================================================
+
+export const createClientFormSchema = z.object({
+  // Contact info
+  first_name: z.string().min(1, 'First name is required'),
+  last_name: z.string().optional().nullable(),
+  company_name: z.string().optional().nullable(),
+  email: z.string().email('Invalid email address').optional().nullable().or(z.literal('')),
+  phone: z.string().optional().nullable(),
+  type: z.enum(['residential', 'commercial']).default('residential'),
+  
+  // Optional lead details
+  stage: z.enum(['inquiry', 'survey_scheduled', 'quote_sent', 'follow_up', 'confirmed_booking', 'completed', 'archived']).optional(),
+  preferred_move_date: z.string().optional().nullable(),
+  estimated_hours: z.number().optional().nullable(),
+  estimated_crew_size: z.number().optional().nullable(),
+  source: z.string().optional().nullable(),
+  notes: z.string().optional().nullable(),
+  
+  // Addresses (Optional)
+  origin_city: z.string().optional().nullable(),
+  origin_postcode: z.string().optional().nullable(),
+  destination_city: z.string().optional().nullable(),
+  destination_postcode: z.string().optional().nullable(),
+  
+  // Quote
+  quote_amount: z.number().optional().nullable(),
+})
+
+export type CreateClientFormInput = z.infer<typeof createClientFormSchema>

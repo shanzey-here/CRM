@@ -30,10 +30,20 @@ export async function getContacts(
   supabase: SupabaseClient<Database>,
   tenantId: string,
   options?: ContactFilterOptions
-): Promise<{ data: Contact[] | null; count: number | null; error: Error | null }> {
+): Promise<{ data: any[] | null; count: number | null; error: Error | null }> {
+  // We use `any[]` temporarily for the return type since the complex join 
+  // expands beyond the base Contact type, and generating exact types for it is verbose.
   let query = supabase
     .from('contacts')
-    .select('*', { count: 'exact' })
+    .select(`
+      *,
+      leads (
+        id, stage, preferred_move_date, source, assigned_to, estimated_hours, estimated_crew_size, updated_at,
+        origin_address:addresses!leads_origin_address_fk(city, postcode),
+        destination_address:addresses!leads_destination_address_fk(city, postcode),
+        quotes ( final_price, total_price, status )
+      )
+    `, { count: 'exact' })
     .eq('tenant_id', tenantId) // Explicit tenant scoping
     .order('created_at', { ascending: false })
 
@@ -52,6 +62,22 @@ export async function getContacts(
   }
 
   const { data, count, error } = await query
+  
+  // Sort leads in memory to ensure 'updated_at DESC' is strictly applied 
+  // to pick the most recently active lead, as PostgREST nested ordering 
+  // can sometimes be tricky syntax-wise: .order('updated_at', { foreignTable: 'leads', ascending: false })
+  if (data) {
+    data.forEach((contact: any) => {
+      if (contact.leads && Array.isArray(contact.leads)) {
+        contact.leads.sort((a: any, b: any) => {
+          const dateA = a.updated_at ? new Date(a.updated_at).getTime() : 0
+          const dateB = b.updated_at ? new Date(b.updated_at).getTime() : 0
+          return dateB - dateA
+        })
+      }
+    })
+  }
+
   return { data, count, error }
 }
 

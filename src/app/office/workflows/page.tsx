@@ -62,13 +62,6 @@ export default async function WorkflowsPage() {
         </Alert>
       )}
 
-      <Alert className="mt-6 bg-slate-50 text-slate-800 border-slate-200">
-        <AlertCircle className="h-4 w-4" />
-        <AlertTitle>Workflows are in Preview</AlertTitle>
-        <AlertDescription>
-          Workflows are currently in configuration-only mode. Activating a workflow will not trigger automated actions until the Workflow Engine is released.
-        </AlertDescription>
-      </Alert>
 
       <div className="mt-10 mb-8">
         <h2 className="text-lg font-medium text-slate-900 mb-4">Start from a template</h2>
