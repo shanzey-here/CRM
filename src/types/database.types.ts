@@ -3157,6 +3157,7 @@ export type Database = {
           created_at: string
           id: string
           name: string
+          public_widget_key: string
           settings: Json | null
           slug: string
           stripe_connected_account_id: string | null
@@ -3168,6 +3169,7 @@ export type Database = {
           created_at?: string
           id?: string
           name: string
+          public_widget_key?: string
           settings?: Json | null
           slug: string
           stripe_connected_account_id?: string | null
@@ -3179,6 +3181,7 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string
+          public_widget_key?: string
           settings?: Json | null
           slug?: string
           stripe_connected_account_id?: string | null
@@ -3391,6 +3394,41 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "tenants"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      widget_rate_limits: {
+        Row: {
+          id: string
+          ip_address: string | null
+          widget_key: string | null
+          count: number | null
+          expires_at: string
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          ip_address?: string | null
+          widget_key?: string | null
+          count?: number | null
+          expires_at: string
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          ip_address?: string | null
+          widget_key?: string | null
+          count?: number | null
+          expires_at?: string
+          created_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "widget_rate_limits_widget_key_fkey"
+            columns: ["widget_key"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["public_widget_key"]
           },
         ]
       }
