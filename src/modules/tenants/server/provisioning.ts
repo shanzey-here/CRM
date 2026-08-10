@@ -86,10 +86,14 @@ export async function provisionTenant(input: ProvisionTenantInput): Promise<Prov
     return { success: false, error: 'Failed to create account (No user returned)', errorCode: 'general' }
   }
 
-  // 3. Create Public User Record
+  // 3. Create/finalize Public User Record. Upsert, not insert: the
+  // on_auth_user_created DB trigger (see migration
+  // 20260810140000_auto_provision_public_users.sql) already created a
+  // minimal row the instant step 2's createUser() ran — this fills in the
+  // full details rather than conflicting with it.
   const { error: publicUserErr } = await supabase
     .from('users')
-    .insert({
+    .upsert({
       id: authUser.id,
       tenant_id: newTenant.id,
       role: 'tenant_admin',

@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { SidebarNav } from './components/header-nav'
 import { NotificationBell } from './components/notification-bell'
+import { AnnouncementBannerStack } from './components/announcement-banner-stack'
+import { getActiveAnnouncementsForTenant } from '@/modules/announcements/server/repository'
 
 export default async function OfficeLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -60,6 +62,14 @@ export default async function OfficeLayout({ children }: { children: React.React
     }
   }
 
+  // Platform announcements are tenant_admin-only — the query itself is gated
+  // by role, not just the JSX below. dispatcher never calls this.
+  const planId = subscription?.saas_prices?.saas_plans?.id ?? null
+  const activeAnnouncements =
+    role === 'tenant_admin'
+      ? await getActiveAnnouncementsForTenant(supabase, { tenantId, planId, userId: user.id })
+      : []
+
   // 5. Layout Render
   return (
     <div className="min-h-screen bg-slate-50 flex">
@@ -82,6 +92,14 @@ export default async function OfficeLayout({ children }: { children: React.React
       {/* Main Content Area */}
       <div className="flex-1 ml-64 flex flex-col min-h-screen">
         {/* Global Banners */}
+        {role === 'tenant_admin' && activeAnnouncements.length > 0 && (
+          <AnnouncementBannerStack
+            initial={activeAnnouncements}
+            tenantId={tenantId}
+            planId={planId}
+            userId={user.id}
+          />
+        )}
         {subStatus === 'past_due' && (
           <div className="bg-amber-600 px-4 py-3 text-white text-sm font-medium text-center shadow-inner">
             Your last payment failed. Please update your billing information to avoid service interruption.{' '}

@@ -1,5 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
+import { Megaphone } from 'lucide-react'
 import { TenantList } from './components/tenant-list'
 import { CreateTenantDialog } from './components/create-tenant-dialog'
 import { SyncStripePlansButton } from './components/sync-stripe-plans-button'
@@ -27,6 +29,13 @@ export default async function SuperAdminDashboard() {
             <p className="text-slate-500 mt-1">Manage and oversee all workspaces in the system.</p>
           </div>
           <div className="shrink-0 flex items-center gap-3">
+            <Link
+              href="/super-admin/announcements"
+              className="flex items-center gap-2 border border-slate-300 text-slate-700 hover:bg-slate-50 px-4 py-2 rounded-lg font-medium transition-colors"
+            >
+              <Megaphone size={18} />
+              Announcements
+            </Link>
             <SyncStripePlansButton />
             <CreateTenantDialog />
           </div>
