@@ -9,6 +9,8 @@ import { generateDraftReply, buildHoldingReply, buildClarifyingReply } from './d
 import { resolveDraftOutcome } from './gate'
 import { extractQuoteDetails, isExtractionComplete, missingFieldLabels, CatalogEntry } from './extract'
 import { createQuoteFromExtraction } from './quote-creation'
+import { maybeSuggestLabels } from './label-suggest'
+import { getDefaultLabels } from '@/modules/email-labels/server/repository'
 
 type MailboxRow = Database['public']['Tables']['mailboxes']['Row']
 type EmailMessageRow = Database['public']['Tables']['email_messages']['Row']
@@ -81,12 +83,16 @@ export async function maybeDraftAiReply(
 
     const adapter = getLlmAdapter()
 
+    const { data: defaultLabels } = await getDefaultLabels(serviceClient, mailbox.tenant_id)
+
     let needsQuote: boolean
     let classifyModel: string
+    let suggestedLabelIds: string[] = []
     try {
-      const classifyResult = await adapter.classify({ systemPrompt, threadText })
+      const classifyResult = await adapter.classify({ systemPrompt, threadText, defaultLabels: defaultLabels ?? [] })
       needsQuote = classifyResult.needsQuote
       classifyModel = classifyResult.model
+      suggestedLabelIds = classifyResult.suggestedLabelIds
     } catch (err) {
       // Fail-safe: an unreadable/errored classification always defaults to
       // "needs review," never to an under-classified auto-send.
@@ -94,6 +100,10 @@ export async function maybeDraftAiReply(
       needsQuote = true
       classifyModel = 'unknown'
     }
+
+    // Labels are orthogonal to the draft/quote flow below — suggest/apply
+    // them regardless of needsQuote, same classify() call either way.
+    await maybeSuggestLabels(serviceClient, mailbox.tenant_id, threadId, mode, suggestedLabelIds, classifyModel)
 
     const companyName = tenantSettings?.company_legal_name || mailboxAddress
     let bodyText: string

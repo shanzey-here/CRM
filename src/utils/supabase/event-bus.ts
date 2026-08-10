@@ -30,6 +30,21 @@ export async function emitEvent(
 
   if (error) {
     console.error(`[Event Bus] Failed to emit event '${eventType}':`, error.message)
+    // Loud in every non-production environment (local dev, tests) — this
+    // class of failure (most recently: a non-service_role caller passing a
+    // tenantId override, silently rejected by emit_domain_event()'s guard)
+    // has twice now gone unnoticed because every real call site treats
+    // event emission as best-effort and doesn't check the returned error —
+    // an intentional, correct convention for production (a domain event is
+    // a secondary notification path, never allowed to block or fail the
+    // primary action it's attached to) that this MUST NOT change. Throwing
+    // here only when NODE_ENV !== 'production' means whoever is actively
+    // testing the call site gets an immediate, unmissable failure instead
+    // of a console line, while production behavior — log and return the
+    // error, never throw — is completely unchanged.
+    if (process.env.NODE_ENV !== 'production') {
+      throw error
+    }
     return { data: null, error }
   }
 

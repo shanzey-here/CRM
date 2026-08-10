@@ -4,6 +4,8 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { buildOutboundMessage, sendMessage } from '@/modules/mailboxes/server/send'
+import { emailLabelSchema } from '@/modules/email-labels/schemas'
+import { assignLabel, createLabel, findLabelByColor, removeLabelAssignment } from '@/modules/email-labels/server/repository'
 
 async function requireOfficeStaff() {
   const supabase = await createClient()
@@ -23,7 +25,7 @@ async function requireOfficeStaff() {
     return { error: 'Forbidden' as const }
   }
 
-  return { supabase, tenantId }
+  return { supabase, tenantId, userId: user.id }
 }
 
 export type SendReplyResult =
@@ -442,4 +444,68 @@ export async function createContactFromThreadAction(threadId: string, { firstNam
 
   revalidatePath(`/office/email/${threadId}`)
   return { success: true, contactId: contact.id }
+}
+
+export async function assignLabelToThreadAction(threadId: string, labelId: string): Promise<{ success: boolean; error?: string }> {
+  const guard = await requireOfficeStaff()
+  if ('error' in guard) return { success: false, error: guard.error }
+  const { supabase, tenantId, userId } = guard
+
+  const { error } = await assignLabel(supabase, tenantId, threadId, labelId, userId)
+  if (error) return { success: false, error: error.message }
+
+  revalidatePath(`/office/email/${threadId}`)
+  revalidatePath('/office/email')
+  return { success: true }
+}
+
+export async function removeLabelFromThreadAction(assignmentId: string, threadId: string): Promise<{ success: boolean; error?: string }> {
+  const guard = await requireOfficeStaff()
+  if ('error' in guard) return { success: false, error: guard.error }
+  const { supabase, tenantId } = guard
+
+  const { error } = await removeLabelAssignment(supabase, tenantId, assignmentId)
+  if (error) return { success: false, error: error.message }
+
+  revalidatePath(`/office/email/${threadId}`)
+  revalidatePath('/office/email')
+  return { success: true }
+}
+
+// Inline "Create new label…" from the thread view's + Add label control —
+// creates the label, then immediately assigns it to this thread. Same
+// server-side re-validation and color-uniqueness handling as the Manage
+// Labels form.
+export async function createAndAssignLabelAction(
+  threadId: string,
+  formData: FormData
+): Promise<{ success: boolean; error?: string; label?: { id: string; name: string; color_hex: string } }> {
+  const guard = await requireOfficeStaff()
+  if ('error' in guard) return { success: false, error: guard.error }
+  const { supabase, tenantId, userId } = guard
+
+  const parsed = emailLabelSchema.safeParse({
+    name: formData.get('name'),
+    color_hex: formData.get('color_hex'),
+  })
+  if (!parsed.success) return { success: false, error: parsed.error.issues[0]?.message ?? 'Invalid input' }
+
+  const { data: created, error: createErr } = await createLabel(supabase, tenantId, parsed.data)
+  if (createErr) {
+    if (createErr.code === '23505') {
+      const { data: conflicting } = await findLabelByColor(supabase, tenantId, parsed.data.color_hex)
+      return {
+        success: false,
+        error: conflicting ? `This color is already used by ${conflicting.name} — pick a different one` : 'A label with this name or color already exists',
+      }
+    }
+    return { success: false, error: createErr.message }
+  }
+
+  const { error: assignErr } = await assignLabel(supabase, tenantId, threadId, created.id, userId)
+  if (assignErr) return { success: false, error: assignErr.message }
+
+  revalidatePath(`/office/email/${threadId}`)
+  revalidatePath('/office/email')
+  return { success: true, label: { id: created.id, name: created.name, color_hex: created.color_hex } }
 }

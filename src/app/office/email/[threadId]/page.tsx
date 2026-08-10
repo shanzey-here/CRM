@@ -3,6 +3,8 @@ import { redirect, notFound } from 'next/navigation'
 import { MessageList } from './components/message-list'
 import { ReplyComposer } from './components/reply-composer'
 import { AssociateThread } from './components/associate-thread'
+import { ThreadLabels } from './components/thread-labels'
+import { getLabels, getLabelAssignmentsForThread } from '@/modules/email-labels/server/repository'
 
 export const dynamic = 'force-dynamic'
 
@@ -36,6 +38,16 @@ export default async function ThreadDetailPage({ params }: { params: Promise<{ t
     .eq('tenant_id', tenantId)
     .order('occurred_at', { ascending: true, nullsFirst: false })
 
+  const [{ data: allLabels }, { data: assignmentRows }] = await Promise.all([
+    getLabels(supabase, tenantId),
+    getLabelAssignmentsForThread(supabase, tenantId, threadId),
+  ])
+
+  const assignments = (assignmentRows ?? []).map((a) => {
+    const label = a.email_labels as any
+    return { id: a.id, label_id: a.label_id, name: label?.name ?? '', color_hex: label?.color_hex ?? '#94a3b8' }
+  })
+
   return (
     <div className="max-w-4xl">
       <div className="mb-6">
@@ -44,6 +56,9 @@ export default async function ThreadDetailPage({ params }: { params: Promise<{ t
         <p className="text-xs text-slate-500 mt-0.5">
           {(thread.mailboxes as any)?.mailbox_address} · {(thread.participant_addresses ?? []).join(', ')}
         </p>
+        <div className="mt-3">
+          <ThreadLabels threadId={thread.id} assignments={assignments} availableLabels={allLabels ?? []} />
+        </div>
       </div>
 
       <AssociateThread threadId={thread.id} contact={thread.contacts as any} />
