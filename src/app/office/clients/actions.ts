@@ -103,15 +103,13 @@ import { createLead } from '@/modules/leads/server/repository'
 import { createQuote } from '@/modules/quotes/server/repository'
 import { createClientFormSchema, type CreateClientFormInput } from '@/modules/clients/schemas'
 
-export async function createClientAction(payload: CreateClientFormInput) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user || !user.app_metadata.tenant_id) {
-    return { error: 'Unauthorized. Missing tenant context.' }
-  }
-  const tenantId = user.app_metadata.tenant_id
-
+export async function createClientCore(
+  supabase: any,
+  tenantId: string,
+  payload: CreateClientFormInput,
+  userId?: string,
+  forceCreateLead?: boolean
+) {
   // Validate payload
   const parseResult = createClientFormSchema.safeParse(payload)
   if (!parseResult.success) {
@@ -136,11 +134,8 @@ export async function createClientAction(payload: CreateClientFormInput) {
   }
 
   // 2. If Lead details are provided (any of the optional fields), create a Lead
-  // We consider it provided if there are notes, preferred_move_date, estimated hours/crew, or if the stage is not just the default "inquiry" without other fields.
-  // Actually, the form defaults stage to "inquiry". Let's create a lead unconditionally if it's from this form, OR conditionally if there is any actual data beyond contact info.
-  // The user requirement: "must be able to save a client with only a name and nothing else".
-  // If they only put a name, we probably shouldn't create an empty lead unless they filled in lead fields.
-  const hasLeadData = !!(
+  const hasLeadData = forceCreateLead || !!(
+    data.source ||
     data.preferred_move_date || 
     data.estimated_hours || 
     data.estimated_crew_size || 
@@ -177,12 +172,12 @@ export async function createClientAction(payload: CreateClientFormInput) {
     const { data: leadData, error: leadErr } = await createLead(supabase, tenantId, {
       contact_id: contact.id,
       stage: data.stage || 'inquiry',
-      source: 'manual', // since it's manually created in CRM
+      source: data.source || 'manual',
       preferred_move_date: data.preferred_move_date,
       estimated_hours: data.estimated_hours,
       estimated_crew_size: data.estimated_crew_size,
       notes: data.notes,
-      assigned_to: user.id, // Default assign to creator
+      assigned_to: userId,
       origin_address_id,
       destination_address_id
     })
@@ -203,6 +198,21 @@ export async function createClientAction(payload: CreateClientFormInput) {
     }
   }
 
-  revalidatePath('/office/clients')
   return { success: true, contactId: contact.id }
+}
+
+export async function createClientAction(payload: CreateClientFormInput) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user || !user.app_metadata.tenant_id) {
+    return { error: 'Unauthorized. Missing tenant context.' }
+  }
+  const tenantId = user.app_metadata.tenant_id
+
+  const result = await createClientCore(supabase, tenantId, payload, user.id, false)
+  if (result.success) {
+    revalidatePath('/office/clients')
+  }
+  return result
 }
