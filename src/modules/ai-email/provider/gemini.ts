@@ -47,12 +47,19 @@ function extractText(response: any): string {
 }
 
 class GeminiAdapter implements LlmAdapter {
-  async classify({ systemPrompt, threadText }: ClassifyInput): Promise<ClassifyResult> {
+  async classify({ systemPrompt, threadText, defaultLabels }: ClassifyInput): Promise<ClassifyResult> {
+    // Same call as before — label suggestion piggybacks on this one request
+    // rather than adding a second Gemini round-trip per email.
+    const labelBlock =
+      defaultLabels.length > 0
+        ? `\n\nAlso decide which of these labels (if any) apply to this thread. Select ONLY from this exact list, using the name exactly as written (never invent a label name not in this list, and return an empty list if none clearly apply):\n${defaultLabels.map((l) => `- ${l.name}`).join('\n')}`
+        : ''
+
     const response = await callGemini(CLASSIFY_MODEL, {
       systemInstruction: {
         parts: [
           {
-            text: `${systemPrompt}\n\nYou are classifying a single email thread, not drafting a reply. Decide whether the customer's most recent message requires a priced quote (a specific price, cost estimate, or rate) to properly answer it. Routine scheduling confirmations, thank-yous, and general questions that don't ask about cost do NOT need a quote.`,
+            text: `${systemPrompt}\n\nYou are classifying a single email thread, not drafting a reply. Decide whether the customer's most recent message requires a priced quote (a specific price, cost estimate, or rate) to properly answer it. Routine scheduling confirmations, thank-yous, and general questions that don't ask about cost do NOT need a quote.${labelBlock}`,
           },
         ],
       },
@@ -61,8 +68,11 @@ class GeminiAdapter implements LlmAdapter {
         responseMimeType: 'application/json',
         responseSchema: {
           type: 'object',
-          properties: { needs_quote: { type: 'boolean' } },
-          required: ['needs_quote'],
+          properties: {
+            needs_quote: { type: 'boolean' },
+            label_names: { type: 'array', items: { type: 'string' } },
+          },
+          required: ['needs_quote', 'label_names'],
         },
       },
     })
@@ -70,7 +80,17 @@ class GeminiAdapter implements LlmAdapter {
     const parsed = JSON.parse(extractText(response))
     if (typeof parsed.needs_quote !== 'boolean') throw new Error('Gemini classify response missing needs_quote')
 
-    return { needsQuote: parsed.needs_quote, model: CLASSIFY_MODEL }
+    // Defensive: never trust a label name the model returned if it isn't
+    // genuinely in the closed list we gave it — discard, don't guess-repair.
+    // Mirrors extract()'s catalogIds filtering below.
+    const nameToId = new Map(defaultLabels.map((l) => [l.name.toLowerCase(), l.id]))
+    const suggestedLabelIds: string[] = Array.isArray(parsed.label_names)
+      ? parsed.label_names
+          .filter((n: unknown): n is string => typeof n === 'string' && nameToId.has(n.toLowerCase()))
+          .map((n: string) => nameToId.get(n.toLowerCase())!)
+      : []
+
+    return { needsQuote: parsed.needs_quote, model: CLASSIFY_MODEL, suggestedLabelIds }
   }
 
   async draft({ systemPrompt, threadText, toneSamples }: DraftInput): Promise<DraftResult> {

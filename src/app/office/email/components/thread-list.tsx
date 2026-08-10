@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Mail, User } from 'lucide-react'
+import { LabelChip } from '@/modules/email-labels/components/label-chip'
 
 type Thread = {
   id: string
@@ -17,6 +18,7 @@ type Thread = {
 }
 
 type Mailbox = { id: string; mailbox_address: string | null; provider: string }
+type EmailLabel = { id: string; name: string; color_hex: string; is_default: boolean }
 
 function resolveContactName(thread: Thread): string | null {
   if (thread.contacts) {
@@ -28,7 +30,21 @@ function resolveContactName(thread: Thread): string | null {
   return null
 }
 
-export function ThreadList({ threads, mailboxes, activeMailboxId }: { threads: Thread[]; mailboxes: Mailbox[]; activeMailboxId?: string }) {
+export function ThreadList({
+  threads,
+  mailboxes,
+  activeMailboxId,
+  allLabels = [],
+  threadLabels = {},
+  activeLabelIds = [],
+}: {
+  threads: Thread[]
+  mailboxes: Mailbox[]
+  activeMailboxId?: string
+  allLabels?: EmailLabel[]
+  threadLabels?: Record<string, { id: string; name: string; color_hex: string }[]>
+  activeLabelIds?: string[]
+}) {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -39,8 +55,33 @@ export function ThreadList({ threads, mailboxes, activeMailboxId }: { threads: T
     router.push(`/office/email?${params.toString()}`)
   }
 
+  // OR semantics — toggling a label pill adds/removes it from the
+  // comma-separated `labels` param; any thread carrying ANY selected label matches.
+  function toggleLabelFilter(labelId: string) {
+    const params = new URLSearchParams(searchParams.toString())
+    const next = activeLabelIds.includes(labelId)
+      ? activeLabelIds.filter((id) => id !== labelId)
+      : [...activeLabelIds, labelId]
+    if (next.length > 0) params.set('labels', next.join(','))
+    else params.delete('labels')
+    router.push(`/office/email?${params.toString()}`)
+  }
+
   return (
     <div>
+      {allLabels.length > 0 && (
+        <div className="flex items-center gap-2 mb-3 flex-wrap">
+          {allLabels.map((label) => {
+            const isActive = activeLabelIds.includes(label.id)
+            return (
+              <button key={label.id} onClick={() => toggleLabelFilter(label.id)} className={isActive ? 'ring-2 ring-offset-1 ring-slate-400 rounded-full' : ''}>
+                <LabelChip name={label.name} colorHex={label.color_hex} />
+              </button>
+            )
+          })}
+        </div>
+      )}
+
       {mailboxes.length > 1 && (
         <div className="flex items-center gap-2 mb-4 flex-wrap">
           <button
@@ -86,6 +127,13 @@ export function ThreadList({ threads, mailboxes, activeMailboxId }: { threads: T
                     <p className="text-xs text-slate-500 truncate mt-0.5">
                       {(thread.participant_addresses ?? []).join(', ') || 'No participants recorded'}
                     </p>
+                    {(threadLabels[thread.id] ?? []).length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-1.5">
+                        {threadLabels[thread.id].map((label) => (
+                          <LabelChip key={label.id} name={label.name} colorHex={label.color_hex} />
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <div className="flex items-center gap-3 shrink-0">
                     <span

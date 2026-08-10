@@ -789,6 +789,149 @@ export type Database = {
           },
         ]
       }
+      email_label_assignments: {
+        Row: {
+          applied_at: string
+          applied_by: string | null
+          id: string
+          label_id: string
+          tenant_id: string
+          thread_id: string
+        }
+        Insert: {
+          applied_at?: string
+          applied_by?: string | null
+          id?: string
+          label_id: string
+          tenant_id: string
+          thread_id: string
+        }
+        Update: {
+          applied_at?: string
+          applied_by?: string | null
+          id?: string
+          label_id?: string
+          tenant_id?: string
+          thread_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_label_assignments_applied_by_fkey"
+            columns: ["applied_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_label_assignments_label_fk"
+            columns: ["label_id", "tenant_id"]
+            isOneToOne: false
+            referencedRelation: "email_labels"
+            referencedColumns: ["id", "tenant_id"]
+          },
+          {
+            foreignKeyName: "email_label_assignments_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_label_assignments_thread_fk"
+            columns: ["thread_id", "tenant_id"]
+            isOneToOne: false
+            referencedRelation: "email_threads"
+            referencedColumns: ["id", "tenant_id"]
+          },
+        ]
+      }
+      email_label_suggestions: {
+        Row: {
+          id: string
+          label_id: string
+          model: string
+          suggested_at: string
+          tenant_id: string
+          thread_id: string
+        }
+        Insert: {
+          id?: string
+          label_id: string
+          model: string
+          suggested_at?: string
+          tenant_id: string
+          thread_id: string
+        }
+        Update: {
+          id?: string
+          label_id?: string
+          model?: string
+          suggested_at?: string
+          tenant_id?: string
+          thread_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_label_suggestions_label_fk"
+            columns: ["label_id", "tenant_id"]
+            isOneToOne: false
+            referencedRelation: "email_labels"
+            referencedColumns: ["id", "tenant_id"]
+          },
+          {
+            foreignKeyName: "email_label_suggestions_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_label_suggestions_thread_fk"
+            columns: ["thread_id", "tenant_id"]
+            isOneToOne: false
+            referencedRelation: "email_threads"
+            referencedColumns: ["id", "tenant_id"]
+          },
+        ]
+      }
+      email_labels: {
+        Row: {
+          color_hex: string
+          created_at: string
+          id: string
+          is_default: boolean
+          name: string
+          tenant_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          color_hex: string
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          name: string
+          tenant_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          color_hex?: string
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          name?: string
+          tenant_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_labels_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_messages: {
         Row: {
           ai_metadata: Json | null
@@ -3542,6 +3685,7 @@ export type Database = {
         | "lead.updated"
         | "task.completed"
         | "email.received"
+        | "email.label_added"
     }
     CompositeTypes: {
       quote_inventory_input: {
@@ -3785,6 +3929,7 @@ export const Constants = {
         "lead.updated",
         "task.completed",
         "email.received",
+        "email.label_added",
       ],
     },
   },

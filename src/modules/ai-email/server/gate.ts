@@ -20,6 +20,16 @@ export type DraftOutcome = {
 // alone can determine — whether the gap is actually closed depends on
 // whether extraction+pricing succeeded, a fact only the caller knows after
 // attempting it. orchestrate.ts now computes knownGap itself.
+// A second, independent decision type routed through the SAME trust
+// setting — not a new mode, not a change to resolveDraftOutcome. Only
+// auto_send is the real graduated state (gated by the real graduation check
+// in src/modules/settings/ai-assistant/server/repository.ts); assist and
+// quote_review both mean "not yet graduated," so labels suggest-only at
+// either of those, same as they'd go to the review queue for drafting.
+export function resolveLabelAutoApply(mode: Exclude<AiQuotingMode, 'off'>): boolean {
+  return mode === 'auto_send'
+}
+
 export function resolveDraftOutcome(mode: Exclude<AiQuotingMode, 'off'>, needsQuote: boolean): DraftOutcome {
   switch (mode) {
     case 'assist':
