@@ -5,6 +5,7 @@ import { SidebarNav } from './components/header-nav'
 import { NotificationBell } from './components/notification-bell'
 import { AnnouncementBannerStack } from './components/announcement-banner-stack'
 import { getActiveAnnouncementsForTenant } from '@/modules/announcements/server/repository'
+import { isPastDueAccessExpired } from '@/modules/subscriptions/server/grace-period'
 
 export default async function OfficeLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -39,7 +40,11 @@ export default async function OfficeLayout({ children }: { children: React.React
   // this is safely scoped to tenant staff.
   const { headers } = await import('next/headers')
   const headersList = await headers()
-  const currentPath = headersList.get('x-invoke-path') || ''
+  // Set by src/lib/supabase/middleware.ts (proxy) on every request — layouts
+  // have no built-in access to the current pathname (Next.js's own docs:
+  // "Layouts do not re-render on navigation, so they do not access
+  // pathname"), so it's forwarded as a header instead.
+  const currentPath = headersList.get('x-pathname') || ''
   
   const { getTenantSubscription } = await import('@/modules/subscriptions/server/repository')
   const subscription = await getTenantSubscription(supabase, tenantId)
@@ -47,7 +52,16 @@ export default async function OfficeLayout({ children }: { children: React.React
 
   const isBillingPage = currentPath.startsWith('/office/settings/billing')
 
-  if (!isBillingPage && (subStatus === 'cancelled' || subStatus === 'suspended' || subscription?.manually_suspended)) {
+  // past_due gets a 7-day grace period (isPastDueAccessExpired), unlike
+  // cancelled/suspended/manually_suspended which block immediately — reuses
+  // this exact same redirect, same billing-page exemption, not a second check.
+  if (
+    !isBillingPage &&
+    (subStatus === 'cancelled' ||
+      subStatus === 'suspended' ||
+      subscription?.manually_suspended ||
+      isPastDueAccessExpired(subscription?.past_due_since ?? null))
+  ) {
     redirect('/office/settings/billing?restricted=true')
   }
 

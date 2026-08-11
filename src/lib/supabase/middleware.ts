@@ -3,8 +3,31 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { getCorrectDashboardPath } from './dashboard-path'
 
 export async function updateSession(request: NextRequest) {
+  // Server Components (layouts especially) have no built-in way to read the
+  // current pathname — Next.js's own docs confirm layouts don't re-render on
+  // navigation, so there's no equivalent of the client-only usePathname()
+  // hook. The documented workaround is to forward it as a request header set
+  // here in proxy, since this is the one place per-request that already has
+  // `request.nextUrl.pathname`. (A prior version of this file read a
+  // `x-invoke-path` header that Next.js never actually sets anywhere — that
+  // silently broke the /office/settings/billing exemption for
+  // cancelled/suspended/past_due tenants into an infinite redirect loop,
+  // caught only by an end-to-end test with a real backdated test tenant.)
+  // Rebuilt fresh (not hoisted) each time it's used below — request.cookies.set()
+  // inside setAll() mutates request.headers' live Cookie entry when Supabase
+  // rotates the session token mid-request, and a `new Headers(request.headers)`
+  // snapshot taken before that mutation would silently forward the stale,
+  // pre-refresh cookie to downstream Server Components instead of the rotated
+  // one. Reading request.headers fresh at each NextResponse.next() call avoids
+  // that.
+  function buildRequestHeaders() {
+    const requestHeaders = new Headers(request.headers)
+    requestHeaders.set('x-pathname', request.nextUrl.pathname)
+    return requestHeaders
+  }
+
   let supabaseResponse = NextResponse.next({
-    request,
+    request: { headers: buildRequestHeaders() },
   })
 
   const supabase = createServerClient(
@@ -18,7 +41,7 @@ export async function updateSession(request: NextRequest) {
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
           supabaseResponse = NextResponse.next({
-            request,
+            request: { headers: buildRequestHeaders() },
           })
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options)
