@@ -2095,6 +2095,30 @@ export type Database = {
           },
         ]
       }
+      platform_mrr_snapshots: {
+        Row: {
+          active_tenant_count: number
+          created_at: string
+          id: string
+          mrr: number
+          snapshot_date: string
+        }
+        Insert: {
+          active_tenant_count: number
+          created_at?: string
+          id?: string
+          mrr: number
+          snapshot_date: string
+        }
+        Update: {
+          active_tenant_count?: number
+          created_at?: string
+          id?: string
+          mrr?: number
+          snapshot_date?: string
+        }
+        Relationships: []
+      }
       pricing_settings: {
         Row: {
           base_rate: number
@@ -3101,6 +3125,7 @@ export type Database = {
           current_period_end: string | null
           id: string
           manually_suspended: boolean
+          past_due_since: string | null
           price_id: string | null
           status: Database["public"]["Enums"]["tenant_status"]
           stripe_subscription_id: string | null
@@ -3114,6 +3139,7 @@ export type Database = {
           current_period_end?: string | null
           id?: string
           manually_suspended?: boolean
+          past_due_since?: string | null
           price_id?: string | null
           status?: Database["public"]["Enums"]["tenant_status"]
           stripe_subscription_id?: string | null
@@ -3127,6 +3153,7 @@ export type Database = {
           current_period_end?: string | null
           id?: string
           manually_suspended?: boolean
+          past_due_since?: string | null
           price_id?: string | null
           status?: Database["public"]["Enums"]["tenant_status"]
           stripe_subscription_id?: string | null
@@ -3399,28 +3426,28 @@ export type Database = {
       }
       widget_rate_limits: {
         Row: {
+          count: number | null
+          created_at: string | null
+          expires_at: string
           id: string
           ip_address: string | null
           widget_key: string | null
-          count: number | null
-          expires_at: string
-          created_at: string | null
         }
         Insert: {
+          count?: number | null
+          created_at?: string | null
+          expires_at: string
           id?: string
           ip_address?: string | null
           widget_key?: string | null
-          count?: number | null
-          expires_at: string
-          created_at?: string | null
         }
         Update: {
+          count?: number | null
+          created_at?: string | null
+          expires_at?: string
           id?: string
           ip_address?: string | null
           widget_key?: string | null
-          count?: number | null
-          expires_at?: string
-          created_at?: string | null
         }
         Relationships: [
           {
@@ -3524,6 +3551,14 @@ export type Database = {
       get_conversion_funnel: {
         Args: { p_end_date: string; p_start_date: string; p_tenant_id: string }
         Returns: Json
+      }
+      get_crate_stats: {
+        Args: { p_tenant_id: string }
+        Returns: {
+          available_crates: number
+          in_use_crates: number
+          total_crates: number
+        }[]
       }
       get_repeat_customers: {
         Args: { p_tenant_id: string }
