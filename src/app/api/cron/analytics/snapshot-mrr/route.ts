@@ -1,6 +1,9 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 import { computeMrr } from '@/modules/platform-analytics/server/mrr'
+import { logCronRun } from '@/modules/platform-health/server/cron-log'
+
+const JOB_NAME = 'analytics/snapshot-mrr'
 
 // Same shape as src/app/api/cron/crates/bill-overdue/route.ts: external
 // scheduler hits this once daily, authenticated via a Bearer CRON_SECRET.
@@ -26,24 +29,33 @@ export async function GET(request: Request) {
     auth: { autoRefreshToken: false, persistSession: false },
   })
 
-  // The exact same calculation the Analytics page's MRR stat tile uses —
-  // never a second, parallel calculation that could drift out of sync.
-  const { mrr, activeTenantCount } = await computeMrr(serviceClient)
+  const startedAt = new Date()
 
-  const snapshotDate = new Date().toISOString().slice(0, 10)
+  try {
+    // The exact same calculation the Analytics page's MRR stat tile uses —
+    // never a second, parallel calculation that could drift out of sync.
+    const { mrr, activeTenantCount } = await computeMrr(serviceClient)
 
-  const { data, error } = await serviceClient
-    .from('platform_mrr_snapshots')
-    .upsert(
-      { snapshot_date: snapshotDate, mrr, active_tenant_count: activeTenantCount },
-      { onConflict: 'snapshot_date' }
-    )
-    .select()
-    .single()
+    const snapshotDate = new Date().toISOString().slice(0, 10)
 
-  if (error) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 })
+    const { data, error } = await serviceClient
+      .from('platform_mrr_snapshots')
+      .upsert(
+        { snapshot_date: snapshotDate, mrr, active_tenant_count: activeTenantCount },
+        { onConflict: 'snapshot_date' }
+      )
+      .select()
+      .single()
+
+    if (error) {
+      await logCronRun(serviceClient, { jobName: JOB_NAME, startedAt, status: 'failure', errorMessage: error.message })
+      return NextResponse.json({ success: false, error: error.message }, { status: 500 })
+    }
+
+    await logCronRun(serviceClient, { jobName: JOB_NAME, startedAt, status: 'success' })
+    return NextResponse.json({ success: true, snapshot: data })
+  } catch (err: any) {
+    await logCronRun(serviceClient, { jobName: JOB_NAME, startedAt, status: 'failure', errorMessage: err.message })
+    return NextResponse.json({ success: false, error: err.message }, { status: 500 })
   }
-
-  return NextResponse.json({ success: true, snapshot: data })
 }

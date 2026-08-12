@@ -1,6 +1,9 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 import { sweepDuePosts } from '@/modules/social/server/scheduler'
+import { logCronRun } from '@/modules/platform-health/server/cron-log'
+
+const JOB_NAME = 'social/publish-due'
 
 // Same shape as src/app/api/cron/mailboxes/sync/route.ts: external
 // scheduler hits this on an interval, authenticated via a Bearer
@@ -28,7 +31,23 @@ export async function GET(request: Request) {
     auth: { autoRefreshToken: false, persistSession: false },
   })
 
-  const { processed, results } = await sweepDuePosts(serviceClient)
+  const startedAt = new Date()
 
-  return NextResponse.json({ success: true, processed, results })
+  try {
+    const { processed, results } = await sweepDuePosts(serviceClient)
+    const flatResults = results.flatMap((r) => r.results)
+    const failed = flatResults.filter((r) => !r.ok).length
+
+    await logCronRun(serviceClient, {
+      jobName: JOB_NAME,
+      startedAt,
+      status: failed > 0 ? 'failure' : 'success',
+      errorMessage: failed > 0 ? `${failed} of ${flatResults.length} post publish(es) failed` : null,
+    })
+
+    return NextResponse.json({ success: true, processed, results })
+  } catch (err: any) {
+    await logCronRun(serviceClient, { jobName: JOB_NAME, startedAt, status: 'failure', errorMessage: err.message })
+    return NextResponse.json({ success: false, error: err.message }, { status: 500 })
+  }
 }

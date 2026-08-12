@@ -220,6 +220,70 @@ export type Database = {
           },
         ]
       }
+      appointments: {
+        Row: {
+          assigned_to: string | null
+          contact_id: string | null
+          created_at: string
+          description: string | null
+          end_time: string
+          id: string
+          start_time: string
+          status: string
+          tenant_id: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          contact_id?: string | null
+          created_at?: string
+          description?: string | null
+          end_time: string
+          id?: string
+          start_time: string
+          status?: string
+          tenant_id: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          contact_id?: string | null
+          created_at?: string
+          description?: string | null
+          end_time?: string
+          id?: string
+          start_time?: string
+          status?: string
+          tenant_id?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       automation_workflow_actions: {
         Row: {
           action_config: Json
@@ -750,6 +814,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      cron_run_log: {
+        Row: {
+          completed_at: string
+          created_at: string
+          error_message: string | null
+          id: string
+          job_name: string
+          started_at: string
+          status: string
+        }
+        Insert: {
+          completed_at?: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          job_name: string
+          started_at: string
+          status: string
+        }
+        Update: {
+          completed_at?: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          job_name?: string
+          started_at?: string
+          status?: string
+        }
+        Relationships: []
       }
       domain_events: {
         Row: {
@@ -3527,6 +3621,20 @@ export type Database = {
         }
         Returns: Json
       }
+      create_manual_job_transaction: {
+        Args: {
+          p_contact_id: string
+          p_destination_address_id: string
+          p_invoice_subtotal: number
+          p_invoice_tax_amount: number
+          p_invoice_total: number
+          p_line_items: Json
+          p_move_date: string
+          p_origin_address_id: string
+          p_tenant_id: string
+        }
+        Returns: Json
+      }
       current_tenant_id: { Args: never; Returns: string }
       current_user_role: { Args: never; Returns: string }
       custom_access_token_hook: { Args: { event: Json }; Returns: Json }
@@ -3566,6 +3674,29 @@ export type Database = {
           completed_jobs_count: number
           contact_id: string
         }[]
+      }
+      get_tenant_status_transitions: {
+        Args: never
+        Returns: {
+          changed_at: string
+          new_status: string
+          old_status: string
+          tenant_id: string
+        }[]
+      }
+      internal_create_invoice_snapshot: {
+        Args: {
+          p_balance_schedule: Json
+          p_contact_id: string
+          p_deposit_schedule: Json
+          p_invoice_subtotal: number
+          p_invoice_tax_amount: number
+          p_invoice_total: number
+          p_job_id: string
+          p_line_items: Json
+          p_tenant_id: string
+        }
+        Returns: string
       }
       internal_get_crew_contact_ids: {
         Args: { p_user_id: string }

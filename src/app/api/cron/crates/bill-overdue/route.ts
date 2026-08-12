@@ -1,6 +1,9 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 import { sweepCrateBilling } from '@/modules/storage/server/billing'
+import { logCronRun } from '@/modules/platform-health/server/cron-log'
+
+const JOB_NAME = 'crates/bill-overdue'
 
 // Same shape as src/app/api/cron/mailboxes/sync/route.ts: external
 // scheduler hits this once daily, authenticated via a Bearer CRON_SECRET.
@@ -28,13 +31,28 @@ export async function GET(request: Request) {
     auth: { autoRefreshToken: false, persistSession: false },
   })
 
-  const { processed, results } = await sweepCrateBilling(serviceClient)
+  const startedAt = new Date()
 
-  return NextResponse.json({
-    success: true,
-    processed,
-    succeeded: results.filter((r) => r.ok).length,
-    failed: results.filter((r) => !r.ok).length,
-    results,
-  })
+  try {
+    const { processed, results } = await sweepCrateBilling(serviceClient)
+    const failed = results.filter((r) => !r.ok).length
+
+    await logCronRun(serviceClient, {
+      jobName: JOB_NAME,
+      startedAt,
+      status: failed > 0 ? 'failure' : 'success',
+      errorMessage: failed > 0 ? `${failed} of ${results.length} crate(s) failed to bill` : null,
+    })
+
+    return NextResponse.json({
+      success: true,
+      processed,
+      succeeded: results.filter((r) => r.ok).length,
+      failed,
+      results,
+    })
+  } catch (err: any) {
+    await logCronRun(serviceClient, { jobName: JOB_NAME, startedAt, status: 'failure', errorMessage: err.message })
+    return NextResponse.json({ success: false, error: err.message }, { status: 500 })
+  }
 }

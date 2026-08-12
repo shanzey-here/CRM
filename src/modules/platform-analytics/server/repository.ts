@@ -5,6 +5,16 @@ type Client = SupabaseClient<Database>
 
 export type TenantStatusKey = 'trialing' | 'active' | 'past_due' | 'suspended' | 'cancelled'
 
+// Shared by the Health tab's engagement and churn/retention sections — both
+// need the real live tenant id/name list to label results and to scope out
+// history belonging to deleted tenants (audit.logs has no FK to tenants, by
+// design, so it can carry rows for tenants that no longer exist).
+export async function getAllTenants(supabase: Client): Promise<{ id: string; name: string }[]> {
+  const { data, error } = await supabase.from('tenants').select('id, name').order('name', { ascending: true })
+  if (error) throw new Error(`Failed to fetch tenants: ${error.message}`)
+  return data ?? []
+}
+
 export type StatusBreakdown = {
   totalTenants: number
   totalSubscriptionRows: number
