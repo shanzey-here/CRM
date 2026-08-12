@@ -1,6 +1,9 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 import { sweepExpiredTrials, notifyApproachingTrials } from '@/modules/subscriptions/server/trial-sweep'
+import { logCronRun } from '@/modules/platform-health/server/cron-log'
+
+const JOB_NAME = 'trials/expire'
 
 // Authenticated via Bearer CRON_SECRET, matching the project-wide convention
 // established in src/app/api/cron/mailboxes/sync/route.ts and
@@ -44,6 +47,8 @@ export async function GET(request: Request) {
     auth: { autoRefreshToken: false, persistSession: false },
   })
 
+  const startedAt = new Date()
+
   try {
     // 1. Transition expired trials → suspended
     const expiredResult = await sweepExpiredTrials(serviceClient)
@@ -51,6 +56,8 @@ export async function GET(request: Request) {
     // 2. Notify trials approaching expiry (error-isolated per tenant inside
     //    notifyApproachingTrials — a failure here never breaks step 1)
     const notifyResult = await notifyApproachingTrials(serviceClient)
+
+    await logCronRun(serviceClient, { jobName: JOB_NAME, startedAt, status: 'success' })
 
     return NextResponse.json({
       success: true,
@@ -66,6 +73,7 @@ export async function GET(request: Request) {
     })
   } catch (err: any) {
     console.error('[CRON] Trial sweep error:', err)
+    await logCronRun(serviceClient, { jobName: JOB_NAME, startedAt, status: 'failure', errorMessage: err.message })
     return NextResponse.json({ success: false, error: err.message }, { status: 500 })
   }
 }
