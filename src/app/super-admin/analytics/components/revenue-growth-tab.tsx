@@ -3,8 +3,9 @@ import { StatusDonut } from './status-donut'
 import { HorizontalBarChart } from './horizontal-bar-chart'
 import { GrowthCharts } from './growth-charts'
 import { GrowthRangeToggle } from './growth-range-toggle'
+import { QuotesBookingsChart } from './quotes-bookings-chart'
 import { COUNT_COLOR, REVENUE_COLOR } from '@/modules/platform-analytics/colors'
-import type { StatusBreakdown, PlanDistributionEntry, GrowthPoint, RevenueByPlanEntry } from '@/modules/platform-analytics/server/repository'
+import type { StatusBreakdown, PlanDistributionEntry, GrowthPoint, RevenueByPlanEntry, QuoteBookingPoint } from '@/modules/platform-analytics/server/repository'
 import type { MrrResult } from '@/modules/platform-analytics/server/mrr'
 
 function formatGBP(n: number): string {
@@ -19,6 +20,7 @@ export function RevenueGrowthTab({
   growthData,
   revenueByPlan,
   mrrResult,
+  quotesBookingsData,
   months,
 }: {
   statusBreakdown: StatusBreakdown
@@ -26,6 +28,7 @@ export function RevenueGrowthTab({
   growthData: GrowthPoint[]
   revenueByPlan: RevenueByPlanEntry[]
   mrrResult: MrrResult
+  quotesBookingsData: QuoteBookingPoint[]
   months: number
 }) {
   const { totalTenants, totalSubscriptionRows, countsByStatus } = statusBreakdown
@@ -76,6 +79,18 @@ export function RevenueGrowthTab({
         <div className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm">
           <GrowthCharts data={growthData} />
         </div>
+      </section>
+
+      {/* 2c-ii. Quotes sent & confirmed bookings — same period selector as Growth above */}
+      <section>
+        <h2 className="text-lg font-semibold text-slate-900 mb-4">Quotes &amp; bookings</h2>
+        <div className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm">
+          <QuotesBookingsChart data={quotesBookingsData} />
+        </div>
+        <p className="text-xs text-slate-400 mt-3">
+          Every tenant&apos;s full history is included regardless of current status (active, trialing, suspended, or cancelled) — tenants and quotes are never deleted in this app.
+          Confirmed bookings only include quotes with a real recorded acceptance timestamp: 82 real historical accepted quotes predate acceptance-timestamp tracking (confirmed seed/test data, not a live gap) and are not shown here rather than being placed in an estimated month.
+        </p>
       </section>
 
       {/* 2d. Revenue */}

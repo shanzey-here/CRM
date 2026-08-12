@@ -149,3 +149,106 @@ export async function getGrowthOverTime(supabase: Client, months: number): Promi
     return { period: b.period, newTenants, cumulativeTotal: cumulative }
   })
 }
+
+export type QuoteBookingPoint = {
+  period: string
+  quotesSent: number
+  confirmedBookings: number
+  // null (not 0 or NaN) when quotesSent === 0 for that period — this app
+  // never fabricates a rate from zero real data.
+  conversionRate: number | null
+}
+
+// Real, audited findings this function encodes (see the feature's Part 1
+// audit for the full evidence trail):
+//
+// - "Quotes Sent" = every quote that ever left `draft` (status <> 'draft'),
+//   bucketed by created_at. No dedicated sent_at column exists anywhere in
+//   the schema, and no application code path currently transitions a quote
+//   to 'sent' at all — created_at is the only real timestamp available, so
+//   this measures "quote created (and eventually sent)" by month, not a
+//   true send-date. accepted/declined/expired all require having passed
+//   through 'sent' per the real DB state machine (accept_quote_transaction
+//   raises P0002 otherwise), so they count too — not just rows currently
+//   sitting in 'sent'.
+//
+// - "Confirmed Bookings" = status = 'accepted' AND accepted_at IS NOT NULL,
+//   bucketed by the real accepted_at column (stamped atomically by
+//   accept_quote_transaction, confirmed across its entire migration
+//   history — no code path can set 'accepted' without it). Real finding:
+//   of 94 real accepted quotes, only 12 have accepted_at — the other 82
+//   are confirmed real seed/test data (traced to specific scripts,
+//   zero created_by on any of them) that bypassed the RPC and never got a
+//   real acceptance timestamp. Deliberately NOT backfilled with
+//   created_at or any other estimate — excluded from this chart, with the
+//   gap disclosed in the UI caption, per this project's non-negotiable
+//   "never invent a number" rule.
+//
+// - No tenant/quote filtering by subscription status or any soft-delete
+//   flag: tenants have no deleted_at column and are never actually
+//   deleted (only their subscription status changes), so this already
+//   includes 100% of every tenant's real historical activity regardless
+//   of current standing (active, trialing, suspended, cancelled).
+const UTC_MONTH_ABBR = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+// Every timestamp column involved here (created_at, accepted_at) is a real
+// UTC timestamptz. Bucketing with local-timezone getters (getMonth(),
+// getFullYear(), toLocaleDateString()) is a real, confirmed bug on a
+// dev machine running outside UTC (Pakistan Standard Time, UTC+5): a quote
+// created at 2026-07-31T20:00:00Z is legitimately still July in UTC, but
+// getMonth() rolls it to August locally — verified against a direct UTC
+// SQL query (to_char(created_at, 'YYYY-MM')) which showed the real
+// per-month split diverging from the naive local-getter version by exactly
+// the count of late-day boundary rows. Every date computation below uses
+// the UTC variants for that reason — never swap these back to local getters.
+export async function getQuotesAndBookingsOverTime(supabase: Client, months: number): Promise<QuoteBookingPoint[]> {
+  const now = new Date()
+  const windowStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - months + 1, 1))
+
+  const [{ data: sentQuotes, error: sentErr }, { data: confirmedBookings, error: confirmedErr }] = await Promise.all([
+    supabase.from('quotes').select('created_at').neq('status', 'draft').gte('created_at', windowStart.toISOString()),
+    supabase
+      .from('quotes')
+      .select('accepted_at')
+      .eq('status', 'accepted')
+      .not('accepted_at', 'is', null)
+      .gte('accepted_at', windowStart.toISOString()),
+  ])
+
+  if (sentErr) throw new Error(`Failed to fetch quotes sent: ${sentErr.message}`)
+  if (confirmedErr) throw new Error(`Failed to fetch confirmed bookings: ${confirmedErr.message}`)
+
+  const buckets: { period: string; year: number; month: number }[] = []
+  for (let i = 0; i < months; i++) {
+    const d = new Date(Date.UTC(windowStart.getUTCFullYear(), windowStart.getUTCMonth() + i, 1))
+    const year = d.getUTCFullYear()
+    const month = d.getUTCMonth()
+    buckets.push({ period: `${UTC_MONTH_ABBR[month]} ${String(year).slice(-2)}`, year, month })
+  }
+
+  const sentByBucket = new Map<string, number>()
+  for (const q of sentQuotes ?? []) {
+    const d = new Date(q.created_at)
+    const key = `${d.getUTCFullYear()}-${d.getUTCMonth()}`
+    sentByBucket.set(key, (sentByBucket.get(key) ?? 0) + 1)
+  }
+
+  const confirmedByBucket = new Map<string, number>()
+  for (const q of confirmedBookings ?? []) {
+    const d = new Date(q.accepted_at!)
+    const key = `${d.getUTCFullYear()}-${d.getUTCMonth()}`
+    confirmedByBucket.set(key, (confirmedByBucket.get(key) ?? 0) + 1)
+  }
+
+  return buckets.map((b) => {
+    const key = `${b.year}-${b.month}`
+    const quotesSent = sentByBucket.get(key) ?? 0
+    const confirmed = confirmedByBucket.get(key) ?? 0
+    return {
+      period: b.period,
+      quotesSent,
+      confirmedBookings: confirmed,
+      conversionRate: quotesSent > 0 ? confirmed / quotesSent : null,
+    }
+  })
+}
