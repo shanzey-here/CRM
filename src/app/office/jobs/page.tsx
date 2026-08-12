@@ -27,6 +27,12 @@ export default async function JobsListPage() {
           <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Jobs</h1>
           <p className="text-slate-500 mt-1">Manage scheduled moves and active jobs.</p>
         </div>
+        <Link 
+          href="/office/jobs/new" 
+          className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background bg-slate-900 text-white hover:bg-slate-900/90 h-10 py-2 px-4"
+        >
+          New Job
+        </Link>
       </div>
 
       <div className="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden">

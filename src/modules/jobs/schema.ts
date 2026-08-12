@@ -51,3 +51,23 @@ export const updateJobDetailsSchema = z.object({
 })
 
 export type UpdateJobDetailsInput = z.infer<typeof updateJobDetailsSchema>
+
+export const CreateManualJobSchema = z.object({
+  contact_id: z.string().uuid('Contact is required'),
+  title: z.string().min(1, 'Title is required'),
+  description: z.string().optional(),
+  move_date: z.string().refine((val) => !isNaN(Date.parse(val)), 'Invalid date'),
+  origin_address_id: z.string().uuid().nullable().optional(),
+  destination_address_id: z.string().uuid().nullable().optional(),
+  line_items: z.array(z.object({
+    description: z.string().min(1, 'Description is required'),
+    quantity: z.number().min(1, 'Quantity must be at least 1'),
+    unit_price: z.number().min(0, 'Price must be non-negative')
+  })).min(1, 'At least one line item is required'),
+  assigned_crew: z.array(z.string().uuid()).default([]),
+  assigned_vehicles: z.array(z.string().uuid()).default([]),
+  start_time: z.string().optional(),
+  end_time: z.string().optional(),
+})
+
+export type CreateManualJobData = z.infer<typeof CreateManualJobSchema>
