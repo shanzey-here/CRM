@@ -3,7 +3,7 @@ import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { AnalyticsTabs, type AnalyticsTabKey } from './components/analytics-tabs'
 import { RevenueGrowthTab } from './components/revenue-growth-tab'
 import { HealthTab } from './components/health-tab'
-import { getTenantStatusBreakdown, getPlanDistribution, getGrowthOverTime, getRevenueByPlan, getAllTenants } from '@/modules/platform-analytics/server/repository'
+import { getTenantStatusBreakdown, getPlanDistribution, getGrowthOverTime, getRevenueByPlan, getAllTenants, getQuotesAndBookingsOverTime } from '@/modules/platform-analytics/server/repository'
 import { computeMrr } from '@/modules/platform-analytics/server/mrr'
 import { getTenantEngagement } from '@/modules/platform-health/server/engagement'
 import { getChurnRiskData } from '@/modules/platform-health/server/churn'
@@ -51,12 +51,13 @@ async function RevenueGrowthLoader({
   supabase: Awaited<ReturnType<typeof createClient>>
   months: number
 }) {
-  const [statusBreakdown, planDistribution, growthData, revenueByPlan, mrrResult] = await Promise.all([
+  const [statusBreakdown, planDistribution, growthData, revenueByPlan, mrrResult, quotesBookingsData] = await Promise.all([
     getTenantStatusBreakdown(supabase),
     getPlanDistribution(supabase),
     getGrowthOverTime(supabase, months),
     getRevenueByPlan(supabase),
     computeMrr(supabase),
+    getQuotesAndBookingsOverTime(supabase, months),
   ])
 
   return (
@@ -66,6 +67,7 @@ async function RevenueGrowthLoader({
       growthData={growthData}
       revenueByPlan={revenueByPlan}
       mrrResult={mrrResult}
+      quotesBookingsData={quotesBookingsData}
       months={months}
     />
   )
