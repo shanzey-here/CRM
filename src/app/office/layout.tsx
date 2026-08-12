@@ -90,7 +90,7 @@ export default async function OfficeLayout({ children }: { children: React.React
       {/* Sidebar (Fixed) */}
       <div className="fixed inset-y-0 left-0 w-64 bg-white border-r border-slate-200 flex flex-col shadow-sm z-50">
         <div className="h-16 flex items-center px-6 border-b border-slate-100 shrink-0">
-          <Link href="/office" className="text-xl font-bold text-[var(--color-primary)]">Gomove</Link>
+          <Link href="/office" className="text-xl font-bold text-emerald-600">Gomove</Link>
         </div>
         <div className="flex-1 overflow-y-auto py-4 px-3">
           <SidebarNav role={role} />

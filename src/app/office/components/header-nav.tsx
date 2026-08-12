@@ -53,11 +53,11 @@ export function SidebarNav({ role }: { role?: string }) {
             className={cn(
               "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors",
               isActive 
-                ? "bg-blue-50 text-[var(--color-primary)]" 
+                ? "bg-emerald-50 text-emerald-700" 
                 : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
             )}
           >
-            <Icon size={18} className={isActive ? "text-[var(--color-primary)]" : "text-slate-400"} />
+            <Icon size={18} className={isActive ? "text-emerald-700" : "text-slate-400"} />
             {link.name}
           </Link>
         )
