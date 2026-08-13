@@ -19,11 +19,13 @@ export async function getUnifiedCalendarData(
   startDate: string,
   endDate: string
 ) {
-  // 1. Fetch Jobs and their Assignments
+  // 1. Fetch Jobs and their Assignments (filtered by date range)
   const { data: jobs, error: jobsErr } = await supabase
     .from('jobs')
     .select('*, job_crew_assignments(user_id, scheduled_start, scheduled_end)')
     .eq('tenant_id', tenantId)
+    .gte('move_date', startDate.split('T')[0])
+    .lte('move_date', endDate.split('T')[0])
 
   // 2. Fetch Tasks (due_date in range)
   const { data: tasks, error: tasksErr } = await supabase
