@@ -5,6 +5,8 @@ export const invoiceSchema = z.object({
   tenant_id: z.string().uuid(),
   job_id: z.string().uuid().nullable(),
   contact_id: z.string().uuid(),
+  brand_id: z.string().uuid(),
+  brand_snapshot: z.unknown(),
   invoice_number: z.string().nullable(),
   status: z.enum(['draft', 'sent', 'partially_paid', 'paid', 'overdue', 'void']),
   subtotal: z.number().min(0),
@@ -63,11 +65,31 @@ export const paymentSchema = z.object({
 
 export type Payment = z.infer<typeof paymentSchema>
 
+// Real, structured location data this app actually tracks for a job — no
+// time-of-day field exists anywhere in the schema, so none is invented here.
+export type InvoiceAddressInfo = {
+  line_1: string
+  line_2: string | null
+  city: string
+  county: string | null
+  postcode: string
+  country: string
+} | null
+
+export type InvoiceJobInfo = {
+  status: string
+  move_date: string | null
+  customer_notes: string | null
+  origin_address: InvoiceAddressInfo
+  destination_address: InvoiceAddressInfo
+} | null
+
 // Composite type for UI to easily display an invoice with its line items and schedules
 export type InvoiceWithDetails = Invoice & {
   lineItems: InvoiceLineItem[]
   schedules: PaymentSchedule[]
   payments: Payment[]
+  job: InvoiceJobInfo
 }
 
 // ============================================================================

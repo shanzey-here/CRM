@@ -73,6 +73,68 @@ const spacerBlockSchema = z.object({
     .strict(),
 })
 
+// Job date/address/move-notes — sourced live from the invoice's job at
+// render time (never embedded here), same rule as every other block. A job
+// has no time-of-day field anywhere in this app's real schema, so only what
+// this app actually tracks (date, address, notes) is shown — no invented
+// time field.
+const locationDetailsBlockSchema = z.object({
+  type: z.literal('location_details'),
+  config: z
+    .object({
+      show: z.boolean().default(true),
+    })
+    .strict(),
+})
+
+// Bank/payment instructions — text comes from the brand's bank_details at
+// render time (live brand row for preview, frozen brand_snapshot for an
+// issued invoice), same pattern terms_text already established for
+// tenant/brand-owned text.
+const paymentInstructionsBlockSchema = z.object({
+  type: z.literal('payment_instructions'),
+  config: z
+    .object({
+      show: z.boolean().default(true),
+    })
+    .strict(),
+})
+
+// Advance received / balance outstanding / job status — every figure here
+// is computed live from the invoice's real payments/total and its job's
+// real status at render time, never a config field.
+const additionalDetailsBlockSchema = z.object({
+  type: z.literal('additional_details'),
+  config: z
+    .object({
+      showJobStatus: z.boolean().default(true),
+    })
+    .strict(),
+})
+
+// The invoice total spelled out in words — derived live from invoice.total,
+// never a stored figure.
+const totalInWordsBlockSchema = z.object({
+  type: z.literal('total_in_words'),
+  config: z
+    .object({
+      show: z.boolean().default(true),
+    })
+    .strict(),
+})
+
+// Declaration text is genuinely configurable copy (like footer.customText),
+// not financial data — the signature line itself is always blank/unsigned
+// on a rendered document, never pre-filled.
+const declarationSignatureBlockSchema = z.object({
+  type: z.literal('declaration_signature'),
+  config: z
+    .object({
+      declarationText: z.string().default('I have read & understood all the above terms.'),
+    })
+    .strict(),
+})
+
 export const invoiceLayoutBlockSchema = z.discriminatedUnion('type', [
   headerBlockSchema,
   lineItemsTableBlockSchema,
@@ -80,6 +142,11 @@ export const invoiceLayoutBlockSchema = z.discriminatedUnion('type', [
   termsTextBlockSchema,
   footerBlockSchema,
   spacerBlockSchema,
+  locationDetailsBlockSchema,
+  paymentInstructionsBlockSchema,
+  additionalDetailsBlockSchema,
+  totalInWordsBlockSchema,
+  declarationSignatureBlockSchema,
 ])
 
 export type InvoiceLayoutBlock = z.infer<typeof invoiceLayoutBlockSchema>

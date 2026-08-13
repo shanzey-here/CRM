@@ -15,14 +15,16 @@ export default async function LeadCapturePage({ params }: PageProps) {
   const { widgetKey } = await params
   const supabase = createServiceRoleClient()
 
-  // 1. Look up tenant by widget key
-  const { data: tenant, error } = await supabase
-    .from('tenants')
+  // 1. Look up the brand by widget key — the key is per-brand now (was
+  // per-tenant), and the brand's own name is the correct public-facing
+  // identity to show here, not the tenant's internal name.
+  const { data: brand, error } = await supabase
+    .from('brands')
     .select('id, name')
     .eq('public_widget_key', widgetKey)
     .single()
 
-  if (error || !tenant) {
+  if (error || !brand) {
     // Deliberately minimalistic 404 to avoid leaking tenant info
     notFound()
   }
@@ -30,7 +32,7 @@ export default async function LeadCapturePage({ params }: PageProps) {
   return (
     <div className="min-h-screen bg-transparent p-4 flex flex-col">
       <div className="max-w-2xl w-full mx-auto flex-1 flex flex-col">
-        <CaptureForm widgetKey={widgetKey} tenantName={tenant.name} />
+        <CaptureForm widgetKey={widgetKey} tenantName={brand.name} />
       </div>
     </div>
   )

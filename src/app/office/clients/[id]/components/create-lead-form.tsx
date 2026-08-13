@@ -27,10 +27,12 @@ import {
 import { Loader2, Plus } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-export function CreateLeadForm({ contactId }: { contactId: string }) {
+export function CreateLeadForm({ contactId, brands }: { contactId: string; brands: { id: string; name: string; is_default: boolean }[] }) {
   const [open, setOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
+
+  const defaultBrandId = brands.find((b) => b.is_default)?.id ?? brands[0]?.id
 
   const {
     register,
@@ -43,6 +45,7 @@ export function CreateLeadForm({ contactId }: { contactId: string }) {
     resolver: zodResolver(insertLeadSchema),
     defaultValues: {
       contact_id: contactId,
+      brand_id: defaultBrandId,
       stage: 'inquiry',
       source: 'phone_inquiry',
       notes: '',
@@ -78,6 +81,32 @@ export function CreateLeadForm({ contactId }: { contactId: string }) {
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 pt-4">
+          {brands.length > 1 && (
+            <div className="space-y-2">
+              <Label htmlFor="brand_id">Brand</Label>
+              <Select
+                defaultValue={defaultBrandId}
+                onValueChange={(val) => setValue('brand_id', val)}
+              >
+                <SelectTrigger id="brand_id">
+                  <SelectValue placeholder="Select brand">
+                    {(val: string) => {
+                      const b = brands.find((br) => br.id === val)
+                      return b ? b.name + (b.is_default ? ' (Default)' : '') : 'Select brand'
+                    }}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {brands.map((b) => (
+                    <SelectItem key={b.id} value={b.id}>
+                      {b.name}{b.is_default ? ' (Default)' : ''}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
           <div className="space-y-2">
             <Label htmlFor="source">Source (How did this lead originate?)</Label>
             <Select 

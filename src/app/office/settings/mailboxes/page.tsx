@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { getBrands } from '@/modules/settings/brands/server/repository'
 import { MailboxList } from './components/mailbox-list'
 import { ConnectGmailButton } from './components/connect-gmail-button'
 import { ConnectImapForm } from './components/connect-imap-form'
@@ -24,6 +25,8 @@ export default async function MailboxSettingsPage({
     .select('id, provider, connection_method, mailbox_address, is_active, last_synced_at, last_sync_error, created_at')
     .eq('tenant_id', tenantId)
     .order('created_at', { ascending: false })
+
+  const { data: brands } = await getBrands(supabase, tenantId)
 
   return (
     <div>
@@ -52,13 +55,13 @@ export default async function MailboxSettingsPage({
             <h3 className="text-lg font-semibold text-slate-900 mb-1">Connect a Mailbox</h3>
             <p className="text-sm text-slate-500">Gmail (OAuth) is recommended — no password ever leaves Google.</p>
           </div>
-          <ConnectGmailButton />
+          <ConnectGmailButton brands={brands ?? []} />
 
           <div className="pt-4 border-t border-slate-100">
             <p className="text-xs font-medium text-amber-700 uppercase tracking-wide mb-3">
               Fallback — IMAP with password (less secure, use only if OAuth isn't available)
             </p>
-            <ConnectImapForm />
+            <ConnectImapForm brands={brands ?? []} />
           </div>
         </div>
       </div>

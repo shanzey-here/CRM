@@ -4,7 +4,13 @@ import { useState, useTransition } from 'react'
 import { connectImapMailboxAction } from '../actions'
 import { Loader2 } from 'lucide-react'
 
-export function ConnectImapForm() {
+interface Brand {
+  id: string
+  name: string
+  is_default: boolean
+}
+
+export function ConnectImapForm({ brands }: { brands: Brand[] }) {
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
@@ -34,6 +40,19 @@ export function ConnectImapForm() {
         </div>
       )}
       <div className="grid grid-cols-2 gap-3">
+        {brands.length > 1 && (
+          <select
+            name="brand_id"
+            defaultValue={brands.find((b) => b.is_default)?.id ?? brands[0]?.id}
+            className="col-span-2 px-3 py-2 border border-slate-300 rounded text-sm"
+          >
+            {brands.map((b) => (
+              <option key={b.id} value={b.id}>
+                {b.name}{b.is_default ? ' (Default)' : ''}
+              </option>
+            ))}
+          </select>
+        )}
         <input
           name="mailbox_address"
           type="email"

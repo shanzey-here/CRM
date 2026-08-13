@@ -193,16 +193,23 @@ export async function createLeadAction(payload: unknown): Promise<{ success: boo
 
   const { insertLeadSchema } = await import('@/modules/leads/schemas')
   const parseResult = insertLeadSchema.safeParse(payload)
-  
+
   if (!parseResult.success) {
     return { success: false, error: 'Validation failed', data: parseResult.error.issues }
+  }
+
+  let brandId = parseResult.data.brand_id
+  if (!brandId) {
+    const { getDefaultBrandId } = await import('@/modules/settings/brands/server/repository')
+    brandId = (await getDefaultBrandId(supabase, tenantId)) ?? undefined
+    if (!brandId) return { success: false, error: 'No default brand found for this tenant' }
   }
 
   const { createLead } = await import('@/modules/leads/server/repository')
   const { data: newLead, error: createError } = await createLead(
     supabase,
     tenantId,
-    parseResult.data
+    { ...parseResult.data, brand_id: brandId }
   )
 
   if (createError || !newLead) {

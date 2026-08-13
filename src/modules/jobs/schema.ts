@@ -54,6 +54,11 @@ export type UpdateJobDetailsInput = z.infer<typeof updateJobDetailsSchema>
 
 export const CreateManualJobSchema = z.object({
   contact_id: z.string().uuid('Contact is required'),
+  // Optional here too (server resolves the tenant's default brand when
+  // omitted) — a manual job has no quote/lead to inherit a brand from, so
+  // this is the one place a brand must be supplied explicitly when a
+  // tenant has more than one.
+  brand_id: z.string().uuid().optional(),
   title: z.string().min(1, 'Title is required'),
   description: z.string().optional(),
   move_date: z.string().refine((val) => !isNaN(Date.parse(val)), 'Invalid date'),

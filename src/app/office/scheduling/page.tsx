@@ -46,13 +46,15 @@ export default async function SchedulingPage({
 
   const { getTenantStaff } = await import('@/modules/users/server/repository')
   const { getContacts } = await import('@/modules/clients/server/repository')
+  const { getBrands } = await import('@/modules/settings/brands/server/repository')
 
   // Fetch both board data (for legacy) and unified data (for new tabs)
-  const [boardRes, calendarRes, staffRes, contactsRes] = await Promise.all([
+  const [boardRes, calendarRes, staffRes, contactsRes, brandsRes] = await Promise.all([
     getSchedulingBoardData(supabase, tenantId, dateStr),
     getUnifiedCalendarData(supabase, tenantId, periodStart, periodEnd),
     getTenantStaff(supabase, tenantId),
-    getContacts(supabase, tenantId)
+    getContacts(supabase, tenantId),
+    getBrands(supabase, tenantId)
   ])
 
   if (!boardRes.success || !boardRes.data || calendarRes.error) {
@@ -61,6 +63,7 @@ export default async function SchedulingPage({
 
   const staff = staffRes.data || []
   const contacts = contactsRes.data || []
+  const brands = brandsRes.data || []
   let events = calendarRes.data || []
 
   if (activeTypes.length === 0 || resolvedParams.type === 'none') {
@@ -101,10 +104,11 @@ export default async function SchedulingPage({
               events={events} 
               currentDate={dateObj} 
               range={range}
-              tenantId={tenantId} 
+              tenantId={tenantId}
               tenantStaff={staff}
               contacts={contacts}
               vehicles={boardRes.data.vehicles}
+              brands={brands}
             />
           </TabsContent>
           <TabsContent value="list" className="flex-1 min-h-0 border bg-white rounded-md p-4 overflow-auto">

@@ -36,6 +36,24 @@ export async function createQuoteFromExtraction(
     catalog: CatalogEntry[]
   }
 ): Promise<QuoteCreationResult> {
+  // 0. Resolve the brand this lead/quote belongs to from the thread's own
+  // mailbox (denormalized onto email_threads.brand_id) — falls back to the
+  // tenant's default brand for a thread on a mailbox connected before brand
+  // assignment existed.
+  const { data: threadForBrand } = await serviceClient
+    .from('email_threads')
+    .select('brand_id')
+    .eq('id', threadId)
+    .eq('tenant_id', tenantId)
+    .maybeSingle()
+
+  let brandId = threadForBrand?.brand_id ?? null
+  if (!brandId) {
+    const { getDefaultBrandId } = await import('@/modules/settings/brands/server/repository')
+    brandId = await getDefaultBrandId(serviceClient, tenantId)
+  }
+  if (!brandId) return { success: false, error: 'No default brand found for this tenant' }
+
   // 1. Find-or-create contact.
   const { data: contact, error: contactErr } = await findOrCreateContactByEmail(serviceClient, tenantId, {
     email: senderEmail,
@@ -64,6 +82,7 @@ export async function createQuoteFromExtraction(
   // schema origin/destination addresses can attach for getRouteDetails().
   const { data: lead, error: leadErr } = await createLead(serviceClient, tenantId, {
     contact_id: contact.id,
+    brand_id: brandId,
     stage: 'inquiry',
     source: 'ai_email',
     origin_address_id: originAddress.id,
@@ -84,6 +103,7 @@ export async function createQuoteFromExtraction(
   const { data: quote, error: quoteErr } = await createQuote(serviceClient, tenantId, {
     contact_id: contact.id,
     lead_id: lead.id,
+    brand_id: brandId,
   })
   if (quoteErr || !quote) return { success: false, error: `Failed to create quote: ${quoteErr?.message}` }
 

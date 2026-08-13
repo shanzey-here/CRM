@@ -51,6 +51,19 @@ export async function maybeDraftAiReply(
     const mode = tenantSettings?.ai_quoting_mode ?? 'off'
     if (mode === 'off') return // Zero LLM calls, zero new rows — the whole mechanism never runs.
 
+    // The persona's identity is this mailbox's brand (falls back to the
+    // tenant's default brand for a mailbox connected before brand
+    // assignment existed) — never the tenant as a whole, so a reply through
+    // Brand B's inbox introduces itself as Brand B.
+    let brandId = mailbox.brand_id
+    if (!brandId) {
+      const { getDefaultBrandId } = await import('@/modules/settings/brands/server/repository')
+      brandId = await getDefaultBrandId(serviceClient, mailbox.tenant_id)
+    }
+    const { data: brand } = brandId
+      ? await serviceClient.from('brands').select('*').eq('id', brandId).maybeSingle()
+      : { data: null }
+
     const { data: thread } = await serviceClient
       .from('email_threads')
       .select('id, subject, provider_thread_id')
@@ -77,7 +90,7 @@ export async function maybeDraftAiReply(
       .eq('tenant_id', mailbox.tenant_id)
       .maybeSingle()
 
-    const systemPrompt = buildSystemPrompt(tenantSettings, pricingSettings)
+    const systemPrompt = buildSystemPrompt(brand, pricingSettings)
     const threadText = formatThreadText(threadMessages)
     const toneSamples = await getToneSamples(serviceClient, mailbox.tenant_id, mailbox.id)
 
@@ -105,7 +118,11 @@ export async function maybeDraftAiReply(
     // them regardless of needsQuote, same classify() call either way.
     await maybeSuggestLabels(serviceClient, mailbox.tenant_id, threadId, mode, suggestedLabelIds, classifyModel)
 
-    const companyName = tenantSettings?.company_legal_name || mailboxAddress
+    // Same brand this mailbox's system prompt uses (below) — the
+    // holding/clarifying reply templates are a separate code path from the
+    // LLM-generated reply and need the same brand identity, not the
+    // tenant's default.
+    const companyName = brand?.name || mailboxAddress
     let bodyText: string
     let draftModel: string | null = null
     let extractionModel: string | null = null

@@ -13,6 +13,7 @@ const imapConnectSchema = z.object({
   smtp_host: z.string().min(1),
   smtp_port: z.coerce.number().int().min(1).max(65535),
   password: z.string().min(1),
+  brand_id: z.string().uuid().optional(),
 })
 
 async function requireTenantAdmin() {
@@ -46,10 +47,18 @@ export async function connectImapMailboxAction(formData: FormData) {
     smtp_host: formData.get('smtp_host'),
     smtp_port: formData.get('smtp_port'),
     password: formData.get('password'),
+    brand_id: formData.get('brand_id') || undefined,
   })
 
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? 'Invalid input' }
+  }
+
+  const supabase = await createClient()
+  let brandId = parsed.data.brand_id
+  if (!brandId) {
+    const { getDefaultBrandId } = await import('@/modules/settings/brands/server/repository')
+    brandId = (await getDefaultBrandId(supabase, guard.tenantId)) ?? undefined
   }
 
   const serviceClient = createServiceRoleClient()
@@ -60,6 +69,7 @@ export async function connectImapMailboxAction(formData: FormData) {
     smtpHost: parsed.data.smtp_host,
     smtpPort: parsed.data.smtp_port,
     password: parsed.data.password,
+    brandId,
   })
 
   if (error) {

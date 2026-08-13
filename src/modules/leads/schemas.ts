@@ -21,6 +21,11 @@ export const leadPriorityEnum = z.enum(['low', 'medium', 'high'])
 
 export const insertLeadSchema = z.object({
   contact_id: z.string().uuid('A valid contact is required'),
+  // Optional at the form/payload layer: a tenant with only one brand never
+  // shows a selector, and the server resolves that tenant's default brand
+  // when this is omitted (see getDefaultBrandId). A tenant with multiple
+  // brands must show a selector and pass this explicitly.
+  brand_id: z.string().uuid().optional(),
   stage: leadStageEnum.default('inquiry'),
   source: z.string().optional().nullable(),
   preferred_move_date: z.string().optional().nullable(),

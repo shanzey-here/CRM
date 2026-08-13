@@ -1,9 +1,9 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { randomBytes } from 'crypto'
 import { createClient } from '@/lib/supabase/server'
 import { getGmailAuthUrl } from '@/modules/mailboxes/server/gmail-oauth'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -37,5 +37,20 @@ export async function GET() {
     maxAge: 600,
     path: '/',
   })
+
+  // Which brand this connection should be tagged with — carried across the
+  // Google redirect the same way the CSRF state nonce is (a short-lived
+  // cookie, not the OAuth state param itself). Absent when the tenant has
+  // only one brand; the callback falls back to the default brand then.
+  const brandId = new URL(request.url).searchParams.get('brand')
+  if (brandId) {
+    response.cookies.set('gmail_oauth_brand_id', brandId, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 600,
+      path: '/',
+    })
+  }
+
   return response
 }

@@ -294,6 +294,7 @@ async function resolveThread(
       .insert({
         tenant_id: mailbox.tenant_id,
         mailbox_id: mailbox.id,
+        brand_id: mailbox.brand_id,
         provider_thread_id: providerThreadId,
         subject: parsed.subject ?? null,
         participant_addresses: collectParticipants(parsed),
@@ -327,6 +328,7 @@ async function resolveThread(
     .insert({
       tenant_id: mailbox.tenant_id,
       mailbox_id: mailbox.id,
+      brand_id: mailbox.brand_id,
       subject: parsed.subject ?? null,
       participant_addresses: collectParticipants(parsed),
     })

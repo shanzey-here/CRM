@@ -26,6 +26,7 @@ export default function SettingsLayout({
   const navItems = [
     { name: 'Inventory Catalog', href: '/office/settings/inventory' },
     { name: 'Branding', href: '/office/settings/branding' },
+    { name: 'Brands', href: '/office/settings/brands' },
     { name: 'Appearance', href: '/office/settings/appearance' },
     { name: 'Pricing', href: '/office/settings/pricing' },
     { name: 'Invoice Template', href: '/office/settings/invoice-template' },
