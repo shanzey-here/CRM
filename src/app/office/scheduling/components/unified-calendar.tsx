@@ -4,12 +4,14 @@ import { useMemo, useState } from 'react'
 import { CalendarEvent } from '@/modules/calendar/server/repository'
 import { format, addDays, startOfWeek, isSameDay, getHours, getMinutes, parseISO } from 'date-fns'
 import { AlertCircle } from 'lucide-react'
+import { UnifiedDetailModal } from './unified-detail-modal'
 import { UnifiedCreationModal } from './unified-creation-modal'
 import { computeConflicts } from '@/modules/calendar/conflict'
 
 export function UnifiedCalendar({ 
   events, 
   currentDate, 
+  range = 'week',
   tenantId,
   tenantStaff,
   contacts,
@@ -17,6 +19,7 @@ export function UnifiedCalendar({
 }: { 
   events: CalendarEvent[], 
   currentDate: Date, 
+  range?: 'week' | 'day',
   tenantId: string,
   tenantStaff: any[],
   contacts: any[],
@@ -24,9 +27,14 @@ export function UnifiedCalendar({
 }) {
   const [modalOpen, setModalOpen] = useState(false)
   const [selectedSlot, setSelectedSlot] = useState<{ date: Date, hour?: number } | null>(null)
+  
+  const [detailModalOpen, setDetailModalOpen] = useState(false)
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null)
 
-  const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 })
-  const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i))
+  const days = range === 'week' 
+    ? Array.from({ length: 7 }, (_, i) => addDays(startOfWeek(currentDate, { weekStartsOn: 1 }), i))
+    : [currentDate]
+
   const hours = Array.from({ length: 14 }, (_, i) => i + 7) // 7am to 8pm
 
   // Separate all-day (tasks) and timed (jobs, appts)
@@ -43,10 +51,18 @@ export function UnifiedCalendar({
     setModalOpen(true)
   }
 
+  const handleEventClick = (e: React.MouseEvent, event: CalendarEvent) => {
+    e.stopPropagation() // Prevent slot click
+    setSelectedEvent(event)
+    setDetailModalOpen(true)
+  }
+
+  const gridColsClass = days.length === 1 ? 'grid-cols-2' : 'grid-cols-8'
+
   return (
     <div className="flex flex-col h-full bg-white text-sm relative">
       {/* Header */}
-      <div className="grid grid-cols-8 border-b border-slate-200">
+      <div className={`grid ${gridColsClass} border-b border-slate-200`}>
         <div className="w-16 border-r border-slate-200 p-2 text-center text-slate-500 font-medium shrink-0">Time</div>
         {days.map(day => (
           <div key={day.toISOString()} className="border-r border-slate-200 p-2 text-center">
@@ -58,13 +74,14 @@ export function UnifiedCalendar({
 
       <div className="flex-1 overflow-y-auto min-h-0">
         {/* All day section */}
-        <div className="grid grid-cols-8 border-b border-slate-200 bg-slate-50 relative z-10">
+        <div className={`grid ${gridColsClass} border-b border-slate-200 bg-slate-50 relative z-10`}>
           <div className="w-16 border-r border-slate-200 p-2 text-xs text-slate-500 flex items-center justify-center shrink-0">All Day</div>
           {days.map(day => (
             <div key={`allday-${day.toISOString()}`} className="border-r border-slate-200 p-1 min-h-[40px] relative">
               {allDayEvents.filter(e => isSameDay(parseISO(e.start_time), day)).map(e => (
                 <div 
                   key={e.id} 
+                  onClick={(event) => handleEventClick(event, e)}
                   className={`bg-slate-200 text-slate-800 border-slate-300 border rounded px-2 py-1 mb-1 text-xs truncate cursor-pointer hover:bg-slate-300 ${e.status === 'completed' ? 'line-through opacity-60' : ''}`}
                 >
                   {e.title}
@@ -76,7 +93,7 @@ export function UnifiedCalendar({
 
         {/* Timed grid */}
         <div className="relative min-w-[600px]" style={{ height: hours.length * 60 }}>
-          <div className="absolute inset-0 grid grid-cols-8">
+          <div className={`absolute inset-0 grid ${gridColsClass}`}>
             <div className="w-16 border-r border-slate-200 shrink-0">
               {hours.map(hour => (
                 <div key={hour} className="h-[60px] border-b border-slate-100 flex justify-end pr-2 py-1">
@@ -113,6 +130,7 @@ export function UnifiedCalendar({
                   return (
                     <div 
                       key={e.id}
+                      onClick={(event) => handleEventClick(event, e)}
                       className={`absolute left-1 right-1 border rounded px-2 py-1 overflow-hidden cursor-pointer flex flex-col transition-colors ${colorClass} ${conflictClass} ${e.status === 'completed' ? 'opacity-60 line-through' : ''}`}
                       style={{ top: `${top}px`, height: `${height}px` }}
                       title={e.title}
@@ -141,6 +159,14 @@ export function UnifiedCalendar({
         tenantStaff={tenantStaff}
         contacts={contacts}
         vehicles={vehicles}
+      />
+
+      <UnifiedDetailModal
+        event={selectedEvent}
+        isOpen={detailModalOpen}
+        onClose={() => { setDetailModalOpen(false); setSelectedEvent(null); }}
+        tenantStaff={tenantStaff}
+        contacts={contacts}
       />
     </div>
   )
