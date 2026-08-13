@@ -6,6 +6,7 @@ import { NotificationBell } from './components/notification-bell'
 import { AnnouncementBannerStack } from './components/announcement-banner-stack'
 import { getActiveAnnouncementsForTenant } from '@/modules/announcements/server/repository'
 import { isPastDueAccessExpired } from '@/modules/subscriptions/server/grace-period'
+import { getTenantSettings } from '@/modules/settings/branding/server/repository'
 
 export default async function OfficeLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -84,21 +85,33 @@ export default async function OfficeLayout({ children }: { children: React.React
       ? await getActiveAnnouncementsForTenant(supabase, { tenantId, planId, userId: user.id })
       : []
 
+  // Tenant-level UI theme (internal /office dashboard only — completely
+  // separate from tenant_settings.primary_color, which brands the
+  // customer-facing proposal pages and is never read here). Applied via the
+  // real .dark class selector already defined in globals.css
+  // (@custom-variant dark (&:is(.dark *))) — server-rendered directly onto
+  // the root wrapper below, so the correct theme paints on first response
+  // with no client-side toggle, no flash of the wrong theme, no reload
+  // logic to write.
+  const { data: tenantSettings } = await getTenantSettings(supabase, tenantId)
+  const isDarkTheme = tenantSettings?.ui_theme === 'dark'
+
   // 5. Layout Render
   return (
-    <div className="min-h-screen bg-slate-50 flex">
+    <div className={isDarkTheme ? 'dark' : undefined}>
+    <div className="min-h-screen bg-background flex">
       {/* Sidebar (Fixed) */}
-      <div className="fixed inset-y-0 left-0 w-64 bg-white border-r border-slate-200 flex flex-col shadow-sm z-50">
-        <div className="h-16 flex items-center px-6 border-b border-slate-100 shrink-0">
-          <Link href="/office" className="text-xl font-bold text-emerald-600">Gomove</Link>
+      <div className="fixed inset-y-0 left-0 w-64 bg-sidebar border-r border-sidebar-border flex flex-col shadow-sm z-50">
+        <div className="h-16 flex items-center px-6 border-b border-sidebar-border shrink-0">
+          <Link href="/office" className="text-xl font-bold text-emerald-600 dark:text-emerald-400">Gomove</Link>
         </div>
         <div className="flex-1 overflow-y-auto py-4 px-3">
           <SidebarNav role={role} />
         </div>
-        <div className="p-4 border-t border-slate-100 bg-slate-50/50 shrink-0">
-          <div className="text-sm font-medium text-slate-900 truncate" title={user.email}>{user.email}</div>
+        <div className="p-4 border-t border-sidebar-border bg-sidebar-accent/40 shrink-0">
+          <div className="text-sm font-medium text-sidebar-foreground truncate" title={user.email}>{user.email}</div>
           <form action="/auth/signout" method="POST" className="mt-2">
-            <button type="submit" className="text-xs font-medium text-slate-500 hover:text-red-600 transition-colors">Log Out</button>
+            <button type="submit" className="text-xs font-medium text-muted-foreground hover:text-red-600 dark:hover:text-red-400 transition-colors">Log Out</button>
           </form>
         </div>
       </div>
@@ -132,7 +145,7 @@ export default async function OfficeLayout({ children }: { children: React.React
         )}
 
         {/* Minimal Top Header */}
-        <header className="h-16 bg-white/80 backdrop-blur-sm border-b border-slate-200 flex items-center justify-end px-8 sticky top-0 z-40 shrink-0">
+        <header className="h-16 bg-background/80 backdrop-blur-sm border-b border-border flex items-center justify-end px-8 sticky top-0 z-40 shrink-0">
           <NotificationBell userId={user.id} />
         </header>
 
@@ -140,6 +153,7 @@ export default async function OfficeLayout({ children }: { children: React.React
           {children}
         </main>
       </div>
+    </div>
     </div>
   )
 }
