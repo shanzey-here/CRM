@@ -3,9 +3,10 @@ import { StatusDonut } from './status-donut'
 import { HorizontalBarChart } from './horizontal-bar-chart'
 import { GrowthCharts } from './growth-charts'
 import { GrowthRangeToggle } from './growth-range-toggle'
-import { QuotesBookingsChart } from './quotes-bookings-chart'
+import { QuotesBookingsChart } from '@/modules/analytics/components/quotes-bookings-chart'
 import { COUNT_COLOR, REVENUE_COLOR } from '@/modules/platform-analytics/colors'
-import type { StatusBreakdown, PlanDistributionEntry, GrowthPoint, RevenueByPlanEntry, QuoteBookingPoint } from '@/modules/platform-analytics/server/repository'
+import type { StatusBreakdown, PlanDistributionEntry, GrowthPoint, RevenueByPlanEntry } from '@/modules/platform-analytics/server/repository'
+import type { QuoteBookingPoint } from '@/modules/analytics/components/quotes-bookings-chart'
 import type { MrrResult } from '@/modules/platform-analytics/server/mrr'
 
 function formatGBP(n: number): string {
@@ -85,7 +86,7 @@ export function RevenueGrowthTab({
       <section>
         <h2 className="text-lg font-semibold text-slate-900 mb-4">Quotes &amp; bookings</h2>
         <div className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm">
-          <QuotesBookingsChart data={quotesBookingsData} />
+          <QuotesBookingsChart data={quotesBookingsData} countColor={COUNT_COLOR} revenueColor={REVENUE_COLOR} />
         </div>
         <p className="text-xs text-slate-400 mt-3">
           Every tenant&apos;s full history is included regardless of current status (active, trialing, suspended, or cancelled) — tenants and quotes are never deleted in this app.

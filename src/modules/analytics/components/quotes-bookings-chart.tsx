@@ -1,8 +1,12 @@
 'use client'
 
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList } from 'recharts'
-import { COUNT_COLOR, REVENUE_COLOR, CHART_CHROME } from '@/modules/platform-analytics/colors'
-import type { QuoteBookingPoint } from '@/modules/platform-analytics/server/repository'
+export type QuoteBookingPoint = {
+  period: string
+  quotesSent: number
+  confirmedBookings: number
+  conversionRate: number | null
+}
 
 function formatPercent(rate: number | null): string {
   return rate === null ? '—' : `${Math.round(rate * 100)}%`
@@ -15,7 +19,17 @@ function formatPercent(rate: number | null): string {
 // axis is honest here. Conversion rate is a third, different-scale quantity
 // (a percentage) — never plotted on the same axis, only shown as a direct
 // label per period.
-export function QuotesBookingsChart({ data }: { data: QuoteBookingPoint[] }) {
+export function QuotesBookingsChart({ 
+  data,
+  countColor = '#2563eb',
+  revenueColor = '#059669',
+  chartChrome = { grid: '#e2e8f0', axisText: '#64748b' }
+}: { 
+  data: QuoteBookingPoint[],
+  countColor?: string,
+  revenueColor?: string,
+  chartChrome?: { grid: string; axisText: string }
+}) {
   const hasAnyData = data.some((d) => d.quotesSent > 0 || d.confirmedBookings > 0)
 
   if (!hasAnyData) {
@@ -35,18 +49,18 @@ export function QuotesBookingsChart({ data }: { data: QuoteBookingPoint[] }) {
   return (
     <ResponsiveContainer width="100%" height={280}>
       <BarChart data={chartData} margin={{ top: 24, right: 8, bottom: 4, left: 0 }}>
-        <CartesianGrid vertical={false} stroke={CHART_CHROME.grid} />
-        <XAxis dataKey="period" tick={{ fill: CHART_CHROME.axisText, fontSize: 12 }} axisLine={{ stroke: CHART_CHROME.grid }} tickLine={false} />
-        <YAxis tick={{ fill: CHART_CHROME.axisText, fontSize: 12 }} axisLine={false} tickLine={false} allowDecimals={false} />
+        <CartesianGrid vertical={false} stroke={chartChrome.grid} />
+        <XAxis dataKey="period" tick={{ fill: chartChrome.axisText, fontSize: 12 }} axisLine={{ stroke: chartChrome.grid }} tickLine={false} />
+        <YAxis tick={{ fill: chartChrome.axisText, fontSize: 12 }} axisLine={false} tickLine={false} allowDecimals={false} />
         <Tooltip
           formatter={(value: number, name: string) => [`${value}`, name]}
           cursor={{ fill: 'rgba(0,0,0,0.03)' }}
         />
-        <Legend wrapperStyle={{ fontSize: 12, color: CHART_CHROME.axisText }} />
-        <Bar dataKey="quotesSent" name="Quotes sent" fill={COUNT_COLOR} radius={[4, 4, 0, 0]} maxBarSize={28} isAnimationActive={false}>
-          <LabelList dataKey="quotesSent" position="top" fontSize={11} fill={CHART_CHROME.axisText} formatter={(v: number) => (v > 0 ? v : '')} />
+        <Legend wrapperStyle={{ fontSize: 12, color: chartChrome.axisText }} />
+        <Bar dataKey="quotesSent" name="Quotes sent" fill={countColor} radius={[4, 4, 0, 0]} maxBarSize={28} isAnimationActive={false}>
+          <LabelList dataKey="quotesSent" position="top" fontSize={11} fill={chartChrome.axisText} formatter={(v: number) => (v > 0 ? v : '')} />
         </Bar>
-        <Bar dataKey="confirmedBookings" name="Confirmed bookings" fill={REVENUE_COLOR} radius={[4, 4, 0, 0]} maxBarSize={28} isAnimationActive={false}>
+        <Bar dataKey="confirmedBookings" name="Confirmed bookings" fill={revenueColor} radius={[4, 4, 0, 0]} maxBarSize={28} isAnimationActive={false}>
           <LabelList dataKey="conversionRateLabel" position="top" fontSize={11} fill="#0b0b0b" fontWeight={600} />
         </Bar>
       </BarChart>
