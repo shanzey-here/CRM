@@ -17,12 +17,12 @@ export const dynamic = 'force-dynamic'
 
 function WidgetSkeleton() {
   return (
-    <div className="p-4 bg-white rounded-lg border border-slate-200 shadow-sm animate-pulse h-48">
-      <div className="h-4 bg-slate-200 rounded w-1/3 mb-4"></div>
+    <div className="p-4 bg-card rounded-lg border border-border shadow-sm animate-pulse h-48">
+      <div className="h-4 bg-muted rounded w-1/3 mb-4"></div>
       <div className="space-y-3">
-        <div className="h-3 bg-slate-100 rounded w-full"></div>
-        <div className="h-3 bg-slate-100 rounded w-5/6"></div>
-        <div className="h-3 bg-slate-100 rounded w-4/6"></div>
+        <div className="h-3 bg-muted/60 rounded w-full"></div>
+        <div className="h-3 bg-muted/60 rounded w-5/6"></div>
+        <div className="h-3 bg-muted/60 rounded w-4/6"></div>
       </div>
     </div>
   )
@@ -35,19 +35,19 @@ async function UpcomingMovesWidget({ tenantId, adminSupabase }: { tenantId: stri
 
   if (!success) return <WidgetError message={error || 'Unknown error'} />
   if (!jobs || jobs.length === 0) {
-    return <div className="text-sm text-slate-500">No upcoming moves scheduled.</div>
+    return <div className="text-sm text-muted-foreground">No upcoming moves scheduled.</div>
   }
 
   return (
     <div className="space-y-3">
       {jobs.map((job) => (
-        <div key={job.id} className="flex justify-between items-center text-sm border-b border-slate-100 pb-2 last:border-0">
+        <div key={job.id} className="flex justify-between items-center text-sm border-b border-border pb-2 last:border-0">
           <div>
-            <p className="font-medium text-slate-900">{job.contact?.first_name} {job.contact?.last_name}</p>
-            <p className="text-xs text-slate-500">Status: {job.status}</p>
+            <p className="font-medium text-foreground">{job.contact?.first_name} {job.contact?.last_name}</p>
+            <p className="text-xs text-muted-foreground">Status: {job.status}</p>
           </div>
           <div className="text-right">
-            <span className="bg-slate-100 text-slate-700 text-xs px-2.5 py-0.5 rounded-md font-medium">
+            <span className="bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 text-xs px-2.5 py-0.5 rounded-md font-medium">
               {job.move_date ? format(new Date(job.move_date), 'MMM d, yyyy') : 'TBD'}
             </span>
           </div>
@@ -62,18 +62,18 @@ async function TasksWidget({ tenantId, adminSupabase }: { tenantId: string, admi
 
   if (!success) return <WidgetError message={error || 'Unknown error'} />
   if (!tasks || tasks.length === 0) {
-    return <div className="text-sm text-slate-500">No pending tasks. You're all caught up!</div>
+    return <div className="text-sm text-muted-foreground">No pending tasks. You're all caught up!</div>
   }
 
   return (
     <div className="space-y-3">
       {tasks.map((task) => (
-        <div key={task.id} className="flex justify-between items-center text-sm border-b border-slate-100 pb-2 last:border-0">
+        <div key={task.id} className="flex justify-between items-center text-sm border-b border-border pb-2 last:border-0">
           <div>
-            <p className="font-medium text-slate-900">{task.title}</p>
-            {task.due_date && <p className="text-xs text-slate-500">Due: {format(new Date(task.due_date), 'MMM d')}</p>}
+            <p className="font-medium text-foreground">{task.title}</p>
+            {task.due_date && <p className="text-xs text-muted-foreground">Due: {format(new Date(task.due_date), 'MMM d')}</p>}
           </div>
-          <span className="bg-amber-50 text-amber-700 border border-amber-200 text-xs px-2.5 py-0.5 rounded-md font-medium">
+          <span className="bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950 dark:text-amber-400 dark:border-amber-900 text-xs px-2.5 py-0.5 rounded-md font-medium">
             {task.status}
           </span>
         </div>
@@ -87,24 +87,24 @@ async function LeadsFollowUpWidget({ tenantId, adminSupabase }: { tenantId: stri
 
   if (!success) return <WidgetError message={error || 'Unknown error'} />
   if (!leads || leads.length === 0) {
-    return <div className="text-sm text-slate-500">No leads need immediate follow-up.</div>
+    return <div className="text-sm text-muted-foreground">No leads need immediate follow-up.</div>
   }
 
   return (
     <div className="space-y-3">
       {leads.map((lead) => (
-        <div key={lead.id} className="flex justify-between items-center text-sm border-b border-slate-100 pb-2 last:border-0">
+        <div key={lead.id} className="flex justify-between items-center text-sm border-b border-border pb-2 last:border-0">
           <div>
-            <p className="font-medium text-slate-900">{lead.contact?.first_name} {lead.contact?.last_name}</p>
-            <p className="text-xs text-slate-500">Updated: {format(new Date(lead.updated_at), 'MMM d')}</p>
+            <p className="font-medium text-foreground">{lead.contact?.first_name} {lead.contact?.last_name}</p>
+            <p className="text-xs text-muted-foreground">Updated: {format(new Date(lead.updated_at), 'MMM d')}</p>
           </div>
           <div className="flex gap-2 items-center">
             {lead.source && (
-              <span className="bg-slate-50 text-slate-700 border border-slate-200 text-xs px-2.5 py-0.5 rounded-md font-medium capitalize">
+              <span className="bg-slate-50 text-slate-700 border border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 text-xs px-2.5 py-0.5 rounded-md font-medium capitalize">
                 {lead.source.replace(/_/g, ' ')}
               </span>
             )}
-            <span className="bg-blue-50 text-blue-700 border border-blue-200 text-xs px-2.5 py-0.5 rounded-md font-medium">
+            <span className="bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950 dark:text-blue-400 dark:border-blue-900 text-xs px-2.5 py-0.5 rounded-md font-medium">
               {lead.stage}
             </span>
           </div>
@@ -123,18 +123,18 @@ async function OutstandingInvoicesWidget({ tenantId, adminSupabase }: { tenantId
   const displayInvoices = invoices?.slice(0, 5) || []
 
   if (displayInvoices.length === 0) {
-    return <div className="text-sm text-slate-500">No outstanding invoices!</div>
+    return <div className="text-sm text-muted-foreground">No outstanding invoices!</div>
   }
 
   return (
     <div className="space-y-3">
       {displayInvoices.map((inv) => (
-        <Link key={inv.id} href={`/office/invoices/${inv.id}`} className="flex justify-between items-center text-sm border-b border-slate-100 pb-2 last:border-0 hover:bg-slate-50 transition-colors p-2 -mx-2 rounded">
+        <Link key={inv.id} href={`/office/invoices/${inv.id}`} className="flex justify-between items-center text-sm border-b border-border pb-2 last:border-0 hover:bg-muted transition-colors p-2 -mx-2 rounded">
           <div>
-            <p className="font-medium text-slate-900">{inv.job?.contact?.first_name} {inv.job?.contact?.last_name}</p>
-            <p className="text-xs text-slate-500">Due: {inv.due_date ? format(new Date(inv.due_date), 'MMM d') : 'N/A'}</p>
+            <p className="font-medium text-foreground">{inv.job?.contact?.first_name} {inv.job?.contact?.last_name}</p>
+            <p className="text-xs text-muted-foreground">Due: {inv.due_date ? format(new Date(inv.due_date), 'MMM d') : 'N/A'}</p>
           </div>
-          <div className="text-right font-semibold text-slate-900">
+          <div className="text-right font-semibold text-foreground">
             £{Number(inv.total).toFixed(2)}
           </div>
         </Link>
@@ -179,40 +179,40 @@ export default async function OfficeDashboard() {
   return (
     <div className="relative">
       {/* Subtle Gradient Mesh for Header Only */}
-      <div className="absolute inset-x-0 top-0 h-[300px] -z-10 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-blue-100/40 via-white to-transparent pointer-events-none" />
+      <div className="absolute inset-x-0 top-0 h-[300px] -z-10 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-blue-100/40 dark:from-blue-950/20 via-background to-transparent pointer-events-none" />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 relative z-10">
         {showOnboardingReminder && <OnboardingReminderBanner />}
         
         <div className="mb-2">
-          <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
-          <p className="text-slate-500 text-sm mt-1">Overview of your operations and pending actions. (RLS Bypass Active)</p>
+          <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
+          <p className="text-muted-foreground text-sm mt-1">Overview of your operations and pending actions. (RLS Bypass Active)</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <MotionCard index={0} className="p-5 shadow-sm border border-slate-200 bg-white ring-0">
-            <h2 className="text-lg font-semibold text-slate-900 mb-4 border-b border-slate-100 pb-2">Upcoming Moves</h2>
+          <MotionCard index={0} className="p-5 shadow-sm border border-border bg-card ring-0">
+            <h2 className="text-lg font-semibold text-foreground mb-4 border-b border-border pb-2">Upcoming Moves</h2>
             <Suspense fallback={<WidgetSkeleton />}>
               <UpcomingMovesWidget tenantId={tenantId} adminSupabase={adminSupabase} />
             </Suspense>
           </MotionCard>
 
-          <MotionCard index={1} className="p-5 shadow-sm border border-slate-200 bg-white ring-0">
-            <h2 className="text-lg font-semibold text-slate-900 mb-4 border-b border-slate-100 pb-2">My Pending Tasks</h2>
+          <MotionCard index={1} className="p-5 shadow-sm border border-border bg-card ring-0">
+            <h2 className="text-lg font-semibold text-foreground mb-4 border-b border-border pb-2">My Pending Tasks</h2>
             <Suspense fallback={<WidgetSkeleton />}>
               <TasksWidget tenantId={tenantId} adminSupabase={adminSupabase} />
             </Suspense>
           </MotionCard>
 
-          <MotionCard index={2} className="p-5 shadow-sm border border-slate-200 bg-white ring-0">
-            <h2 className="text-lg font-semibold text-slate-900 mb-4 border-b border-slate-100 pb-2">Leads to Follow Up</h2>
+          <MotionCard index={2} className="p-5 shadow-sm border border-border bg-card ring-0">
+            <h2 className="text-lg font-semibold text-foreground mb-4 border-b border-border pb-2">Leads to Follow Up</h2>
             <Suspense fallback={<WidgetSkeleton />}>
               <LeadsFollowUpWidget tenantId={tenantId} adminSupabase={adminSupabase} />
             </Suspense>
           </MotionCard>
 
-          <MotionCard index={3} className="p-5 shadow-sm border border-slate-200 bg-white ring-0">
-            <h2 className="text-lg font-semibold text-slate-900 mb-4 border-b border-slate-100 pb-2">Outstanding Invoices</h2>
+          <MotionCard index={3} className="p-5 shadow-sm border border-border bg-card ring-0">
+            <h2 className="text-lg font-semibold text-foreground mb-4 border-b border-border pb-2">Outstanding Invoices</h2>
             <Suspense fallback={<WidgetSkeleton />}>
               <OutstandingInvoicesWidget tenantId={tenantId} adminSupabase={adminSupabase} />
             </Suspense>

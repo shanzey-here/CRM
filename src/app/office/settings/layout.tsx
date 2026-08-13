@@ -26,6 +26,7 @@ export default function SettingsLayout({
   const navItems = [
     { name: 'Inventory Catalog', href: '/office/settings/inventory' },
     { name: 'Branding', href: '/office/settings/branding' },
+    { name: 'Appearance', href: '/office/settings/appearance' },
     { name: 'Pricing', href: '/office/settings/pricing' },
     { name: 'Invoice Template', href: '/office/settings/invoice-template' },
     ...(isTenantAdmin ? [{ name: 'Staff', href: '/office/settings/staff' }] : []),
@@ -38,7 +39,7 @@ export default function SettingsLayout({
 
   return (
     <div className="mx-auto max-w-7xl lg:flex lg:gap-x-16 lg:px-8">
-      <aside className="flex overflow-x-auto border-b border-slate-900/5 py-4 lg:block lg:w-64 lg:flex-none lg:border-0 lg:py-20">
+      <aside className="flex overflow-x-auto border-b border-border py-4 lg:block lg:w-64 lg:flex-none lg:border-0 lg:py-20">
         <nav className="flex-none px-4 sm:px-6 lg:px-0">
           <ul role="list" className="flex gap-x-3 gap-y-1 whitespace-nowrap lg:flex-col">
             {navItems.map((item) => {
@@ -49,8 +50,8 @@ export default function SettingsLayout({
                     href={item.href}
                     className={cn(
                       isActive
-                        ? 'bg-blue-50 text-[var(--color-primary)]'
-                        : 'text-slate-700 hover:bg-slate-50 hover:text-[var(--color-primary)]',
+                        ? 'bg-blue-50 dark:bg-blue-950 text-[var(--color-primary)]'
+                        : 'text-foreground/80 hover:bg-muted hover:text-[var(--color-primary)]',
                       'group flex gap-x-3 rounded-md py-2 pl-2 pr-3 text-sm leading-6 font-semibold'
                     )}
                   >

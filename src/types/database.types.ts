@@ -3148,6 +3148,7 @@ export type Database = {
           social_aggregator_profile_id: string | null
           tenant_id: string
           terms_template: string | null
+          ui_theme: Database["public"]["Enums"]["ui_theme"]
           updated_at: string | null
           vat_number: string | null
           website: string | null
@@ -3173,6 +3174,7 @@ export type Database = {
           social_aggregator_profile_id?: string | null
           tenant_id: string
           terms_template?: string | null
+          ui_theme?: Database["public"]["Enums"]["ui_theme"]
           updated_at?: string | null
           vat_number?: string | null
           website?: string | null
@@ -3198,6 +3200,7 @@ export type Database = {
           social_aggregator_profile_id?: string | null
           tenant_id?: string
           terms_template?: string | null
+          ui_theme?: Database["public"]["Enums"]["ui_theme"]
           updated_at?: string | null
           vat_number?: string | null
           website?: string | null
@@ -3869,6 +3872,7 @@ export type Database = {
         | "past_due"
         | "suspended"
         | "cancelled"
+      ui_theme: "default" | "dark"
       vehicle_document_type:
         | "insurance"
         | "mot"
@@ -4111,6 +4115,7 @@ export const Constants = {
         "suspended",
         "cancelled",
       ],
+      ui_theme: ["default", "dark"],
       vehicle_document_type: [
         "insurance",
         "mot",
