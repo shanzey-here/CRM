@@ -36,6 +36,14 @@ const COLUMN_LABELS: Record<string, string> = {
   amount: 'Amount',
 }
 
+// Real Tailwind height classes, not arbitrary — 'medium' (h-12/48px)
+// matches the fixed size every template used before logoSize existed.
+const LOGO_SIZE_CLASSES: Record<string, string> = {
+  small: 'h-8',
+  medium: 'h-12',
+  large: 'h-16',
+}
+
 const JOB_STATUS_LABELS: Record<string, string> = {
   scheduled: 'Scheduled',
   in_progress: 'In Progress',
@@ -80,7 +88,11 @@ function InvoiceBlock({
         >
           {block.config.showLogo && brand.logo_url && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={brand.logo_url} alt="" className="h-12 w-auto object-contain" />
+            <img
+              src={brand.logo_url}
+              alt=""
+              className={`${LOGO_SIZE_CLASSES[block.config.logoSize] || LOGO_SIZE_CLASSES.medium} w-auto object-contain`}
+            />
           )}
           <div>
             <p className="font-bold text-lg">{brand.name || 'Your Company'}</p>

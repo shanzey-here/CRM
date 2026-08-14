@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { brandFormSchema, BrandFormInput } from '@/modules/settings/brands/schemas'
 import { createBrandAction, updateBrandAction } from '../actions'
 import { Brand } from '@/modules/settings/brands/server/repository'
+import { uploadLogoFile } from '@/lib/upload-logo'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
@@ -44,14 +45,55 @@ export function BrandForm({ brand }: { brand?: Brand }) {
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
 
+  const [logoPreview, setLogoPreview] = useState<string | null>(brand?.logo_url || null)
+  const [logoUploading, setLogoUploading] = useState(false)
+
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<BrandFormInput>({
     resolver: zodResolver(brandFormSchema),
     defaultValues: toDefaults(brand),
   })
+
+  // Same real upload mechanism Branding uses (uploadLogoFile, same
+  // tenant-logos bucket) — for a new brand (no id yet) this stages the
+  // uploaded URL into the form and it's persisted on "Create Brand" below,
+  // rather than writing to a row that doesn't exist yet.
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = (event) => setLogoPreview(event.target?.result as string)
+    reader.readAsDataURL(file)
+
+    setLogoUploading(true)
+    setError(null)
+    try {
+      const supabase = (await import('@/lib/supabase/client')).createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+      const tenantId = session?.user?.app_metadata?.tenant_id
+      if (!tenantId) {
+        setError('No tenant context in your session')
+        return
+      }
+
+      const result = await uploadLogoFile(file, tenantId, brand?.id || `new-${Date.now()}`)
+      if ('error' in result) {
+        setError(result.error)
+        return
+      }
+      setLogoPreview(result.publicUrl)
+      setValue('logo_url', result.publicUrl)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Upload failed')
+    } finally {
+      setLogoUploading(false)
+    }
+  }
 
   const onSubmit = (data: BrandFormInput) => {
     startTransition(async () => {
@@ -107,8 +149,23 @@ export function BrandForm({ brand }: { brand?: Brand }) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="logo_url">Logo URL</Label>
-            <Input id="logo_url" {...register('logo_url')} placeholder="https://.../logo.png" />
+            <Label htmlFor="logo_upload">Logo</Label>
+            <div className="flex flex-col gap-3">
+              <input
+                id="logo_upload"
+                type="file"
+                accept="image/*"
+                onChange={handleLogoUpload}
+                disabled={logoUploading}
+                className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
+              />
+              {logoPreview && (
+                <div className="w-24 h-24 bg-slate-100 rounded flex items-center justify-center overflow-hidden">
+                  <img src={logoPreview} alt="Logo preview" className="w-full h-full object-contain" />
+                </div>
+              )}
+            </div>
+            <input type="hidden" {...register('logo_url')} />
             {errors.logo_url && <p className="text-sm text-red-500">{errors.logo_url.message}</p>}
           </div>
 

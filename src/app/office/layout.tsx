@@ -117,7 +117,7 @@ export default async function OfficeLayout({ children }: { children: React.React
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 ml-64 flex flex-col min-h-screen">
+      <div className="flex-1 ml-64 flex flex-col min-h-screen min-w-0">
         {/* Global Banners */}
         {role === 'tenant_admin' && activeAnnouncements.length > 0 && (
           <AnnouncementBannerStack
@@ -149,7 +149,7 @@ export default async function OfficeLayout({ children }: { children: React.React
           <NotificationBell userId={user.id} />
         </header>
 
-        <main className="flex-1">
+        <main className="flex-1 min-w-0">
           {children}
         </main>
       </div>

@@ -54,16 +54,20 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
               }))}
             />
           )}
-          <Button variant="outline" asChild>
-            <Link href={`/customer/invoices/${invoice.id}`} target="_blank">
-              View Customer Portal
-            </Link>
+          <Button
+            variant="outline"
+            nativeButton={false}
+            render={<Link href={`/customer/invoices/${invoice.id}`} target="_blank" />}
+          >
+            View Customer Portal
           </Button>
-          <Button asChild className="bg-emerald-600 hover:bg-emerald-700">
-            <Link href={`/print/invoices/${invoice.id}`} target="_blank">
-              <Printer className="mr-2 h-4 w-4" />
-              Print / Download PDF
-            </Link>
+          <Button
+            className="bg-emerald-600 hover:bg-emerald-700"
+            nativeButton={false}
+            render={<Link href={`/print/invoices/${invoice.id}`} target="_blank" />}
+          >
+            <Printer className="mr-2 h-4 w-4" />
+            Print / Download PDF
           </Button>
         </div>
       </div>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -13,7 +14,7 @@ import {
 } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { GripVertical, Plus, X } from 'lucide-react'
+import { GripVertical, Plus, X, ExternalLink } from 'lucide-react'
 import { invoiceTemplateSchema, InvoiceTemplateInput, InvoiceLayoutBlock } from '@/modules/settings/invoice-template/schemas'
 import { updateInvoiceTemplateAction } from '../actions'
 import { InvoiceRenderer } from '@/components/invoice/invoice-renderer'
@@ -44,7 +45,7 @@ const BLOCK_LABELS: Record<InvoiceLayoutBlock['type'], string> = {
 function defaultBlockFor(type: InvoiceLayoutBlock['type']): InvoiceLayoutBlock {
   switch (type) {
     case 'header':
-      return { type: 'header', config: { showLogo: true, alignment: 'left' } }
+      return { type: 'header', config: { showLogo: true, alignment: 'left', logoSize: 'medium' } }
     case 'line_items_table':
       return { type: 'line_items_table', config: { columns: ['description', 'quantity', 'unit_price', 'amount'] } }
     case 'totals_summary':
@@ -142,9 +143,9 @@ export function TemplateEditor({ template, brand, brands }: Props) {
         </div>
       )}
 
-      <div className="flex flex-col lg:flex-row gap-8 items-start">
+      <div className="flex flex-col xl:flex-row gap-8 items-start">
         {/* Editor */}
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 w-full lg:w-[400px] lg:flex-none">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 w-full xl:w-[400px] xl:flex-none">
           {error && <div className="p-4 bg-red-50 border border-red-200 rounded text-red-700 text-sm">{error}</div>}
           {success && <div className="p-4 bg-green-50 border border-green-200 rounded text-green-700 text-sm">Invoice template updated successfully</div>}
 
@@ -168,7 +169,7 @@ export function TemplateEditor({ template, brand, brands }: Props) {
             {fields.length === 0 ? (
               <p className="text-sm text-slate-500 py-4">No blocks yet — add one above.</p>
             ) : (
-              <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+              <DndContext id="invoice-template-blocks" sensors={sensors} onDragEnd={handleDragEnd}>
                 <SortableContext items={fields.map((f) => f.id)} strategy={verticalListSortingStrategy}>
                   <div className="space-y-2">
                     {fields.map((field, index) => (
@@ -200,10 +201,22 @@ export function TemplateEditor({ template, brand, brands }: Props) {
             scrolling frame, so it's never squeezed into a narrow column and
             never clips content — this is what the /print route and the
             downloaded PDF will actually look like, not an approximation. */}
-        <div className="w-full lg:flex-1 min-w-0">
-          <h3 className="text-lg font-semibold text-slate-900 mb-3">Live Preview</h3>
-          <p className="text-xs text-slate-400 mb-3">Using sample placeholder data with this brand's real identity — not a real invoice.</p>
-          <div className="border border-slate-200 rounded-lg shadow-sm overflow-auto max-h-[85vh] bg-slate-100 p-6">
+        <div className="w-full xl:flex-1 min-w-0">
+          <div className="flex items-center justify-between mb-3 gap-3 flex-wrap">
+            <h3 className="text-lg font-semibold text-slate-900">Live Preview</h3>
+            <Link
+              href={`/print/invoice-template-preview?brand=${brand.id}`}
+              target="_blank"
+              className="inline-flex items-center gap-1.5 text-sm text-emerald-700 hover:text-emerald-800 hover:underline"
+            >
+              <ExternalLink size={14} />
+              Open full preview
+            </Link>
+          </div>
+          <p className="text-xs text-slate-400 mb-3">
+            Using sample placeholder data with this brand's real identity — not a real invoice. Save your changes to see them in the full preview.
+          </p>
+          <div className="w-full max-w-full min-w-0 border border-slate-200 rounded-lg shadow-sm overflow-auto max-h-[85vh] bg-slate-100 p-6">
             <div className="mx-auto bg-white shadow" style={{ width: '794px', minHeight: '1123px', padding: '48px' }}>
               <InvoiceRenderer
                 blocks={(watchedBlocks || []) as InvoiceLayoutBlock[]}
@@ -277,6 +290,18 @@ function BlockConfigForm({ block, onChange }: { block: InvoiceLayoutBlock; onCha
               <option value="left">Left</option>
               <option value="center">Center</option>
               <option value="right">Right</option>
+            </select>
+          </label>
+          <label className="flex items-center gap-1">
+            Logo size:
+            <select
+              value={block.config.logoSize ?? 'medium'}
+              onChange={(e) => onChange({ ...block, config: { ...block.config, logoSize: e.target.value as 'small' | 'medium' | 'large' } })}
+              className="border border-slate-300 rounded px-1 py-0.5"
+            >
+              <option value="small">Small</option>
+              <option value="medium">Medium</option>
+              <option value="large">Large</option>
             </select>
           </label>
         </div>

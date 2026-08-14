@@ -10,6 +10,7 @@ export const brandIdentitySchema = z.object({
   logo_url: z.string().nullable(),
   email: z.string().nullable(),
   phone: z.string().nullable(),
+  website: z.string().nullable(),
   address_line_1: z.string().nullable(),
   address_line_2: z.string().nullable(),
   address_city: z.string().nullable(),

@@ -2,12 +2,13 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
-import { tenantSettingsSchema } from '@/modules/settings/branding/schemas'
+import { primaryColorSchema } from '@/modules/settings/branding/schemas'
 import { pricingSettingsSchema } from '@/modules/settings/pricing/schemas'
 import {
   updateTenantSettings,
 } from '@/modules/settings/branding/server/repository'
 import { updatePricingSettings } from '@/modules/settings/pricing/server/repository'
+import { getDefaultBrandId, updateBrand, getBrandById } from '@/modules/settings/brands/server/repository'
 
 /**
  * Wizard-specific branding action.
@@ -43,23 +44,45 @@ export async function updateBrandingWizardAction(input: {
     throw new Error('Forbidden')
   }
 
-  const parsed = tenantSettingsSchema.safeParse({
-    company_legal_name: input.company_legal_name || null,
-    primary_color: input.primary_color || '#1a56db',
-  })
-
-  if (!parsed.success) {
-    throw new Error(
-      `Invalid branding input: ${JSON.stringify(parsed.error.flatten())}`
-    )
+  const parsedColor = primaryColorSchema.safeParse({ primary_color: input.primary_color || '#1a56db' })
+  if (!parsedColor.success) {
+    throw new Error(`Invalid branding input: ${JSON.stringify(parsedColor.error.flatten())}`)
   }
 
-  const { error } = await updateTenantSettings(supabase, tenantId, parsed.data)
+  const { error } = await updateTenantSettings(supabase, tenantId, parsedColor.data)
   if (error) {
     throw new Error(`Database error: ${error.message}`)
   }
 
+  // company_legal_name is brand identity now — write it to the tenant's
+  // default brand (auto-created at signup) rather than tenant_settings, so
+  // what the tenant enters at onboarding is the same data Brands/invoices
+  // actually read from later.
+  if (input.company_legal_name) {
+    const defaultBrandId = await getDefaultBrandId(supabase, tenantId)
+    if (defaultBrandId) {
+      const { data: existingBrand } = await getBrandById(supabase, tenantId, defaultBrandId)
+      await updateBrand(supabase, tenantId, defaultBrandId, {
+        name: input.company_legal_name,
+        logo_url: existingBrand?.logo_url ?? null,
+        email: existingBrand?.email ?? null,
+        phone: existingBrand?.phone ?? null,
+        website: existingBrand?.website ?? null,
+        address_line_1: existingBrand?.address_line_1 ?? null,
+        address_line_2: existingBrand?.address_line_2 ?? null,
+        address_city: existingBrand?.address_city ?? null,
+        address_county: existingBrand?.address_county ?? null,
+        address_postcode: existingBrand?.address_postcode ?? null,
+        address_country: existingBrand?.address_country ?? null,
+        vat_number: existingBrand?.vat_number ?? null,
+        bank_details: existingBrand?.bank_details ?? null,
+        terms_text: existingBrand?.terms_text ?? null,
+      })
+    }
+  }
+
   revalidatePath('/office/settings/branding')
+  revalidatePath('/office/settings/brands')
 }
 
 /**

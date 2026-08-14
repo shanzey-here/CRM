@@ -443,6 +443,7 @@ export type Database = {
           terms_text: string | null
           updated_at: string | null
           vat_number: string | null
+          website: string | null
         }
         Insert: {
           address_city?: string | null
@@ -464,6 +465,7 @@ export type Database = {
           terms_text?: string | null
           updated_at?: string | null
           vat_number?: string | null
+          website?: string | null
         }
         Update: {
           address_city?: string | null
@@ -485,6 +487,7 @@ export type Database = {
           terms_text?: string | null
           updated_at?: string | null
           vat_number?: string | null
+          website?: string | null
         }
         Relationships: [
           {

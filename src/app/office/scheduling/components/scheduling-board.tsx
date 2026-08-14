@@ -127,7 +127,7 @@ export function SchedulingBoard({ date, vehicles, crew, jobs }: { date: string, 
 
       {/* Main Content */}
       <div className="flex flex-1 overflow-hidden">
-        <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+        <DndContext id="scheduling-dispatch-board" onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
           
           {/* Left Panel: Unassigned Jobs */}
           <div className="w-80 flex-none border-r bg-slate-50 flex flex-col">

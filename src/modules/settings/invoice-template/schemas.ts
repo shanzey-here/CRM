@@ -12,12 +12,21 @@ import { z } from 'zod'
 // default, which would quietly mask exactly the mistake this schema exists
 // to prevent.
 
+// 'medium' matches the fixed size every template used before this field
+// existed (h-12 / 48px) — existing saved templates have no logoSize key at
+// all, so both the zod default here (new saves) and the renderer's runtime
+// fallback (old saved JSON, never re-validated through this schema) must
+// independently resolve missing to 'medium', or an old template's logo
+// would silently shift size the first time it's viewed after this change.
+const logoSizeEnum = z.enum(['small', 'medium', 'large'])
+
 const headerBlockSchema = z.object({
   type: z.literal('header'),
   config: z
     .object({
       showLogo: z.boolean().default(true),
       alignment: z.enum(['left', 'center', 'right']).default('left'),
+      logoSize: logoSizeEnum.default('medium'),
     })
     .strict(),
 })
