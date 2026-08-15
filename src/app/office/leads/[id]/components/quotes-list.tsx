@@ -6,8 +6,9 @@ import { Button } from '@/components/ui/button'
 import { FileText, Plus, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import { createQuoteAction } from '../../../quotes/actions'
-import { useTransition } from 'react'
+import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { formatZodIssues } from '@/lib/format-zod-error'
 
 type Quote = {
   id: string
@@ -20,22 +21,26 @@ type Quote = {
 export function QuotesList({
   leadId,
   contactId,
+  brandId,
   quotes,
 }: {
   leadId: string
   contactId: string
+  brandId: string
   quotes: Quote[]
 }) {
   const [isPending, startTransition] = useTransition()
+  const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
   const handleCreateQuote = () => {
+    setError(null)
     startTransition(async () => {
-      const result = await createQuoteAction({ lead_id: leadId, contact_id: contactId })
+      const result = await createQuoteAction({ lead_id: leadId, contact_id: contactId, brand_id: brandId })
       if (result.success && result.quoteId) {
         router.push(`/office/quotes/${result.quoteId}`)
       } else {
-        alert(result.error || 'Failed to create quote')
+        setError('details' in result && result.details ? formatZodIssues(result.details) : result.error || 'Failed to create quote')
       }
     })
   }
@@ -53,6 +58,11 @@ export function QuotesList({
           <Plus className="h-4 w-4 mr-1" /> New Quote
         </Button>
       </CardHeader>
+      {error && (
+        <div className="mx-4 mt-4 p-3 text-sm bg-red-50 border border-red-200 text-red-600 rounded-md">
+          {error}
+        </div>
+      )}
       <CardContent className="pt-4 p-0">
         {quotes && quotes.length > 0 ? (
           <div className="divide-y divide-slate-100">

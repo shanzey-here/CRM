@@ -51,6 +51,49 @@ const JOB_STATUS_LABELS: Record<string, string> = {
   cancelled: 'Cancelled',
 }
 
+// Real, non-financial fields a Custom Field block can display — the exact
+// same 13-key allow-list the schema's z.enum() restricts config.fieldKey
+// to. Every value here is read from data already in this render pipeline
+// (invoice/job/contact) — no new fetch, no invented figure.
+export const CUSTOM_FIELD_LABELS: Record<string, string> = {
+  invoice_number: 'Invoice Number',
+  invoice_status: 'Invoice Status',
+  issued_date: 'Issue Date',
+  due_date: 'Due Date',
+  move_date: 'Move Date',
+  job_status: 'Job Status',
+  customer_name: 'Customer Name',
+  customer_email: 'Customer Email',
+  customer_phone: 'Customer Phone',
+  customer_company: 'Customer Company',
+  origin_address: 'Origin Address',
+  destination_address: 'Destination Address',
+  job_notes: 'Move Notes',
+}
+
+function resolveCustomFieldValue(
+  fieldKey: string,
+  invoice: InvoiceWithDetails,
+  contact: Contact
+): string {
+  switch (fieldKey) {
+    case 'invoice_number': return invoice.invoice_number || invoice.id.slice(0, 8)
+    case 'invoice_status': return invoice.status
+    case 'issued_date': return formatDate(invoice.issued_at)
+    case 'due_date': return formatDate(invoice.due_date)
+    case 'move_date': return formatDate(invoice.job?.move_date ?? null)
+    case 'job_status': return invoice.job?.status ? (JOB_STATUS_LABELS[invoice.job.status] || invoice.job.status) : '—'
+    case 'customer_name': return `${contact.first_name} ${contact.last_name || ''}`.trim()
+    case 'customer_email': return contact.email || '—'
+    case 'customer_phone': return contact.phone || '—'
+    case 'customer_company': return contact.company_name || '—'
+    case 'origin_address': return formatAddress(invoice.job?.origin_address ?? null) || '—'
+    case 'destination_address': return formatAddress(invoice.job?.destination_address ?? null) || '—'
+    case 'job_notes': return invoice.job?.customer_notes || '—'
+    default: return '—'
+  }
+}
+
 // Pure presentational component — no data fetching of any kind. Every
 // figure it renders comes from the invoice/brand/contact objects it's
 // handed; it never reads a number out of a block's own config, because no
@@ -96,14 +139,18 @@ function InvoiceBlock({
           )}
           <div>
             <p className="font-bold text-lg">{brand.name || 'Your Company'}</p>
-            {brand.address_line_1 && <p className="text-slate-500">{brand.address_line_1}</p>}
-            {brand.address_city && (
-              <p className="text-slate-500">
-                {brand.address_city}
-                {brand.address_postcode ? `, ${brand.address_postcode}` : ''}
-              </p>
+            {block.config.showAddress !== false && (
+              <>
+                {brand.address_line_1 && <p className="text-slate-500">{brand.address_line_1}</p>}
+                {brand.address_city && (
+                  <p className="text-slate-500">
+                    {brand.address_city}
+                    {brand.address_postcode ? `, ${brand.address_postcode}` : ''}
+                  </p>
+                )}
+              </>
             )}
-            {brand.vat_number && <p className="text-slate-500">VAT: {brand.vat_number}</p>}
+            {block.config.showVatNumber !== false && brand.vat_number && <p className="text-slate-500">VAT: {brand.vat_number}</p>}
           </div>
           <div className="ml-auto text-right">
             <p className="font-semibold">Invoice {invoice.invoice_number || invoice.id.slice(0, 8)}</p>
@@ -200,19 +247,32 @@ function InvoiceBlock({
       return <div style={{ height: block.config.heightPx }} />
 
     case 'location_details': {
-      if (!block.config.show) return null
+      // Backward compat: pre-existing saved blocks have a single legacy
+      // `show` key (no per-field keys at all). Only an explicit `show:
+      // false` there hides the whole block, matching old behavior exactly;
+      // otherwise each of the four real fields defaults to visible unless
+      // explicitly toggled off under the new per-field shape.
+      const cfg = block.config as unknown as Record<string, boolean | undefined>
+      if (cfg.show === false) return null
       const job = invoice.job
       if (!job) return null
-      const origin = formatAddress(job.origin_address)
-      const destination = formatAddress(job.destination_address)
+      const showMoveDate = cfg.showMoveDate !== false
+      const showOrigin = cfg.showOrigin !== false
+      const showDestination = cfg.showDestination !== false
+      const showNotes = cfg.showNotes !== false
+      const origin = showOrigin ? formatAddress(job.origin_address) : null
+      const destination = showDestination ? formatAddress(job.destination_address) : null
+      if (!showMoveDate && !origin && !destination && !(showNotes && job.customer_notes)) return null
       return (
         <div className="py-4 border-t border-slate-100">
           <p className="font-semibold mb-2">Location &amp; Booking Details</p>
           <div className="grid grid-cols-2 gap-4 text-slate-600">
-            <div>
-              <p className="text-slate-400 text-xs uppercase tracking-wide mb-0.5">Move Date</p>
-              <p>{formatDate(job.move_date)}</p>
-            </div>
+            {showMoveDate && (
+              <div>
+                <p className="text-slate-400 text-xs uppercase tracking-wide mb-0.5">Move Date</p>
+                <p>{formatDate(job.move_date)}</p>
+              </div>
+            )}
             {origin && (
               <div>
                 <p className="text-slate-400 text-xs uppercase tracking-wide mb-0.5">Origin</p>
@@ -226,7 +286,7 @@ function InvoiceBlock({
               </div>
             )}
           </div>
-          {job.customer_notes && (
+          {showNotes && job.customer_notes && (
             <div className="mt-2">
               <p className="text-slate-400 text-xs uppercase tracking-wide mb-0.5">Notes</p>
               <p className="text-slate-600 whitespace-pre-wrap">{job.customer_notes}</p>
@@ -247,31 +307,45 @@ function InvoiceBlock({
     }
 
     case 'additional_details': {
+      // Backward compat: old saved blocks only ever had `showJobStatus` —
+      // advance/balance were always on with no key at all, so a missing key
+      // must default to visible, same `!== false` rule as everywhere else.
+      const cfg = block.config as unknown as Record<string, boolean | undefined>
+      const showAdvanceReceived = cfg.showAdvanceReceived !== false
+      const showJobStatus = cfg.showJobStatus !== false
+      const showBalanceOutstanding = cfg.showBalanceOutstanding !== false
+
       const advanceReceived = invoice.payments
         .filter((p) => p.status === 'succeeded')
         .reduce((sum, p) => sum + p.amount, 0)
       const balanceOutstanding = Math.max(invoice.total - advanceReceived, 0)
       const jobStatus = invoice.job?.status ? JOB_STATUS_LABELS[invoice.job.status] || invoice.job.status : null
 
+      if (!showAdvanceReceived && !(showJobStatus && jobStatus) && !showBalanceOutstanding) return null
+
       return (
         <div className="py-4 border-t border-slate-100">
           <p className="font-semibold mb-2">Additional Details</p>
           <table className="w-full text-slate-600">
             <tbody>
-              <tr className="border-b border-slate-100">
-                <td className="py-1.5">Advance Received</td>
-                <td className="py-1.5 text-right font-medium">{formatCurrency(advanceReceived)}</td>
-              </tr>
-              {block.config.showJobStatus && jobStatus && (
+              {showAdvanceReceived && (
+                <tr className="border-b border-slate-100">
+                  <td className="py-1.5">Advance Received</td>
+                  <td className="py-1.5 text-right font-medium">{formatCurrency(advanceReceived)}</td>
+                </tr>
+              )}
+              {showJobStatus && jobStatus && (
                 <tr className="border-b border-slate-100">
                   <td className="py-1.5">Services Delivered</td>
                   <td className="py-1.5 text-right font-medium">{jobStatus}</td>
                 </tr>
               )}
-              <tr>
-                <td className="py-1.5">Balance Outstanding</td>
-                <td className="py-1.5 text-right font-medium">{formatCurrency(balanceOutstanding)}</td>
-              </tr>
+              {showBalanceOutstanding && (
+                <tr>
+                  <td className="py-1.5">Balance Outstanding</td>
+                  <td className="py-1.5 text-right font-medium">{formatCurrency(balanceOutstanding)}</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -298,6 +372,27 @@ function InvoiceBlock({
           </p>
         </div>
       )
+
+    case 'custom_text': {
+      if (!block.config.text) return null
+      return (
+        <div className="py-4 border-t border-slate-100 text-slate-600">
+          {block.config.label && <p className="font-semibold mb-1">{block.config.label}</p>}
+          <p className="whitespace-pre-wrap">{block.config.text}</p>
+        </div>
+      )
+    }
+
+    case 'custom_field': {
+      const label = block.config.label || CUSTOM_FIELD_LABELS[block.config.fieldKey] || block.config.fieldKey
+      const value = resolveCustomFieldValue(block.config.fieldKey, invoice, contact)
+      return (
+        <div className="py-2 flex text-slate-600">
+          <span className="w-40 flex-shrink-0 text-slate-400 text-xs uppercase tracking-wide">{label}</span>
+          <span>{value}</span>
+        </div>
+      )
+    }
 
     default:
       return null

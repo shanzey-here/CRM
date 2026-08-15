@@ -29,6 +29,7 @@ export function WebWidgetSettingsClient({ brands }: { brands: BrandWidget[] }) {
 function BrandWidgetCard({ brand, origin, showName }: { brand: BrandWidget; origin: string; showName: boolean }) {
   const [isRegenerating, setIsRegenerating] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const embedUrl = `${origin}/embed/lead-capture/${brand.widgetKey}`
   const iframeCode = `<iframe src="${embedUrl}" width="100%" height="800" frameborder="0" style="border:none; overflow:hidden;"></iframe>`
@@ -44,12 +45,13 @@ function BrandWidgetCard({ brand, origin, showName }: { brand: BrandWidget; orig
       return
     }
 
+    setError(null)
     setIsRegenerating(true)
     const result = await regenerateWidgetKeyAction(brand.id)
     setIsRegenerating(false)
 
     if (result.error) {
-      alert(result.error)
+      setError(result.error)
     }
   }
 
@@ -94,6 +96,11 @@ function BrandWidgetCard({ brand, origin, showName }: { brand: BrandWidget; orig
         >
           {isRegenerating ? 'Regenerating...' : 'Regenerate Key'}
         </Button>
+        {error && (
+          <div className="mt-3 p-3 text-sm bg-white border border-red-200 text-red-600 rounded-md">
+            {error}
+          </div>
+        )}
       </div>
 
       {/* Preview Section */}

@@ -321,7 +321,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
           </Card>
 
           {/* Quotes List */}
-          <QuotesList leadId={lead.id} contactId={lead.contact_id} quotes={quotes || []} />
+          <QuotesList leadId={lead.id} contactId={lead.contact_id} brandId={lead.brand_id} quotes={quotes || []} />
 
           {/* Activity Timeline */}
           <Card className="shadow-sm border-slate-200">

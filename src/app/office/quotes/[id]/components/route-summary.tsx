@@ -31,6 +31,7 @@ export function RouteSummary({
   const [isEditing, setIsEditing] = useState(
     initialCalculation.hasError && savedDistanceMiles === null
   )
+  const [error, setError] = useState<string | null>(null)
 
   // Use saved DB values if they exist, otherwise use the calculation
   const defaultMiles = savedDistanceMiles ?? 
@@ -46,6 +47,7 @@ export function RouteSummary({
   const handleSave = () => {
     if (!isDraft) return
 
+    setError(null)
     startTransition(async () => {
       const result = await saveQuoteRouteAction(quoteId, {
         travel_distance_miles: Number(distanceMiles) || 0,
@@ -55,7 +57,7 @@ export function RouteSummary({
       if (result.success) {
         setIsEditing(false)
       } else {
-        alert(result.error || 'Failed to save route')
+        setError(result.error || 'Failed to save route')
       }
     })
   }
@@ -145,6 +147,11 @@ export function RouteSummary({
                 />
               </div>
             </div>
+            {error && (
+              <div className="mt-2 p-2 text-xs bg-red-50 border border-red-200 text-red-600 rounded-md">
+                {error}
+              </div>
+            )}
             {isDraft && (
               <div className="flex justify-end gap-2 mt-2">
                 {savedDistanceMiles !== null && (
