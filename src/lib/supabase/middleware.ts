@@ -64,12 +64,18 @@ export async function updateSession(request: NextRequest) {
   // Public paths that don't require authentication
   // /api/public is the public, unauthenticated lead-capture endpoint.
   // /proposal is the public proposal page (non-guessable token-based access).
+  // /embed is the public, embeddable lead-capture widget (non-guessable
+  // per-brand widget-key access, resolved in-code exactly like /proposal's
+  // token) — found missing here during Part 3 verification: without this,
+  // an unauthenticated visitor on an external website hitting the widget
+  // was redirected straight to /login, making the entire feature
+  // unreachable. Pre-existing gap, not introduced by this branch.
   // /api/cron routes authenticate themselves via a Bearer CRON_SECRET header —
   // an external scheduler never carries a Supabase session cookie, so this path
   // must be exempted here or every cron hit gets redirected to /login before
   // the route's own auth check ever runs.
   // All of the above enforce their own tenant/secret resolution in code instead of relying on session.
-  const isPublicPath = path.startsWith('/login') || path.startsWith('/signup') || path.startsWith('/auth') || path === '/' || path.startsWith('/api/public') || path.startsWith('/api/webhooks') || path.startsWith('/proposal') || path.startsWith('/api/cron') || path.startsWith('/crew/test') || path === '/crew-sw.js' || path === '/manifest.json' || path.startsWith('/_next/') || path === '/sw.js'
+  const isPublicPath = path.startsWith('/login') || path.startsWith('/signup') || path.startsWith('/auth') || path === '/' || path.startsWith('/api/public') || path.startsWith('/api/webhooks') || path.startsWith('/proposal') || path.startsWith('/embed') || path.startsWith('/api/cron') || path.startsWith('/crew/test') || path === '/crew-sw.js' || path === '/manifest.json' || path.startsWith('/_next/') || path === '/sw.js'
 
   // Redirect unauthenticated users trying to access protected paths
   if (!user && !isPublicPath) {

@@ -130,10 +130,18 @@ export async function createManualJobAction(payload: unknown) {
   
   const p_invoice_tax_amount = 0 // Basic assumption for manual job MVP
   const p_invoice_total = p_invoice_subtotal + p_invoice_tax_amount
-  
+
+  let brandId = data.brand_id
+  if (!brandId) {
+    const { getDefaultBrandId } = await import('@/modules/settings/brands/server/repository')
+    brandId = (await getDefaultBrandId(supabase, tenantId)) ?? undefined
+    if (!brandId) return { success: false, error: 'No default brand found for this tenant' }
+  }
+
   const { data: result, error } = await supabase.rpc('create_manual_job_transaction', {
     p_tenant_id: tenantId,
     p_contact_id: data.contact_id,
+    p_brand_id: brandId,
     p_move_date: data.move_date,
     p_origin_address_id: data.origin_address_id || null,
     p_destination_address_id: data.destination_address_id || null,

@@ -422,6 +422,83 @@ export type Database = {
           },
         ]
       }
+      brands: {
+        Row: {
+          address_city: string | null
+          address_country: string | null
+          address_county: string | null
+          address_line_1: string | null
+          address_line_2: string | null
+          address_postcode: string | null
+          bank_details: string | null
+          created_at: string
+          email: string | null
+          id: string
+          is_default: boolean
+          logo_url: string | null
+          name: string
+          phone: string | null
+          public_widget_key: string
+          tenant_id: string
+          terms_text: string | null
+          updated_at: string | null
+          vat_number: string | null
+          website: string | null
+        }
+        Insert: {
+          address_city?: string | null
+          address_country?: string | null
+          address_county?: string | null
+          address_line_1?: string | null
+          address_line_2?: string | null
+          address_postcode?: string | null
+          bank_details?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_default?: boolean
+          logo_url?: string | null
+          name: string
+          phone?: string | null
+          public_widget_key?: string
+          tenant_id: string
+          terms_text?: string | null
+          updated_at?: string | null
+          vat_number?: string | null
+          website?: string | null
+        }
+        Update: {
+          address_city?: string | null
+          address_country?: string | null
+          address_county?: string | null
+          address_line_1?: string | null
+          address_line_2?: string | null
+          address_postcode?: string | null
+          bank_details?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_default?: boolean
+          logo_url?: string | null
+          name?: string
+          phone?: string | null
+          public_widget_key?: string
+          tenant_id?: string
+          terms_text?: string | null
+          updated_at?: string | null
+          vat_number?: string | null
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brands_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       connected_social_accounts: {
         Row: {
           aggregator_profile_id: string
@@ -1113,6 +1190,7 @@ export type Database = {
       }
       email_threads: {
         Row: {
+          brand_id: string | null
           contact_id: string | null
           created_at: string
           id: string
@@ -1125,6 +1203,7 @@ export type Database = {
           tenant_id: string
         }
         Insert: {
+          brand_id?: string | null
           contact_id?: string | null
           created_at?: string
           id?: string
@@ -1137,6 +1216,7 @@ export type Database = {
           tenant_id: string
         }
         Update: {
+          brand_id?: string | null
           contact_id?: string | null
           created_at?: string
           id?: string
@@ -1149,6 +1229,13 @@ export type Database = {
           tenant_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "email_threads_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "email_threads_contact_fk"
             columns: ["contact_id", "tenant_id"]
@@ -1273,6 +1360,7 @@ export type Database = {
       }
       invoice_templates: {
         Row: {
+          brand_id: string
           created_at: string
           id: string
           layout_blocks: Json
@@ -1280,6 +1368,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          brand_id: string
           created_at?: string
           id?: string
           layout_blocks?: Json
@@ -1287,6 +1376,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          brand_id?: string
           created_at?: string
           id?: string
           layout_blocks?: Json
@@ -1295,9 +1385,16 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "invoice_templates_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: true
+            referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "invoice_templates_tenant_id_fkey"
             columns: ["tenant_id"]
-            isOneToOne: true
+            isOneToOne: false
             referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
@@ -1305,6 +1402,8 @@ export type Database = {
       }
       invoices: {
         Row: {
+          brand_id: string
+          brand_snapshot: Json
           contact_id: string
           created_at: string
           created_by: string | null
@@ -1324,6 +1423,8 @@ export type Database = {
           updated_by: string | null
         }
         Insert: {
+          brand_id: string
+          brand_snapshot: Json
           contact_id: string
           created_at?: string
           created_by?: string | null
@@ -1343,6 +1444,8 @@ export type Database = {
           updated_by?: string | null
         }
         Update: {
+          brand_id?: string
+          brand_snapshot?: Json
           contact_id?: string
           created_at?: string
           created_by?: string | null
@@ -1362,6 +1465,13 @@ export type Database = {
           updated_by?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "invoices_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "invoices_contact_fk"
             columns: ["contact_id", "tenant_id"]
@@ -1649,6 +1759,7 @@ export type Database = {
       }
       jobs: {
         Row: {
+          brand_id: string
           completion_summary: Json | null
           completion_summary_generated_at: string | null
           contact_id: string
@@ -1667,6 +1778,7 @@ export type Database = {
           updated_by: string | null
         }
         Insert: {
+          brand_id: string
           completion_summary?: Json | null
           completion_summary_generated_at?: string | null
           contact_id: string
@@ -1685,6 +1797,7 @@ export type Database = {
           updated_by?: string | null
         }
         Update: {
+          brand_id?: string
           completion_summary?: Json | null
           completion_summary_generated_at?: string | null
           contact_id?: string
@@ -1703,6 +1816,13 @@ export type Database = {
           updated_by?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "jobs_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "jobs_contact_fk"
             columns: ["contact_id", "tenant_id"]
@@ -1757,6 +1877,7 @@ export type Database = {
       leads: {
         Row: {
           assigned_to: string | null
+          brand_id: string
           contact_id: string
           created_at: string
           created_by: string | null
@@ -1778,6 +1899,7 @@ export type Database = {
         }
         Insert: {
           assigned_to?: string | null
+          brand_id: string
           contact_id: string
           created_at?: string
           created_by?: string | null
@@ -1799,6 +1921,7 @@ export type Database = {
         }
         Update: {
           assigned_to?: string | null
+          brand_id?: string
           contact_id?: string
           created_at?: string
           created_by?: string | null
@@ -1825,6 +1948,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id", "tenant_id"]
+          },
+          {
+            foreignKeyName: "leads_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "leads_contact_fk"
@@ -1890,6 +2020,7 @@ export type Database = {
       }
       mailboxes: {
         Row: {
+          brand_id: string | null
           connection_method: Database["public"]["Enums"]["mailbox_connection_method"]
           created_at: string
           encrypted_credential: string | null
@@ -1907,6 +2038,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          brand_id?: string | null
           connection_method: Database["public"]["Enums"]["mailbox_connection_method"]
           created_at?: string
           encrypted_credential?: string | null
@@ -1924,6 +2056,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          brand_id?: string | null
           connection_method?: Database["public"]["Enums"]["mailbox_connection_method"]
           created_at?: string
           encrypted_credential?: string | null
@@ -1941,6 +2074,13 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "mailboxes_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "mailboxes_tenant_id_fkey"
             columns: ["tenant_id"]
@@ -2538,6 +2678,7 @@ export type Database = {
       quotes: {
         Row: {
           accepted_at: string | null
+          brand_id: string
           computed_price: number | null
           contact_id: string
           created_at: string
@@ -2566,6 +2707,7 @@ export type Database = {
         }
         Insert: {
           accepted_at?: string | null
+          brand_id: string
           computed_price?: number | null
           contact_id: string
           created_at?: string
@@ -2594,6 +2736,7 @@ export type Database = {
         }
         Update: {
           accepted_at?: string | null
+          brand_id?: string
           computed_price?: number | null
           contact_id?: string
           created_at?: string
@@ -2621,6 +2764,13 @@ export type Database = {
           valid_until?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "quotes_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "quotes_contact_fk"
             columns: ["contact_id", "tenant_id"]
@@ -3551,7 +3701,7 @@ export type Database = {
             foreignKeyName: "widget_rate_limits_widget_key_fkey"
             columns: ["widget_key"]
             isOneToOne: false
-            referencedRelation: "tenants"
+            referencedRelation: "brands"
             referencedColumns: ["public_widget_key"]
           },
         ]
@@ -3624,20 +3774,36 @@ export type Database = {
         }
         Returns: Json
       }
-      create_manual_job_transaction: {
-        Args: {
-          p_contact_id: string
-          p_destination_address_id: string
-          p_invoice_subtotal: number
-          p_invoice_tax_amount: number
-          p_invoice_total: number
-          p_line_items: Json
-          p_move_date: string
-          p_origin_address_id: string
-          p_tenant_id: string
-        }
-        Returns: Json
-      }
+      create_manual_job_transaction:
+        | {
+            Args: {
+              p_brand_id: string
+              p_contact_id: string
+              p_destination_address_id: string
+              p_invoice_subtotal: number
+              p_invoice_tax_amount: number
+              p_invoice_total: number
+              p_line_items: Json
+              p_move_date: string
+              p_origin_address_id: string
+              p_tenant_id: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              p_contact_id: string
+              p_destination_address_id: string
+              p_invoice_subtotal: number
+              p_invoice_tax_amount: number
+              p_invoice_total: number
+              p_line_items: Json
+              p_move_date: string
+              p_origin_address_id: string
+              p_tenant_id: string
+            }
+            Returns: Json
+          }
       current_tenant_id: { Args: never; Returns: string }
       current_user_role: { Args: never; Returns: string }
       custom_access_token_hook: { Args: { event: Json }; Returns: Json }
@@ -3678,6 +3844,33 @@ export type Database = {
           contact_id: string
         }[]
       }
+      get_tenant_new_clients_over_time: {
+        Args: { p_end_date: string; p_start_date: string; p_tenant_id: string }
+        Returns: {
+          bucket_date: string
+          new_clients: number
+          period: string
+        }[]
+      }
+      get_tenant_quotes_bookings_over_time: {
+        Args: { p_end_date: string; p_start_date: string; p_tenant_id: string }
+        Returns: {
+          bucket_date: string
+          confirmed_bookings: number
+          conversion_rate: number
+          period: string
+          quotes_sent: number
+        }[]
+      }
+      get_tenant_revenue_over_time: {
+        Args: { p_end_date: string; p_start_date: string; p_tenant_id: string }
+        Returns: {
+          bucket_date: string
+          collected_revenue: number
+          invoiced_revenue: number
+          period: string
+        }[]
+      }
       get_tenant_status_transitions: {
         Args: never
         Returns: {
@@ -3687,20 +3880,36 @@ export type Database = {
           tenant_id: string
         }[]
       }
-      internal_create_invoice_snapshot: {
-        Args: {
-          p_balance_schedule: Json
-          p_contact_id: string
-          p_deposit_schedule: Json
-          p_invoice_subtotal: number
-          p_invoice_tax_amount: number
-          p_invoice_total: number
-          p_job_id: string
-          p_line_items: Json
-          p_tenant_id: string
-        }
-        Returns: string
-      }
+      internal_create_invoice_snapshot:
+        | {
+            Args: {
+              p_balance_schedule: Json
+              p_brand_id: string
+              p_contact_id: string
+              p_deposit_schedule: Json
+              p_invoice_subtotal: number
+              p_invoice_tax_amount: number
+              p_invoice_total: number
+              p_job_id: string
+              p_line_items: Json
+              p_tenant_id: string
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              p_balance_schedule: Json
+              p_contact_id: string
+              p_deposit_schedule: Json
+              p_invoice_subtotal: number
+              p_invoice_tax_amount: number
+              p_invoice_total: number
+              p_job_id: string
+              p_line_items: Json
+              p_tenant_id: string
+            }
+            Returns: string
+          }
       internal_get_crew_contact_ids: {
         Args: { p_user_id: string }
         Returns: string[]

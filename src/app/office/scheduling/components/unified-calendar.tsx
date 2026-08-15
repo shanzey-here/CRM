@@ -8,22 +8,24 @@ import { UnifiedDetailModal } from './unified-detail-modal'
 import { UnifiedCreationModal } from './unified-creation-modal'
 import { computeConflicts } from '@/modules/calendar/conflict'
 
-export function UnifiedCalendar({ 
-  events, 
-  currentDate, 
+export function UnifiedCalendar({
+  events,
+  currentDate,
   range = 'week',
   tenantId,
   tenantStaff,
   contacts,
-  vehicles
-}: { 
-  events: CalendarEvent[], 
-  currentDate: Date, 
+  vehicles,
+  brands
+}: {
+  events: CalendarEvent[],
+  currentDate: Date,
   range?: 'week' | 'day',
   tenantId: string,
   tenantStaff: any[],
   contacts: any[],
-  vehicles: any[]
+  vehicles: any[],
+  brands: any[]
 }) {
   const [modalOpen, setModalOpen] = useState(false)
   const [selectedSlot, setSelectedSlot] = useState<{ date: Date, hour?: number } | null>(null)
@@ -151,14 +153,15 @@ export function UnifiedCalendar({
         </div>
       </div>
 
-      <UnifiedCreationModal 
-        isOpen={modalOpen} 
-        onClose={() => setModalOpen(false)} 
-        initialSlot={selectedSlot} 
+      <UnifiedCreationModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        initialSlot={selectedSlot}
         tenantId={tenantId}
         tenantStaff={tenantStaff}
         contacts={contacts}
         vehicles={vehicles}
+        brands={brands}
       />
 
       <UnifiedDetailModal

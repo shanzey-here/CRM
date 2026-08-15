@@ -26,6 +26,7 @@ export default function SettingsLayout({
   const navItems = [
     { name: 'Inventory Catalog', href: '/office/settings/inventory' },
     { name: 'Branding', href: '/office/settings/branding' },
+    { name: 'Brands', href: '/office/settings/brands' },
     { name: 'Appearance', href: '/office/settings/appearance' },
     { name: 'Pricing', href: '/office/settings/pricing' },
     { name: 'Invoice Template', href: '/office/settings/invoice-template' },
@@ -64,7 +65,7 @@ export default function SettingsLayout({
         </nav>
       </aside>
 
-      <main className="px-4 py-16 sm:px-6 lg:flex-auto lg:px-0 lg:py-20">
+      <main className="px-4 py-16 sm:px-6 lg:flex-auto lg:px-0 lg:py-20 lg:min-w-0">
         {children}
       </main>
     </div>

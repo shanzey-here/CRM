@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
@@ -12,14 +14,19 @@ import {
 } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { GripVertical, Plus, X } from 'lucide-react'
+import { GripVertical, Plus, X, ExternalLink } from 'lucide-react'
 import { invoiceTemplateSchema, InvoiceTemplateInput, InvoiceLayoutBlock } from '@/modules/settings/invoice-template/schemas'
 import { updateInvoiceTemplateAction } from '../actions'
 import { InvoiceRenderer } from '@/components/invoice/invoice-renderer'
 import { SAMPLE_INVOICE_FOR_PREVIEW, SAMPLE_CONTACT_FOR_PREVIEW } from '@/components/invoice/sample-invoice-data'
-import { Database } from '@/types/database.types'
-
-type TenantSettings = Database['public']['Tables']['tenant_settings']['Row']
+import { Brand } from '@/modules/settings/brands/server/repository'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 const BLOCK_LABELS: Record<InvoiceLayoutBlock['type'], string> = {
   header: 'Header',
@@ -28,12 +35,17 @@ const BLOCK_LABELS: Record<InvoiceLayoutBlock['type'], string> = {
   terms_text: 'Terms Text',
   footer: 'Footer',
   spacer: 'Spacer',
+  location_details: 'Location Details',
+  payment_instructions: 'Payment Instructions',
+  additional_details: 'Additional Details',
+  total_in_words: 'Total in Words',
+  declaration_signature: 'Declaration & Signature',
 }
 
 function defaultBlockFor(type: InvoiceLayoutBlock['type']): InvoiceLayoutBlock {
   switch (type) {
     case 'header':
-      return { type: 'header', config: { showLogo: true, alignment: 'left' } }
+      return { type: 'header', config: { showLogo: true, alignment: 'left', logoSize: 'medium' } }
     case 'line_items_table':
       return { type: 'line_items_table', config: { columns: ['description', 'quantity', 'unit_price', 'amount'] } }
     case 'totals_summary':
@@ -44,6 +56,16 @@ function defaultBlockFor(type: InvoiceLayoutBlock['type']): InvoiceLayoutBlock {
       return { type: 'footer', config: { showPageNumber: true, customText: null } }
     case 'spacer':
       return { type: 'spacer', config: { heightPx: 16 } }
+    case 'location_details':
+      return { type: 'location_details', config: { show: true } }
+    case 'payment_instructions':
+      return { type: 'payment_instructions', config: { show: true } }
+    case 'additional_details':
+      return { type: 'additional_details', config: { showJobStatus: true } }
+    case 'total_in_words':
+      return { type: 'total_in_words', config: { show: true } }
+    case 'declaration_signature':
+      return { type: 'declaration_signature', config: { declarationText: 'I have read & understood all the above terms.' } }
   }
 }
 
@@ -51,10 +73,12 @@ const ALL_COLUMNS = ['description', 'quantity', 'unit_price', 'amount'] as const
 
 interface Props {
   template: { layout_blocks: unknown }
-  tenantSettings: TenantSettings
+  brand: Brand
+  brands: Brand[]
 }
 
-export function TemplateEditor({ template, tenantSettings }: Props) {
+export function TemplateEditor({ template, brand, brands }: Props) {
+  const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
@@ -85,6 +109,7 @@ export function TemplateEditor({ template, tenantSettings }: Props) {
       try {
         setError(null)
         const formData = new FormData()
+        formData.append('brand_id', brand.id)
         formData.append('layout_blocks', JSON.stringify(data.layout_blocks))
         await updateInvoiceTemplateAction(formData)
         setSuccess(true)
@@ -96,16 +121,37 @@ export function TemplateEditor({ template, tenantSettings }: Props) {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-      {/* Editor */}
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {error && <div className="p-4 bg-red-50 border border-red-200 rounded text-red-700 text-sm">{error}</div>}
-        {success && <div className="p-4 bg-green-50 border border-green-200 rounded text-green-700 text-sm">Invoice template updated successfully</div>}
+    <div>
+      {brands.length > 1 && (
+        <div className="mb-6 max-w-xs">
+          <label className="block text-xs font-medium text-slate-500 mb-1">Editing template for</label>
+          <Select value={brand.id} onValueChange={(val) => router.push(`/office/settings/invoice-template?brand=${val}`)}>
+            <SelectTrigger>
+              <SelectValue>
+                {() => brand.name + (brand.is_default ? ' (Default)' : '')}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {brands.map((b) => (
+                <SelectItem key={b.id} value={b.id}>
+                  {b.name}
+                  {b.is_default ? ' (Default)' : ''}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
-        <div className="bg-white rounded-lg border border-slate-200 p-6 space-y-3">
-          <div className="flex justify-between items-center">
+      <div className="flex flex-col xl:flex-row gap-8 items-start">
+        {/* Editor */}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 w-full xl:w-[400px] xl:flex-none">
+          {error && <div className="p-4 bg-red-50 border border-red-200 rounded text-red-700 text-sm">{error}</div>}
+          {success && <div className="p-4 bg-green-50 border border-green-200 rounded text-green-700 text-sm">Invoice template updated successfully</div>}
+
+          <div className="bg-white rounded-lg border border-slate-200 p-6 space-y-3">
             <h3 className="text-lg font-semibold text-slate-900">Blocks</h3>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {(Object.keys(BLOCK_LABELS) as InvoiceLayoutBlock['type'][]).map((type) => (
                 <button
                   key={type}
@@ -119,49 +165,67 @@ export function TemplateEditor({ template, tenantSettings }: Props) {
                 </button>
               ))}
             </div>
+
+            {fields.length === 0 ? (
+              <p className="text-sm text-slate-500 py-4">No blocks yet — add one above.</p>
+            ) : (
+              <DndContext id="invoice-template-blocks" sensors={sensors} onDragEnd={handleDragEnd}>
+                <SortableContext items={fields.map((f) => f.id)} strategy={verticalListSortingStrategy}>
+                  <div className="space-y-2">
+                    {fields.map((field, index) => (
+                      <BlockRow
+                        key={field.id}
+                        id={field.id}
+                        block={watchedBlocks[index] as InvoiceLayoutBlock}
+                        onChange={(next) => update(index, next)}
+                        onRemove={() => remove(index)}
+                      />
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
+            )}
           </div>
 
-          {fields.length === 0 ? (
-            <p className="text-sm text-slate-500 py-4">No blocks yet — add one above.</p>
-          ) : (
-            <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-              <SortableContext items={fields.map((f) => f.id)} strategy={verticalListSortingStrategy}>
-                <div className="space-y-2">
-                  {fields.map((field, index) => (
-                    <BlockRow
-                      key={field.id}
-                      id={field.id}
-                      block={watchedBlocks[index] as InvoiceLayoutBlock}
-                      onChange={(next) => update(index, next)}
-                      onRemove={() => remove(index)}
-                    />
-                  ))}
-                </div>
-              </SortableContext>
-            </DndContext>
-          )}
-        </div>
+          <button
+            type="submit"
+            disabled={isPending}
+            className="w-full px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            {isPending ? 'Saving...' : 'Save Invoice Template'}
+          </button>
+        </form>
 
-        <button
-          type="submit"
-          disabled={isPending}
-          className="w-full px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          {isPending ? 'Saving...' : 'Save Invoice Template'}
-        </button>
-      </form>
-
-      {/* Live preview — sample data only, never real */}
-      <div>
-        <h3 className="text-lg font-semibold text-slate-900 mb-3">Live Preview</h3>
-        <p className="text-xs text-slate-400 mb-3">Using sample placeholder data — not a real invoice.</p>
-        <div className="border border-slate-200 rounded-lg p-6 shadow-sm">
-          <InvoiceRenderer
-            blocks={(watchedBlocks || []) as InvoiceLayoutBlock[]}
-            invoice={SAMPLE_INVOICE_FOR_PREVIEW}
-            tenantSettings={tenantSettings}
-            contact={SAMPLE_CONTACT_FOR_PREVIEW}
-          />
+        {/* Live preview — sample invoice/contact data, real brand identity.
+            Rendered at genuine A4 pixel width (794px @ 96dpi) inside a
+            scrolling frame, so it's never squeezed into a narrow column and
+            never clips content — this is what the /print route and the
+            downloaded PDF will actually look like, not an approximation. */}
+        <div className="w-full xl:flex-1 min-w-0">
+          <div className="flex items-center justify-between mb-3 gap-3 flex-wrap">
+            <h3 className="text-lg font-semibold text-slate-900">Live Preview</h3>
+            <Link
+              href={`/print/invoice-template-preview?brand=${brand.id}`}
+              target="_blank"
+              className="inline-flex items-center gap-1.5 text-sm text-emerald-700 hover:text-emerald-800 hover:underline"
+            >
+              <ExternalLink size={14} />
+              Open full preview
+            </Link>
+          </div>
+          <p className="text-xs text-slate-400 mb-3">
+            Using sample placeholder data with this brand's real identity — not a real invoice. Save your changes to see them in the full preview.
+          </p>
+          <div className="w-full max-w-full min-w-0 border border-slate-200 rounded-lg shadow-sm overflow-auto max-h-[85vh] bg-slate-100 p-6">
+            <div className="mx-auto bg-white shadow" style={{ width: '794px', minHeight: '1123px', padding: '48px' }}>
+              <InvoiceRenderer
+                blocks={(watchedBlocks || []) as InvoiceLayoutBlock[]}
+                invoice={SAMPLE_INVOICE_FOR_PREVIEW}
+                brand={brand}
+                contact={SAMPLE_CONTACT_FOR_PREVIEW}
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -207,7 +271,7 @@ function BlockConfigForm({ block, onChange }: { block: InvoiceLayoutBlock; onCha
   switch (block.type) {
     case 'header':
       return (
-        <div className="flex items-center gap-4 text-xs">
+        <div className="flex items-center gap-4 text-xs flex-wrap">
           <label className="flex items-center gap-1">
             <input
               type="checkbox"
@@ -226,6 +290,18 @@ function BlockConfigForm({ block, onChange }: { block: InvoiceLayoutBlock; onCha
               <option value="left">Left</option>
               <option value="center">Center</option>
               <option value="right">Right</option>
+            </select>
+          </label>
+          <label className="flex items-center gap-1">
+            Logo size:
+            <select
+              value={block.config.logoSize ?? 'medium'}
+              onChange={(e) => onChange({ ...block, config: { ...block.config, logoSize: e.target.value as 'small' | 'medium' | 'large' } })}
+              className="border border-slate-300 rounded px-1 py-0.5"
+            >
+              <option value="small">Small</option>
+              <option value="medium">Medium</option>
+              <option value="large">Large</option>
             </select>
           </label>
         </div>
@@ -272,7 +348,7 @@ function BlockConfigForm({ block, onChange }: { block: InvoiceLayoutBlock; onCha
             checked={block.config.show}
             onChange={(e) => onChange({ ...block, config: { ...block.config, show: e.target.checked } })}
           />
-          Show terms (from Branding settings)
+          Show terms (from this brand's settings)
         </label>
       )
 
@@ -287,7 +363,7 @@ function BlockConfigForm({ block, onChange }: { block: InvoiceLayoutBlock; onCha
             />
             Show page number
           </label>
-          <label className="flex items-center gap-1 flex-1">
+          <label className="flex items-center gap-1 flex-1 min-w-[140px]">
             Custom text:
             <input
               type="text"
@@ -309,6 +385,67 @@ function BlockConfigForm({ block, onChange }: { block: InvoiceLayoutBlock; onCha
             value={block.config.heightPx}
             onChange={(e) => onChange({ ...block, config: { ...block.config, heightPx: Number(e.target.value) || 1 } })}
             className="border border-slate-300 rounded px-1 py-0.5 w-20"
+          />
+        </label>
+      )
+
+    case 'location_details':
+      return (
+        <label className="flex items-center gap-1 text-xs">
+          <input
+            type="checkbox"
+            checked={block.config.show}
+            onChange={(e) => onChange({ ...block, config: { ...block.config, show: e.target.checked } })}
+          />
+          Show (job date, addresses, move notes)
+        </label>
+      )
+
+    case 'payment_instructions':
+      return (
+        <label className="flex items-center gap-1 text-xs">
+          <input
+            type="checkbox"
+            checked={block.config.show}
+            onChange={(e) => onChange({ ...block, config: { ...block.config, show: e.target.checked } })}
+          />
+          Show (from this brand's bank details)
+        </label>
+      )
+
+    case 'additional_details':
+      return (
+        <label className="flex items-center gap-1 text-xs">
+          <input
+            type="checkbox"
+            checked={block.config.showJobStatus}
+            onChange={(e) => onChange({ ...block, config: { ...block.config, showJobStatus: e.target.checked } })}
+          />
+          Show job status row (advance/balance always shown)
+        </label>
+      )
+
+    case 'total_in_words':
+      return (
+        <label className="flex items-center gap-1 text-xs">
+          <input
+            type="checkbox"
+            checked={block.config.show}
+            onChange={(e) => onChange({ ...block, config: { ...block.config, show: e.target.checked } })}
+          />
+          Show
+        </label>
+      )
+
+    case 'declaration_signature':
+      return (
+        <label className="flex items-center gap-1 text-xs">
+          Declaration text:
+          <input
+            type="text"
+            value={block.config.declarationText}
+            onChange={(e) => onChange({ ...block, config: { ...block.config, declarationText: e.target.value } })}
+            className="border border-slate-300 rounded px-1 py-0.5 flex-1 min-w-0"
           />
         </label>
       )

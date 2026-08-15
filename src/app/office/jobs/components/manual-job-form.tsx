@@ -19,11 +19,12 @@ interface ManualJobFormProps {
   contacts: Contact[]
   tenantStaff: TenantUser[]
   vehicles: Vehicle[]
+  brands: { id: string; name: string; is_default: boolean }[]
   initialSlot?: { date: Date, hour?: number } | null
   onSuccess?: (jobId: string) => void
 }
 
-export function ManualJobForm({ contacts, tenantStaff, vehicles, initialSlot, onSuccess }: ManualJobFormProps) {
+export function ManualJobForm({ contacts, tenantStaff, vehicles, brands, initialSlot, onSuccess }: ManualJobFormProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [serverError, setServerError] = useState<string | null>(null)
@@ -40,9 +41,12 @@ export function ManualJobForm({ contacts, tenantStaff, vehicles, initialSlot, on
     ? new Date(initialSlot.date.setHours(initialSlot.hour + 2, 0, 0, 0)).toISOString()
     : undefined
 
+  const defaultBrandId = brands.find((b) => b.is_default)?.id ?? brands[0]?.id
+
   const { register, control, handleSubmit, setValue, watch, formState: { errors, isValid }, reset } = useForm<CreateManualJobData>({
     resolver: zodResolver(CreateManualJobSchema),
     defaultValues: {
+      brand_id: defaultBrandId,
       move_date: defaultDate,
       start_time: defaultStartTime,
       end_time: defaultEndTime,
@@ -118,6 +122,33 @@ export function ManualJobForm({ contacts, tenantStaff, vehicles, initialSlot, on
         </Select>
         {errors.contact_id && <p className="text-sm text-red-500">{errors.contact_id.message}</p>}
       </div>
+
+      {brands.length > 1 && (
+        <div className="space-y-2">
+          <Label htmlFor="brand_id">Brand</Label>
+          <Select
+            disabled={isPending}
+            defaultValue={defaultBrandId}
+            onValueChange={(val) => setValue('brand_id', val)}
+          >
+            <SelectTrigger id="brand_id">
+              <SelectValue placeholder="Select brand">
+                {(val: string) => {
+                  const b = brands.find((br) => br.id === val)
+                  return b ? b.name + (b.is_default ? ' (Default)' : '') : 'Select brand'
+                }}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {brands.map((b) => (
+                <SelectItem key={b.id} value={b.id}>
+                  {b.name}{b.is_default ? ' (Default)' : ''}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">

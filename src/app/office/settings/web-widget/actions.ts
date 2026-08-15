@@ -3,7 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
-export async function regenerateWidgetKeyAction() {
+export async function regenerateWidgetKeyAction(brandId: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -21,9 +21,10 @@ export async function regenerateWidgetKeyAction() {
   const newKey = crypto.randomUUID()
 
   const { error } = await supabase
-    .from('tenants')
+    .from('brands')
     .update({ public_widget_key: newKey })
-    .eq('id', tenantId)
+    .eq('id', brandId)
+    .eq('tenant_id', tenantId)
 
   if (error) {
     console.error('Failed to regenerate widget key:', error)

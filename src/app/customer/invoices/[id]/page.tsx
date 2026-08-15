@@ -50,7 +50,7 @@ export default async function CustomerInvoiceDetailPage({ params }: { params: Pr
         <ArrowLeft className="h-4 w-4" /> Back to Invoices
       </Link>
       <div className="border border-slate-200 rounded-lg p-6 shadow-sm">
-        <InvoiceRenderer blocks={data.blocks} invoice={data.invoice} tenantSettings={data.tenantSettings} contact={data.contact} />
+        <InvoiceRenderer blocks={data.blocks} invoice={data.invoice} brand={data.brand} contact={data.contact} />
       </div>
     </div>
   )

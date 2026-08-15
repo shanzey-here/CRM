@@ -77,7 +77,14 @@ export async function getInvoiceById(
       *,
       invoice_line_items (*),
       payment_schedules (*),
-      payments (*)
+      payments (*),
+      jobs (
+        status,
+        move_date,
+        customer_notes,
+        origin_address:addresses!jobs_origin_address_fk (line_1, line_2, city, county, postcode, country),
+        destination_address:addresses!jobs_destination_address_fk (line_1, line_2, city, county, postcode, country)
+      )
     `)
     .eq('tenant_id', tenantId)
     .eq('id', invoiceId)
@@ -95,7 +102,8 @@ export async function getInvoiceById(
     ...data,
     lineItems: data.invoice_line_items || [],
     schedules: data.payment_schedules || [],
-    payments: data.payments || []
+    payments: data.payments || [],
+    job: data.jobs || null
   } as unknown as InvoiceWithDetails
 
   return { success: true, data: invoice }

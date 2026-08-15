@@ -75,7 +75,12 @@ export const createClientFormSchema = z.object({
   email: z.string().email('Invalid email address').optional().nullable().or(z.literal('')),
   phone: z.string().optional().nullable(),
   type: z.enum(['residential', 'commercial']).default('residential'),
-  
+
+  // Only meaningful when the tenant has more than one brand — the form
+  // hides this field entirely for single-brand tenants, and the server
+  // resolves the tenant's default brand when omitted.
+  brand_id: z.string().uuid().optional().nullable(),
+
   // Optional lead details
   stage: z.enum(['inquiry', 'survey_scheduled', 'quote_sent', 'follow_up', 'confirmed_booking', 'completed', 'archived']).optional(),
   preferred_move_date: z.string().optional().nullable(),

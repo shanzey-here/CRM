@@ -64,14 +64,16 @@ export async function publicCaptureAction(widgetKey: string, payload: PublicWidg
       })
   }
 
-  // 4. Lookup Tenant
-  const { data: tenant, error: tenantErr } = await supabase
-    .from('tenants')
-    .select('id')
+  // 4. Lookup Brand — the widget key is per-brand now (was per-tenant), so
+  // this single lookup resolves both which tenant owns the submission AND
+  // which brand it should be tagged with, no separate tenant lookup needed.
+  const { data: brand, error: brandErr } = await supabase
+    .from('brands')
+    .select('id, tenant_id')
     .eq('public_widget_key', widgetKey)
     .single()
 
-  if (tenantErr || !tenant) {
+  if (brandErr || !brand) {
     return { error: 'Form unavailable.' }
   }
 
@@ -82,8 +84,11 @@ export async function publicCaptureAction(widgetKey: string, payload: PublicWidg
     source: 'web_widget'
   }
 
-  // Passing undefined for userId since this is public, and forceCreateLead = true
-  const result = await createClientCore(supabase, tenant.id, corePayload as any, undefined, true)
+  // Passing undefined for userId since this is public, and forceCreateLead = true.
+  // brandId is explicit here (not resolved from a default) — a lead
+  // captured through Brand A's snippet must be tagged Brand A, never
+  // silently fall back to the tenant's default brand.
+  const result = await createClientCore(supabase, brand.tenant_id, corePayload as any, undefined, true, brand.id)
 
   if (!result.success) {
     console.error('Widget Submission Error:', result.error)

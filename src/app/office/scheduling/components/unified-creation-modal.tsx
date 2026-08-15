@@ -10,22 +10,24 @@ import { format } from 'date-fns'
 import { ManualJobForm } from '../../jobs/components/manual-job-form'
 import { CreateTaskForm } from '../../components/create-task-form'
 
-export function UnifiedCreationModal({ 
-  isOpen, 
-  onClose, 
+export function UnifiedCreationModal({
+  isOpen,
+  onClose,
   initialSlot,
   tenantId,
   tenantStaff,
   contacts,
-  vehicles
-}: { 
-  isOpen: boolean, 
-  onClose: () => void, 
+  vehicles,
+  brands
+}: {
+  isOpen: boolean,
+  onClose: () => void,
   initialSlot: { date: Date, hour?: number } | null,
   tenantId: string,
   tenantStaff: any[],
   contacts: any[],
-  vehicles: any[]
+  vehicles: any[],
+  brands: any[]
 }) {
   const [type, setType] = useState<'job' | 'task' | 'appointment'>('appointment')
   const [conflictWarning, setConflictWarning] = useState(false)
@@ -91,10 +93,11 @@ export function UnifiedCreationModal({
 
           <div className="border rounded p-4 text-sm bg-slate-50 relative max-h-[60vh] overflow-y-auto">
             {type === 'job' && (
-              <ManualJobForm 
+              <ManualJobForm
                 contacts={contacts}
                 tenantStaff={tenantStaff}
                 vehicles={vehicles}
+                brands={brands}
                 initialSlot={initialSlot}
                 onSuccess={onClose}
               />

@@ -5,6 +5,7 @@ import { getInvoiceById } from '@/modules/invoicing/server/repository'
 import { format } from 'date-fns'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Printer } from 'lucide-react'
 import { EditDraftInvoiceForm } from './components/edit-draft-invoice-form'
 
 export const dynamic = 'force-dynamic'
@@ -53,10 +54,20 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
               }))}
             />
           )}
-          <Button variant="outline" asChild>
-            <Link href={`/customer/invoices/${invoice.id}`} target="_blank">
-              View Customer Portal
-            </Link>
+          <Button
+            variant="outline"
+            nativeButton={false}
+            render={<Link href={`/customer/invoices/${invoice.id}`} target="_blank" />}
+          >
+            View Customer Portal
+          </Button>
+          <Button
+            className="bg-emerald-600 hover:bg-emerald-700"
+            nativeButton={false}
+            render={<Link href={`/print/invoices/${invoice.id}`} target="_blank" />}
+          >
+            <Printer className="mr-2 h-4 w-4" />
+            Print / Download PDF
           </Button>
         </div>
       </div>

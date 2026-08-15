@@ -13,6 +13,7 @@ export async function createQuote(
       tenant_id: tenantId,
       contact_id: input.contact_id,
       lead_id: input.lead_id,
+      brand_id: input.brand_id,
       status: 'draft',
       total_volume: 0,
       subtotal: 0,

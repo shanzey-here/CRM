@@ -2,19 +2,45 @@
 
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import { useState, useTransition } from 'react'
-import { tenantSettingsSchema, TenantSettingsInput } from '@/modules/settings/branding/schemas'
-import { updateBrandingAction, uploadLogoAction } from '../actions'
+import { updateBrandingAction } from '../actions'
+import { uploadLogoFile } from '@/lib/upload-logo'
 
-type BrandingFormData = Omit<TenantSettingsInput, 'logo_url'>
+// Identity fields (from the default brand) + primary_color (from
+// tenant_settings) — the two real data sources this form now writes to,
+// via the same real updateBrand()/updateTenantSettings() the Brands page
+// and Appearance-adjacent settings already use.
+const brandingFormSchema = z.object({
+  company_legal_name: z.string().min(1, 'Company name is required'),
+  address_line_1: z.string().nullable().optional(),
+  address_line_2: z.string().nullable().optional(),
+  address_city: z.string().nullable().optional(),
+  address_county: z.string().nullable().optional(),
+  address_postcode: z.string().nullable().optional(),
+  address_country: z.string().default('GB'),
+  vat_number: z.string().nullable().optional(),
+  phone: z.string().nullable().optional(),
+  email: z.string().email().nullable().optional().or(z.literal('')),
+  website: z.string().url().nullable().optional().or(z.literal('')),
+  terms_template: z.string().nullable().optional(),
+  primary_color: z.string()
+    .regex(/^#[0-9A-F]{6}$/i, 'Primary color must be a valid hex color (e.g., #1a56db)')
+    .default('#1a56db'),
+})
+
+type BrandingFormData = z.infer<typeof brandingFormSchema>
 
 interface Props {
-  settings: any
+  // The tenant's default brand (real identity data) + tenant_settings'
+  // primary_color (the one field that's genuinely still tenant-wide).
+  brand: any
+  primaryColor: string
 }
 
-export function BrandingForm({ settings }: Props) {
+export function BrandingForm({ brand, primaryColor: initialPrimaryColor }: Props) {
   const [isPending, startTransition] = useTransition()
-  const [logoPreview, setLogoPreview] = useState<string | null>(settings?.logo_url || null)
+  const [logoPreview, setLogoPreview] = useState<string | null>(brand?.logo_url || null)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
 
@@ -24,21 +50,21 @@ export function BrandingForm({ settings }: Props) {
     watch,
     formState: { errors },
   } = useForm<BrandingFormData>({
-    resolver: zodResolver(tenantSettingsSchema.omit({ logo_url: true })),
+    resolver: zodResolver(brandingFormSchema),
     defaultValues: {
-      company_legal_name: settings?.company_legal_name || '',
-      address_line_1: settings?.address_line_1 || '',
-      address_line_2: settings?.address_line_2 || '',
-      address_city: settings?.address_city || '',
-      address_county: settings?.address_county || '',
-      address_postcode: settings?.address_postcode || '',
-      address_country: settings?.address_country || 'GB',
-      vat_number: settings?.vat_number || '',
-      phone: settings?.phone || '',
-      email: settings?.email || '',
-      website: settings?.website || '',
-      terms_template: settings?.terms_template || '',
-      primary_color: settings?.primary_color || '#1a56db',
+      company_legal_name: brand?.name || '',
+      address_line_1: brand?.address_line_1 || '',
+      address_line_2: brand?.address_line_2 || '',
+      address_city: brand?.address_city || '',
+      address_county: brand?.address_county || '',
+      address_postcode: brand?.address_postcode || '',
+      address_country: brand?.address_country || 'GB',
+      vat_number: brand?.vat_number || '',
+      phone: brand?.phone || '',
+      email: brand?.email || '',
+      website: brand?.website || '',
+      terms_template: brand?.terms_text || '',
+      primary_color: initialPrimaryColor || '#1a56db',
     },
   })
 
@@ -49,6 +75,7 @@ export function BrandingForm({ settings }: Props) {
       try {
         setError(null)
         const formData = new FormData()
+        formData.append('logo_url', logoPreview && logoPreview.startsWith('http') ? logoPreview : brand?.logo_url || '')
         Object.entries(data).forEach(([key, value]) => {
           formData.append(key, value || '')
         })
@@ -77,50 +104,27 @@ export function BrandingForm({ settings }: Props) {
       try {
         setError(null)
         const supabase = (await import('@/lib/supabase/client')).createClient()
-
-        // Verify user is authenticated with a valid session
         const { data: { session } } = await supabase.auth.getSession()
         if (!session) {
           setError('Not authenticated - please log in again')
           return
         }
-
-        const user = session.user
-        const tenantId = user?.app_metadata?.tenant_id
-        const userRole = user?.app_metadata?.tenant_role
-
+        const tenantId = session.user?.app_metadata?.tenant_id
         if (!tenantId) {
           setError('No tenant context in your session')
           return
         }
 
-        console.log('[Logo Upload] Session verified:', { tenantId, userRole, email: user?.email })
-
-        // Upload to Storage directly from client (bypasses Server Action body limit)
-        // Path must be: {tenantId}/{filename} for RLS policy to allow it
-        const ext = file.name.split('.').pop() || 'png'
-        const storagePath = `${tenantId}/logo.${ext}`
-
-        console.log('[Logo Upload] Uploading to path:', storagePath)
-
-        const { error: uploadError } = await supabase.storage
-          .from('tenant-logos')
-          .upload(storagePath, file, { upsert: true })
-
-        if (uploadError) {
-          console.error('[Logo Upload] Storage error:', uploadError)
-          setError(`Upload failed: ${uploadError.message}`)
+        const uploadResult = await uploadLogoFile(file, tenantId, brand?.id || 'default')
+        if ('error' in uploadResult) {
+          setError(uploadResult.error)
           return
         }
 
-        // Get public URL
-        const { data } = supabase.storage
-          .from('tenant-logos')
-          .getPublicUrl(storagePath)
+        setLogoPreview(uploadResult.publicUrl)
 
-        // Update DB with the public URL via Server Action
         const formData = new FormData()
-        formData.append('logo_url', data.publicUrl)
+        formData.append('logo_url', uploadResult.publicUrl)
 
         const result = await (await import('../actions')).updateBrandingLogoUrlAction(formData)
         if ('error' in result) {
@@ -268,6 +272,7 @@ export function BrandingForm({ settings }: Props) {
         {/* Primary Color */}
         <div>
           <label className="block text-sm font-medium text-slate-900 mb-1">Primary Color</label>
+          <p className="text-xs text-slate-400 mb-2">Your customer portal's accent color — shared across all your brands, not brand-specific.</p>
           <div className="flex items-center gap-3">
             <input
               type="color"
@@ -327,13 +332,13 @@ export function BrandingForm({ settings }: Props) {
             <div className="p-4">
               <p className="text-xs text-slate-600 font-medium mb-2">From</p>
               <p className="font-semibold text-slate-900 text-sm mb-4">
-                {settings?.company_legal_name || 'Your Company'}
+                {brand?.name || 'Your Company'}
               </p>
-              {settings?.phone && (
-                <p className="text-xs text-slate-600 mb-1">Phone: {settings.phone}</p>
+              {brand?.phone && (
+                <p className="text-xs text-slate-600 mb-1">Phone: {brand.phone}</p>
               )}
-              {settings?.email && (
-                <p className="text-xs text-slate-600">Email: {settings.email}</p>
+              {brand?.email && (
+                <p className="text-xs text-slate-600">Email: {brand.email}</p>
               )}
             </div>
           </div>

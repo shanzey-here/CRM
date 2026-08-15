@@ -27,6 +27,11 @@ export async function updateInvoiceTemplateAction(formData: FormData) {
     throw new Error('Forbidden')
   }
 
+  const brandId = formData.get('brand_id') as string
+  if (!brandId) {
+    throw new Error('Missing brand_id')
+  }
+
   const layoutBlocksJson = formData.get('layout_blocks') as string
   let layoutBlocks: unknown = []
   if (layoutBlocksJson) {
@@ -44,7 +49,7 @@ export async function updateInvoiceTemplateAction(formData: FormData) {
     throw new Error(`Validation error: ${parsed.error.message}`)
   }
 
-  const { error } = await updateInvoiceTemplate(supabase, tenantId, parsed.data.layout_blocks)
+  const { error } = await updateInvoiceTemplate(supabase, tenantId, brandId, parsed.data.layout_blocks)
   if (error) {
     throw new Error(`Database error: ${error.message}`)
   }

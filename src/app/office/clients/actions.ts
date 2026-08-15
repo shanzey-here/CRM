@@ -108,7 +108,8 @@ export async function createClientCore(
   tenantId: string,
   payload: CreateClientFormInput,
   userId?: string,
-  forceCreateLead?: boolean
+  forceCreateLead?: boolean,
+  brandId?: string
 ) {
   // Validate payload
   const parseResult = createClientFormSchema.safeParse(payload)
@@ -117,6 +118,18 @@ export async function createClientCore(
   }
 
   const data = parseResult.data
+
+  // Single resolution point for the one shared lead-creation path (manual
+  // entry passes no brandId when the tenant has just one brand; the widget
+  // always passes the brand its public key resolved to).
+  let resolvedBrandId = brandId
+  if (!resolvedBrandId) {
+    const { getDefaultBrandId } = await import('@/modules/settings/brands/server/repository')
+    resolvedBrandId = (await getDefaultBrandId(supabase, tenantId)) ?? undefined
+    if (!resolvedBrandId) {
+      return { error: 'No default brand found for this tenant' }
+    }
+  }
 
   // 1. Create the Contact
   const { data: contact, error: contactErr } = await createContact(supabase, tenantId, {
@@ -171,9 +184,15 @@ export async function createClientCore(
     // 2b. Create the Lead
     const { data: leadData, error: leadErr } = await createLead(supabase, tenantId, {
       contact_id: contact.id,
+      brand_id: resolvedBrandId,
       stage: data.stage || 'inquiry',
       source: data.source || 'manual',
-      preferred_move_date: data.preferred_move_date,
+      // "" (an empty, untouched date input — the public widget form always
+      // sends this field, filled or not) is not valid input for a `date`
+      // column; only a real date string or null is. Found via real
+      // end-to-end widget testing during Part 3 verification — pre-existing
+      // gap, not introduced by brand threading.
+      preferred_move_date: data.preferred_move_date || null,
       estimated_hours: data.estimated_hours,
       estimated_crew_size: data.estimated_crew_size,
       notes: data.notes,
@@ -185,10 +204,12 @@ export async function createClientCore(
     if (leadErr || !leadData) {
       console.error('Create Lead Error during Client creation:', leadErr)
     } else if (data.quote_amount != null) {
-      // 2c. Create the Quote if amount provided
+      // 2c. Create the Quote if amount provided — inherits the same brand
+      // as the lead just created above, not a separate lookup.
       const { error: quoteErr } = await createQuote(supabase, tenantId, {
         contact_id: contact.id,
         lead_id: leadData.id,
+        brand_id: resolvedBrandId,
         final_price: data.quote_amount,
         total_price: data.quote_amount
       })
@@ -210,7 +231,7 @@ export async function createClientAction(payload: CreateClientFormInput) {
   }
   const tenantId = user.app_metadata.tenant_id
 
-  const result = await createClientCore(supabase, tenantId, payload, user.id, false)
+  const result = await createClientCore(supabase, tenantId, payload, user.id, false, payload.brand_id || undefined)
   if (result.success) {
     revalidatePath('/office/clients')
   }

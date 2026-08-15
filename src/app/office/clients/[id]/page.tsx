@@ -61,6 +61,10 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
   const { getTenantStaff } = await import('@/modules/users/server/repository')
   const { data: tenantStaff } = await getTenantStaff(supabase, tenantId)
 
+  // 5b. Fetch brands for the Create Lead form's brand selector
+  const { getBrands } = await import('@/modules/settings/brands/server/repository')
+  const { data: brands } = await getBrands(supabase, tenantId)
+
   // 6. Fetch LTV (if entitled)
   const { getContactLtv, getRepeatCustomers } = await import('@/modules/analytics/server/repository')
   let ltv: number | null = null
@@ -151,7 +155,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
         </div>
         <div className="flex gap-2">
           <EditContactForm contact={contact} />
-          <CreateLeadForm contactId={contact.id} />
+          <CreateLeadForm contactId={contact.id} brands={brands || []} />
         </div>
       </div>
 

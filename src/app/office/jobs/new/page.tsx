@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getTenantUsers } from '@/modules/users/server/repository'
 import { getContactsByTenant } from '@/modules/clients/server/repository'
 import { getSchedulingBoardData } from '@/modules/scheduling/server/repository'
+import { getBrands } from '@/modules/settings/brands/server/repository'
 import { ManualJobForm } from '../components/manual-job-form'
 import { format } from 'date-fns'
 
@@ -19,15 +20,17 @@ export default async function NewJobPage() {
   const tenantId = user.app_metadata.tenant_id
   const dateStr = format(new Date(), 'yyyy-MM-dd')
 
-  const [staffRes, contactsRes, boardRes] = await Promise.all([
+  const [staffRes, contactsRes, boardRes, brandsRes] = await Promise.all([
     getTenantUsers(supabase, tenantId),
     getContactsByTenant(supabase, tenantId),
-    getSchedulingBoardData(supabase, tenantId, dateStr)
+    getSchedulingBoardData(supabase, tenantId, dateStr),
+    getBrands(supabase, tenantId)
   ])
 
   const staff = staffRes.data || []
   const contacts = contactsRes.data || []
   const vehicles = boardRes.success && boardRes.data ? boardRes.data.vehicles : []
+  const brands = brandsRes.data || []
 
   // Create a server-side redirect action wrapper for onSuccess since ManualJobForm is a client component
   // Wait, ManualJobForm takes onSuccess callback. In a client component, we can use router.push.
@@ -42,10 +45,11 @@ export default async function NewJobPage() {
       </div>
 
       <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
-        <ManualJobForm 
+        <ManualJobForm
           contacts={contacts}
           tenantStaff={staff}
           vehicles={vehicles}
+          brands={brands}
         />
       </div>
     </div>
