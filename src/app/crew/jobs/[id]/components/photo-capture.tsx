@@ -8,12 +8,14 @@ export function PhotoCapture({ jobId, onPhotoQueued }: { jobId: string, onPhotoQ
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [caption, setCaption] = useState('')
   const [isCapturing, setIsCapturing] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
     setIsCapturing(true)
+    setError(null)
     try {
       const uploadId = crypto.randomUUID()
       await queuePhotoUpload({
@@ -29,7 +31,7 @@ export function PhotoCapture({ jobId, onPhotoQueued }: { jobId: string, onPhotoQ
       if (fileInputRef.current) fileInputRef.current.value = ''
     } catch (err) {
       console.error('Failed to queue photo', err)
-      alert('Failed to save photo offline. Please try again.')
+      setError('Failed to save photo offline. Please try again.')
     } finally {
       setIsCapturing(false)
     }
@@ -38,6 +40,11 @@ export function PhotoCapture({ jobId, onPhotoQueued }: { jobId: string, onPhotoQ
   return (
     <div className="bg-white p-4 rounded-lg shadow-sm border border-slate-200 mt-4">
       <h3 className="text-lg font-medium text-slate-900 mb-3">Add Photo</h3>
+      {error && (
+        <div className="mb-3 p-3 text-sm bg-red-50 border border-red-200 text-red-600 rounded-md">
+          {error}
+        </div>
+      )}
       <div className="flex flex-col space-y-3">
         <input
           type="text"

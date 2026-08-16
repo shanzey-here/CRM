@@ -32,10 +32,12 @@ export function UnifiedCreationModal({
   const [type, setType] = useState<'job' | 'task' | 'appointment'>('appointment')
   const [conflictWarning, setConflictWarning] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleCreateAppointment = async (ignoreConflict: boolean = false) => {
     setLoading(true)
     setConflictWarning(false)
+    setError(null)
 
     // Dummy payload for UI demonstration. In a real form, these would be bound to inputs.
     const start_time = initialSlot 
@@ -61,7 +63,7 @@ export function UnifiedCreationModal({
       } else if (res.success) {
         onClose()
       } else {
-        alert(res.error)
+        setError(res.error || 'Failed to save appointment')
       }
     } catch (e) {
       console.error(e)
@@ -131,6 +133,11 @@ export function UnifiedCreationModal({
                            </Button>
                         </div>
                       </div>
+                   </div>
+                 )}
+                 {error && (
+                   <div className="p-3 bg-red-50 border border-red-200 rounded text-red-800 text-sm">
+                     {error}
                    </div>
                  )}
                  {!conflictWarning && (

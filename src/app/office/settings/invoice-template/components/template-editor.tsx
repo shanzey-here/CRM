@@ -15,9 +15,9 @@ import {
 import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { GripVertical, Plus, X, ExternalLink } from 'lucide-react'
-import { invoiceTemplateSchema, InvoiceTemplateInput, InvoiceLayoutBlock } from '@/modules/settings/invoice-template/schemas'
+import { invoiceTemplateSchema, InvoiceTemplateInput, InvoiceLayoutBlock, CUSTOM_FIELD_KEYS } from '@/modules/settings/invoice-template/schemas'
 import { updateInvoiceTemplateAction } from '../actions'
-import { InvoiceRenderer } from '@/components/invoice/invoice-renderer'
+import { InvoiceRenderer, CUSTOM_FIELD_LABELS } from '@/components/invoice/invoice-renderer'
 import { SAMPLE_INVOICE_FOR_PREVIEW, SAMPLE_CONTACT_FOR_PREVIEW } from '@/components/invoice/sample-invoice-data'
 import { Brand } from '@/modules/settings/brands/server/repository'
 import {
@@ -40,12 +40,34 @@ const BLOCK_LABELS: Record<InvoiceLayoutBlock['type'], string> = {
   additional_details: 'Additional Details',
   total_in_words: 'Total in Words',
   declaration_signature: 'Declaration & Signature',
+  custom_text: 'Custom Text',
+  custom_field: 'Custom Field',
+}
+
+// Self-documentation (2a): every field a block renders, stated plainly so
+// what's behind a checkbox is never a guess. Every field listed here is
+// read live from the invoice/job/contact/brand at render time — none of it
+// is ever stored in the block's own config.
+const BLOCK_FIELD_DESCRIPTIONS: Record<InvoiceLayoutBlock['type'], string> = {
+  header: 'Live fields: brand name, logo, address, VAT number — read from the brand record at render time.',
+  line_items_table: 'Live fields: each line item\'s description, quantity, unit price, amount — read from invoice_line_items.',
+  totals_summary: 'Live fields: subtotal, tax, total — computed live from the invoice\'s line items.',
+  terms_text: 'Live field: terms copy — read from this brand\'s terms_template at render time.',
+  footer: 'Live field: page number. "Custom text" below is stored template copy, not invoice data.',
+  spacer: 'Layout only — renders no invoice data.',
+  location_details: 'Live fields: move date, origin address, destination address, move notes — read from the invoice\'s job.',
+  payment_instructions: 'Live field: bank/payment details — read from this brand\'s settings at render time.',
+  additional_details: 'Live fields: advance received, job status, balance outstanding — computed live from the invoice\'s payments/total and its job\'s status.',
+  total_in_words: 'Live field: invoice total, spelled out in words — computed live from invoice.total.',
+  declaration_signature: 'Declaration text is stored template copy; the signature line always renders blank.',
+  custom_text: 'Free text you write — stored in the template, never pulled from an invoice.',
+  custom_field: 'A single field\'s live value, chosen from an allow-list of real invoice/job/customer fields — never a free-typed or financial value.',
 }
 
 function defaultBlockFor(type: InvoiceLayoutBlock['type']): InvoiceLayoutBlock {
   switch (type) {
     case 'header':
-      return { type: 'header', config: { showLogo: true, alignment: 'left', logoSize: 'medium' } }
+      return { type: 'header', config: { showLogo: true, alignment: 'left', logoSize: 'medium', showAddress: true, showVatNumber: true } }
     case 'line_items_table':
       return { type: 'line_items_table', config: { columns: ['description', 'quantity', 'unit_price', 'amount'] } }
     case 'totals_summary':
@@ -57,15 +79,19 @@ function defaultBlockFor(type: InvoiceLayoutBlock['type']): InvoiceLayoutBlock {
     case 'spacer':
       return { type: 'spacer', config: { heightPx: 16 } }
     case 'location_details':
-      return { type: 'location_details', config: { show: true } }
+      return { type: 'location_details', config: { showMoveDate: true, showOrigin: true, showDestination: true, showNotes: true } }
     case 'payment_instructions':
       return { type: 'payment_instructions', config: { show: true } }
     case 'additional_details':
-      return { type: 'additional_details', config: { showJobStatus: true } }
+      return { type: 'additional_details', config: { showAdvanceReceived: true, showJobStatus: true, showBalanceOutstanding: true } }
     case 'total_in_words':
       return { type: 'total_in_words', config: { show: true } }
     case 'declaration_signature':
       return { type: 'declaration_signature', config: { declarationText: 'I have read & understood all the above terms.' } }
+    case 'custom_text':
+      return { type: 'custom_text', config: { label: '', text: '' } }
+    case 'custom_field':
+      return { type: 'custom_field', config: { label: '', fieldKey: CUSTOM_FIELD_KEYS[0] } }
   }
 }
 
@@ -261,6 +287,7 @@ function BlockRow({
           <X size={14} />
         </button>
       </div>
+      <p className="text-[11px] text-slate-400 mb-2 leading-snug">{BLOCK_FIELD_DESCRIPTIONS[block.type]}</p>
 
       <BlockConfigForm block={block} onChange={onChange} />
     </div>
@@ -279,6 +306,22 @@ function BlockConfigForm({ block, onChange }: { block: InvoiceLayoutBlock; onCha
               onChange={(e) => onChange({ ...block, config: { ...block.config, showLogo: e.target.checked } })}
             />
             Show logo
+          </label>
+          <label className="flex items-center gap-1">
+            <input
+              type="checkbox"
+              checked={block.config.showAddress !== false}
+              onChange={(e) => onChange({ ...block, config: { ...block.config, showAddress: e.target.checked } })}
+            />
+            Show address
+          </label>
+          <label className="flex items-center gap-1">
+            <input
+              type="checkbox"
+              checked={block.config.showVatNumber !== false}
+              onChange={(e) => onChange({ ...block, config: { ...block.config, showVatNumber: e.target.checked } })}
+            />
+            Show VAT number
           </label>
           <label className="flex items-center gap-1">
             Alignment:
@@ -391,14 +434,40 @@ function BlockConfigForm({ block, onChange }: { block: InvoiceLayoutBlock; onCha
 
     case 'location_details':
       return (
-        <label className="flex items-center gap-1 text-xs">
-          <input
-            type="checkbox"
-            checked={block.config.show}
-            onChange={(e) => onChange({ ...block, config: { ...block.config, show: e.target.checked } })}
-          />
-          Show (job date, addresses, move notes)
-        </label>
+        <div className="flex items-center gap-4 text-xs flex-wrap">
+          <label className="flex items-center gap-1">
+            <input
+              type="checkbox"
+              checked={block.config.showMoveDate !== false}
+              onChange={(e) => onChange({ ...block, config: { ...block.config, showMoveDate: e.target.checked } })}
+            />
+            Move date
+          </label>
+          <label className="flex items-center gap-1">
+            <input
+              type="checkbox"
+              checked={block.config.showOrigin !== false}
+              onChange={(e) => onChange({ ...block, config: { ...block.config, showOrigin: e.target.checked } })}
+            />
+            Origin
+          </label>
+          <label className="flex items-center gap-1">
+            <input
+              type="checkbox"
+              checked={block.config.showDestination !== false}
+              onChange={(e) => onChange({ ...block, config: { ...block.config, showDestination: e.target.checked } })}
+            />
+            Destination
+          </label>
+          <label className="flex items-center gap-1">
+            <input
+              type="checkbox"
+              checked={block.config.showNotes !== false}
+              onChange={(e) => onChange({ ...block, config: { ...block.config, showNotes: e.target.checked } })}
+            />
+            Move notes
+          </label>
+        </div>
       )
 
     case 'payment_instructions':
@@ -415,14 +484,32 @@ function BlockConfigForm({ block, onChange }: { block: InvoiceLayoutBlock; onCha
 
     case 'additional_details':
       return (
-        <label className="flex items-center gap-1 text-xs">
-          <input
-            type="checkbox"
-            checked={block.config.showJobStatus}
-            onChange={(e) => onChange({ ...block, config: { ...block.config, showJobStatus: e.target.checked } })}
-          />
-          Show job status row (advance/balance always shown)
-        </label>
+        <div className="flex items-center gap-4 text-xs flex-wrap">
+          <label className="flex items-center gap-1">
+            <input
+              type="checkbox"
+              checked={block.config.showAdvanceReceived !== false}
+              onChange={(e) => onChange({ ...block, config: { ...block.config, showAdvanceReceived: e.target.checked } })}
+            />
+            Advance received
+          </label>
+          <label className="flex items-center gap-1">
+            <input
+              type="checkbox"
+              checked={block.config.showJobStatus !== false}
+              onChange={(e) => onChange({ ...block, config: { ...block.config, showJobStatus: e.target.checked } })}
+            />
+            Job status
+          </label>
+          <label className="flex items-center gap-1">
+            <input
+              type="checkbox"
+              checked={block.config.showBalanceOutstanding !== false}
+              onChange={(e) => onChange({ ...block, config: { ...block.config, showBalanceOutstanding: e.target.checked } })}
+            />
+            Balance outstanding
+          </label>
+        </div>
       )
 
     case 'total_in_words':
@@ -448,6 +535,59 @@ function BlockConfigForm({ block, onChange }: { block: InvoiceLayoutBlock; onCha
             className="border border-slate-300 rounded px-1 py-0.5 flex-1 min-w-0"
           />
         </label>
+      )
+
+    case 'custom_text':
+      return (
+        <div className="flex flex-col gap-1.5 text-xs">
+          <label className="flex items-center gap-1">
+            Label:
+            <input
+              type="text"
+              value={block.config.label}
+              onChange={(e) => onChange({ ...block, config: { ...block.config, label: e.target.value } })}
+              className="border border-slate-300 rounded px-1 py-0.5 flex-1 min-w-0"
+              placeholder="Optional heading"
+            />
+          </label>
+          <label className="flex flex-col gap-1">
+            Text:
+            <textarea
+              value={block.config.text}
+              onChange={(e) => onChange({ ...block, config: { ...block.config, text: e.target.value } })}
+              className="border border-slate-300 rounded px-1 py-1 w-full min-h-[60px]"
+              placeholder="Free text for this template"
+            />
+          </label>
+        </div>
+      )
+
+    case 'custom_field':
+      return (
+        <div className="flex flex-col gap-1.5 text-xs">
+          <label className="flex items-center gap-1">
+            Label:
+            <input
+              type="text"
+              value={block.config.label}
+              onChange={(e) => onChange({ ...block, config: { ...block.config, label: e.target.value } })}
+              className="border border-slate-300 rounded px-1 py-0.5 flex-1 min-w-0"
+              placeholder={CUSTOM_FIELD_LABELS[block.config.fieldKey]}
+            />
+          </label>
+          <label className="flex items-center gap-1">
+            Field:
+            <select
+              value={block.config.fieldKey}
+              onChange={(e) => onChange({ ...block, config: { ...block.config, fieldKey: e.target.value as typeof CUSTOM_FIELD_KEYS[number] } })}
+              className="border border-slate-300 rounded px-1 py-0.5 flex-1 min-w-0"
+            >
+              {CUSTOM_FIELD_KEYS.map((key) => (
+                <option key={key} value={key}>{CUSTOM_FIELD_LABELS[key]}</option>
+              ))}
+            </select>
+          </label>
+        </div>
       )
 
     default:
