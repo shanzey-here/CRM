@@ -381,6 +381,64 @@ export type Database = {
           },
         ]
       }
+      automation_workflow_pending_steps: {
+        Row: {
+          created_at: string
+          execution_log_id: string
+          id: string
+          next_action_sort_order: number
+          payload: Json
+          resume_at: string
+          tenant_id: string
+          updated_at: string
+          workflow_id: string
+        }
+        Insert: {
+          created_at?: string
+          execution_log_id: string
+          id?: string
+          next_action_sort_order: number
+          payload: Json
+          resume_at: string
+          tenant_id: string
+          updated_at?: string
+          workflow_id: string
+        }
+        Update: {
+          created_at?: string
+          execution_log_id?: string
+          id?: string
+          next_action_sort_order?: number
+          payload?: Json
+          resume_at?: string
+          tenant_id?: string
+          updated_at?: string
+          workflow_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_workflow_pending_steps_execution_log_id_fkey"
+            columns: ["execution_log_id"]
+            isOneToOne: false
+            referencedRelation: "automation_workflow_execution_log"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automation_workflow_pending_steps_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automation_workflow_pending_steps_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "automation_workflows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       automation_workflows: {
         Row: {
           created_at: string
@@ -4094,7 +4152,7 @@ export type Database = {
         | "tyre_change"
         | "inspection"
         | "other"
-      workflow_action_type: "create_task" | "update_lead_stage"
+      workflow_action_type: "create_task" | "update_lead_stage" | "delay" | "send_email" | "send_sms" | "notify_staff" | "condition"
       workflow_execution_status: "pending" | "success" | "partial" | "failed"
       workflow_trigger_event_type:
         | "lead.created"
@@ -4103,6 +4161,10 @@ export type Database = {
         | "task.completed"
         | "email.received"
         | "email.label_added"
+        | "quote.sent"
+        | "quote.accepted"
+        | "job.completed"
+        | "invoice.paid"
     }
     CompositeTypes: {
       quote_inventory_input: {
@@ -4339,7 +4401,7 @@ export const Constants = {
         "inspection",
         "other",
       ],
-      workflow_action_type: ["create_task", "update_lead_stage"],
+      workflow_action_type: ["create_task", "update_lead_stage", "delay", "send_email", "send_sms", "notify_staff", "condition"],
       workflow_execution_status: ["pending", "success", "partial", "failed"],
       workflow_trigger_event_type: [
         "lead.created",
@@ -4348,6 +4410,10 @@ export const Constants = {
         "task.completed",
         "email.received",
         "email.label_added",
+        "quote.sent",
+        "quote.accepted",
+        "job.completed",
+        "invoice.paid",
       ],
     },
   },
