@@ -13,12 +13,17 @@ const supabase = createClient<Database>(supabaseUrl, supabaseServiceKey)
 async function runTests() {
   console.log('--- Phase 3 Workflow Expansion Verification ---')
   
-  let { data: tenant } = await supabase.from('tenants').select('id').limit(1).single()
-  if (!tenant) {
-    const { data: newTenant } = await supabase.from('tenants').insert({ name: 'Test Tenant', slug: 'test-tenant' }).select('id').single()
-    tenant = newTenant
+  // 1. Find devtest tenant
+  const { data: userData, error: userError } = await supabase
+    .from('users')
+    .select('tenant_id')
+    .eq('email', 'admin@devtest.local')
+    .single()
+  
+  if (userError || !userData) {
+    throw new Error('Could not find admin@devtest.local user')
   }
-  const tenantId = tenant!.id
+  const tenantId = userData.tenant_id
 
   await supabase.from('tenant_modules').upsert({ tenant_id: tenantId, module_name: 'automation_workflows', is_enabled: true })
   await supabase.from('automation_workflows').delete().eq('tenant_id', tenantId).like('name', 'TEST_%')
