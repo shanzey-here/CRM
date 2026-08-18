@@ -222,7 +222,7 @@ export async function createLeadAction(payload: unknown): Promise<{ success: boo
     lead_id: newLead.id,
     source: parseResult.data.source || 'manual',
     created_by: user.id
-  }, tenantId)
+  })
 
   revalidatePath('/office/leads')
   revalidatePath(`/office/clients/${newLead.contact_id}`)
