@@ -93,11 +93,11 @@ export default async function AutoSentLogPage({
                       {customerName || thread?.subject || 'Unknown customer'}
                     </span>
                     {computedPrice != null ? (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-indigo-50 text-indigo-700">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-blue-50 text-blue-700">
                         Quote — £{Number(computedPrice).toFixed(2)}
                       </span>
                     ) : (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-purple-50 text-purple-700">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-blue-100 text-blue-800">
                         AI sent
                       </span>
                     )}

@@ -1,10 +1,10 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import SignatureCanvas from 'react-signature-canvas'
 import { loadStripe } from '@stripe/stripe-js'
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
 import { generatePaymentIntentAction, pollQuoteStatusAction } from '../actions'
+import { SignatureCapture, SignatureCaptureRef } from '@/components/ui/signature-capture'
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_PUBLISHABLE_KEY || '')
 
@@ -24,7 +24,7 @@ export function AcceptanceFlow({ token, primaryColor, depositAmount, status }: A
     status === 'accepted' ? 'success' : 'sign'
   )
   
-  const sigCanvas = useRef<SignatureCanvas>(null)
+  const sigCaptureRef = useRef<SignatureCaptureRef>(null)
 
   if (view === 'success' || status === 'accepted') {
     return (
@@ -46,14 +46,14 @@ export function AcceptanceFlow({ token, primaryColor, depositAmount, status }: A
       return
     }
     
-    if (sigCanvas.current?.isEmpty()) {
+    if (sigCaptureRef.current?.isEmpty()) {
       setError('Please draw your signature.')
       return
     }
 
     setIsSubmitting(true)
     
-    const base64Image = sigCanvas.current?.getTrimmedCanvas().toDataURL('image/png') || ''
+    const base64Image = sigCaptureRef.current?.getBase64Image() || ''
 
     const result = await generatePaymentIntentAction(token, {
       signatureName,
@@ -92,33 +92,11 @@ export function AcceptanceFlow({ token, primaryColor, depositAmount, status }: A
             </div>
           )}
 
-          <div style={{ marginBottom: '16px' }}>
-            <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>Type Full Name</label>
-            <input 
-              type="text" 
-              value={signatureName}
-              onChange={(e) => setSignatureName(e.target.value)}
-              style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db' }}
-              placeholder="John Doe"
-            />
-          </div>
-
-          <div style={{ marginBottom: '16px' }}>
-            <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px' }}>Draw Signature</label>
-            <div style={{ border: '1px solid #d1d5db', borderRadius: '6px', backgroundColor: '#f9fafb' }}>
-              <SignatureCanvas 
-                ref={sigCanvas}
-                canvasProps={{ style: { width: '100%', height: '150px' } }}
-              />
-            </div>
-            <button 
-              type="button" 
-              onClick={() => sigCanvas.current?.clear()}
-              style={{ background: 'none', border: 'none', color: '#6b7280', fontSize: '12px', marginTop: '8px', cursor: 'pointer', padding: 0 }}
-            >
-              Clear Signature
-            </button>
-          </div>
+          <SignatureCapture 
+            ref={sigCaptureRef}
+            signatureName={signatureName}
+            onSignatureNameChange={setSignatureName}
+          />
 
           <button 
             type="submit"

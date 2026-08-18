@@ -136,12 +136,20 @@ export async function updateLeadDetailsAction(
     return { success: false, error: 'Lead not found' }
   }
 
-  // 4. Update the lead (tenant-scoped query ensures cross-tenant safety)
+  // 4. Update the lead (tenant-scoped query ensures cross-tenant safety).
+  // '' passes Zod's z.string().optional().nullable() fine (it's a valid
+  // string) but Postgres's date column rejects it outright (22007) — the
+  // form already avoids sending '', but normalize here too since this
+  // action shouldn't rely solely on which UI happens to call it.
+  const updatePayload = {
+    ...parseResult.data,
+    preferred_move_date: parseResult.data.preferred_move_date === '' ? null : parseResult.data.preferred_move_date,
+  }
   const { data: updatedLead, error: updateError } = await updateLead(
     supabase,
     tenantId,
     leadId,
-    parseResult.data as any
+    updatePayload as any
   )
 
   if (updateError || !updatedLead) {
@@ -172,4 +180,52 @@ export async function updateLeadDetailsAction(
   revalidatePath('/office/leads')
 
   return { success: true, data: updatedLead }
+}
+
+export async function createLeadAction(payload: unknown): Promise<{ success: boolean; error?: string; data?: any }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) return { success: false, error: 'Unauthorized' }
+
+  const tenantId = user.app_metadata?.tenant_id as string | undefined
+  if (!tenantId) return { success: false, error: 'No tenant context' }
+
+  const { insertLeadSchema } = await import('@/modules/leads/schemas')
+  const parseResult = insertLeadSchema.safeParse(payload)
+
+  if (!parseResult.success) {
+    return { success: false, error: 'Validation failed', data: parseResult.error.issues }
+  }
+
+  let brandId = parseResult.data.brand_id
+  if (!brandId) {
+    const { getDefaultBrandId } = await import('@/modules/settings/brands/server/repository')
+    brandId = (await getDefaultBrandId(supabase, tenantId)) ?? undefined
+    if (!brandId) return { success: false, error: 'No default brand found for this tenant' }
+  }
+
+  const { createLead } = await import('@/modules/leads/server/repository')
+  const { data: newLead, error: createError } = await createLead(
+    supabase,
+    tenantId,
+    { ...parseResult.data, brand_id: brandId }
+  )
+
+  if (createError || !newLead) {
+    return { success: false, error: 'Failed to create lead' }
+  }
+
+  // Emit event
+  const { emitEvent } = await import('@/utils/supabase/event-bus')
+  await emitEvent(supabase, 'lead.created', 'crm', {
+    lead_id: newLead.id,
+    source: parseResult.data.source || 'manual',
+    created_by: user.id
+  })
+
+  revalidatePath('/office/leads')
+  revalidatePath(`/office/clients/${newLead.contact_id}`)
+
+  return { success: true, data: newLead }
 }

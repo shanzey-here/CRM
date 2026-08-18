@@ -30,10 +30,20 @@ export async function getContacts(
   supabase: SupabaseClient<Database>,
   tenantId: string,
   options?: ContactFilterOptions
-): Promise<{ data: Contact[] | null; count: number | null; error: Error | null }> {
+): Promise<{ data: any[] | null; count: number | null; error: Error | null }> {
+  // We use `any[]` temporarily for the return type since the complex join 
+  // expands beyond the base Contact type, and generating exact types for it is verbose.
   let query = supabase
     .from('contacts')
-    .select('*', { count: 'exact' })
+    .select(`
+      *,
+      leads (
+        id, stage, preferred_move_date, source, assigned_to, estimated_hours, estimated_crew_size, updated_at,
+        origin_address:addresses!leads_origin_address_fk(city, postcode),
+        destination_address:addresses!leads_destination_address_fk(city, postcode),
+        quotes ( final_price, total_price, status )
+      )
+    `, { count: 'exact' })
     .eq('tenant_id', tenantId) // Explicit tenant scoping
     .order('created_at', { ascending: false })
 
@@ -52,6 +62,22 @@ export async function getContacts(
   }
 
   const { data, count, error } = await query
+  
+  // Sort leads in memory to ensure 'updated_at DESC' is strictly applied 
+  // to pick the most recently active lead, as PostgREST nested ordering 
+  // can sometimes be tricky syntax-wise: .order('updated_at', { foreignTable: 'leads', ascending: false })
+  if (data) {
+    data.forEach((contact: any) => {
+      if (contact.leads && Array.isArray(contact.leads)) {
+        contact.leads.sort((a: any, b: any) => {
+          const dateA = a.updated_at ? new Date(a.updated_at).getTime() : 0
+          const dateB = b.updated_at ? new Date(b.updated_at).getTime() : 0
+          return dateB - dateA
+        })
+      }
+    })
+  }
+
   return { data, count, error }
 }
 
@@ -65,6 +91,21 @@ export async function getContactById(
     .select('*')
     .eq('tenant_id', tenantId)
     .eq('id', id)
+    .single()
+
+  return { data, error }
+}
+
+export async function getContactByUserId(
+  supabase: SupabaseClient<Database>,
+  tenantId: string,
+  userId: string
+): Promise<{ data: Contact | null; error: Error | null }> {
+  const { data, error } = await supabase
+    .from('contacts')
+    .select('*')
+    .eq('tenant_id', tenantId)
+    .eq('user_id', userId)
     .single()
 
   return { data, error }
@@ -208,6 +249,68 @@ export async function getContactAddresses(
   return { 
     data: data as (ContactAddress & { addresses: Address | null })[] | null, 
     error 
+  }
+}
+
+// ============================================================================
+// RELOCATION HISTORY
+// ============================================================================
+
+export type RelocationHistoryJob = {
+  id: string
+  status: string
+  move_date: string | null
+  created_at: string
+  origin_address: { city: string; postcode: string } | null
+  destination_address: { city: string; postcode: string } | null
+  quote: { id: string; total_price: number } | { id: string; total_price: number }[] | null
+}
+
+export type RelocationHistoryQuote = {
+  id: string
+  status: string
+  total_price: number
+  valid_until: string | null
+  created_at: string
+}
+
+export async function getContactRelocationHistory(
+  supabase: SupabaseClient<Database>,
+  tenantId: string,
+  contactId: string
+): Promise<{
+  jobs: RelocationHistoryJob[]
+  nonAcceptedQuotes: RelocationHistoryQuote[]
+  error: Error | null
+}> {
+  const [jobsResult, quotesResult] = await Promise.all([
+    supabase
+      .from('jobs')
+      .select(`
+        id, status, move_date, created_at,
+        origin_address:addresses!jobs_origin_address_fk(city, postcode),
+        destination_address:addresses!jobs_destination_address_fk(city, postcode),
+        quote:quotes(
+          id, total_price,
+          lead:leads(source)
+        )
+      `)
+      .eq('tenant_id', tenantId)
+      .eq('contact_id', contactId),
+    supabase
+      .from('quotes')
+      .select('id, status, total_price, valid_until, created_at, lead:leads(source)')
+      .eq('tenant_id', tenantId)
+      .eq('contact_id', contactId)
+      .in('status', ['declined', 'expired']),
+  ])
+
+  const error = jobsResult.error || quotesResult.error || null
+
+  return {
+    jobs: (jobsResult.data as any) || [],
+    nonAcceptedQuotes: quotesResult.data || [],
+    error,
   }
 }
 

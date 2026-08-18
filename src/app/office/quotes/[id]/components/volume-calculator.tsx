@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { Plus, Minus, Box, Save, Info } from 'lucide-react'
 import { INVENTORY_ROOMS } from '@/modules/inventory/schemas'
 import { saveQuoteInventoryAction } from '../../actions'
+import { formatZodIssues } from '@/lib/format-zod-error'
 
 type CatalogItem = {
   id: string
@@ -49,6 +50,7 @@ export function VolumeCalculator({
   catalog: CatalogItem[]
 }) {
   const [isPending, startTransition] = useTransition()
+  const [error, setError] = useState<string | null>(null)
   
   // 1. Initialize state
   const [selections, setSelections] = useState<Record<string, Selection>>(() => {
@@ -117,6 +119,7 @@ export function VolumeCalculator({
   const handleSave = () => {
     if (quote.status !== 'draft') return
 
+    setError(null)
     startTransition(async () => {
       const payload = {
         items: Object.values(selections).map(s => ({
@@ -130,7 +133,7 @@ export function VolumeCalculator({
 
       const result = await saveQuoteInventoryAction(quote.id, payload)
       if (!result.success) {
-        alert(result.error || 'Failed to save inventory')
+        setError('details' in result && result.details ? formatZodIssues(result.details) : result.error || 'Failed to save inventory')
       }
     })
   }
@@ -256,8 +259,14 @@ export function VolumeCalculator({
                   This quote is no longer a draft. Inventory modifications are locked.
                 </div>
               )}
-              
-              <Button 
+
+              {error && (
+                <div className="mb-4 p-3 text-sm bg-red-50 border border-red-200 text-red-600 rounded-md">
+                  {error}
+                </div>
+              )}
+
+              <Button
                 className="w-full" 
                 onClick={handleSave} 
                 disabled={isPending || !isDraft}

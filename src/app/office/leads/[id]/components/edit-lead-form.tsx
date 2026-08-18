@@ -11,6 +11,7 @@ import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import {
   Dialog,
   DialogContent,
@@ -21,7 +22,12 @@ import {
 import { Loader2, Edit2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-export function EditLeadForm({ lead }: { lead: Lead }) {
+interface TenantStaffOption {
+  id: string
+  full_name: string | null
+}
+
+export function EditLeadForm({ lead, tenantStaff = [] }: { lead: Lead; tenantStaff?: TenantStaffOption[] }) {
   const [open, setOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
@@ -29,6 +35,8 @@ export function EditLeadForm({ lead }: { lead: Lead }) {
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<UpdateLeadDetailsInput>({
     resolver: zodResolver(updateLeadDetailsSchema),
@@ -36,10 +44,18 @@ export function EditLeadForm({ lead }: { lead: Lead }) {
       notes: lead.notes || '',
       preferred_move_date: lead.preferred_move_date || '',
       estimated_volume: lead.estimated_volume || undefined,
-      assigned_to: lead.assigned_to || '',
+      // '' is a real string that fails z.string().uuid() — must be null
+      // (not undefined) so an explicit "Unassigned" selection actually
+      // clears a previously-assigned lead, rather than Supabase silently
+      // omitting the column from the update payload.
+      assigned_to: lead.assigned_to || null,
       source: lead.source || '',
+      priority: (lead as any).priority || 'medium',
     },
   })
+
+  const assignedToValue = watch('assigned_to')
+  const priorityValue = watch('priority')
 
   const onSubmit = async (data: UpdateLeadDetailsInput) => {
     setIsSubmitting(true)
@@ -75,7 +91,15 @@ export function EditLeadForm({ lead }: { lead: Lead }) {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="preferred_move_date">Preferred Move Date</Label>
-              <Input id="preferred_move_date" type="date" {...register('preferred_move_date')} />
+              <Input
+                id="preferred_move_date"
+                type="date"
+                {...register('preferred_move_date', {
+                  // A blank date input submits '' — Postgres's date column
+                  // rejects that outright (22007); it needs null instead.
+                  setValueAs: (v) => (v === '' ? null : v),
+                })}
+              />
               {errors.preferred_move_date && (
                 <p className="text-sm text-red-500">{errors.preferred_move_date.message}</p>
               )}
@@ -86,7 +110,12 @@ export function EditLeadForm({ lead }: { lead: Lead }) {
                 id="estimated_volume"
                 type="number"
                 step="0.01"
-                {...register('estimated_volume', { valueAsNumber: true })}
+                {...register('estimated_volume', {
+                  // valueAsNumber:true turns a blank field into NaN, which
+                  // z.number() correctly rejects — but a blank field here
+                  // means "no value", not "invalid value".
+                  setValueAs: (v) => (v === '' || v === null || v === undefined ? undefined : Number(v)),
+                })}
               />
               {errors.estimated_volume && (
                 <p className="text-sm text-red-500">{errors.estimated_volume.message}</p>
@@ -94,10 +123,50 @@ export function EditLeadForm({ lead }: { lead: Lead }) {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="assigned_to">Assigned To (User ID)</Label>
-            <Input id="assigned_to" {...register('assigned_to')} placeholder="Leave blank for unassigned" />
-            {errors.assigned_to && <p className="text-sm text-red-500">{errors.assigned_to.message}</p>}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Assigned To</Label>
+              <Select
+                value={assignedToValue || 'unassigned'}
+                onValueChange={(val) => setValue('assigned_to', val === 'unassigned' ? null : val)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Unassigned">
+                    {assignedToValue
+                      ? tenantStaff.find((s) => s.id === assignedToValue)?.full_name || 'Unnamed'
+                      : 'Unassigned'}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="unassigned">Unassigned</SelectItem>
+                  {tenantStaff.map((staffMember) => (
+                    <SelectItem key={staffMember.id} value={staffMember.id}>
+                      {staffMember.full_name || 'Unnamed'}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.assigned_to && <p className="text-sm text-red-500">{errors.assigned_to.message}</p>}
+            </div>
+            <div className="space-y-2">
+              <Label>Priority</Label>
+              <Select
+                value={priorityValue || 'medium'}
+                onValueChange={(val) => setValue('priority', val as 'low' | 'medium' | 'high')}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select priority">
+                    {{ low: 'Low', medium: 'Medium', high: 'High' }[priorityValue || 'medium']}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="low">Low</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                </SelectContent>
+              </Select>
+              {errors.priority && <p className="text-sm text-red-500">{errors.priority.message}</p>}
+            </div>
           </div>
 
           <div className="space-y-2">

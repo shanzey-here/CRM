@@ -17,7 +17,10 @@ export async function createQuoteAction(payload: unknown) {
 
   const parsed = insertQuoteSchema.safeParse(payload)
   if (!parsed.success) {
-    return { success: false, error: 'Validation failed' }
+    // Same shape saveQuoteInventoryAction already returns — real
+    // field-level detail, not a bare string, so the caller can show
+    // exactly what failed instead of a generic message.
+    return { success: false, error: 'Validation failed', details: parsed.error.issues }
   }
 
   const { data, error } = await repoCreateQuote(supabase, tenantId, parsed.data)

@@ -1,6 +1,6 @@
 import { SupabaseClient } from '@supabase/supabase-js'
 import { Database } from '@/types/database.types'
-import { CreateJobFromQuoteData, JobSchema, Job } from '../schema'
+import { CreateJobFromQuoteData, JobSchema, Job, UpdateJobDetailsInput } from '../schema'
 
 export async function createJobFromQuoteTransaction(
   supabase: SupabaseClient<Database>,
@@ -97,8 +97,10 @@ export async function getJobDetails(
       contact:contacts(first_name, last_name, email, phone, company_name),
       origin_address:addresses!jobs_origin_address_fk(*),
       destination_address:addresses!jobs_destination_address_fk(*),
+      job_photos(*),
       quote:quotes(
         id, subtotal, surcharge_total, total_price, deposit_amount, status, total_volume, terms,
+        lead:leads(source),
         quote_inventory(
           id,
           quantity,
@@ -122,6 +124,30 @@ export async function getJobDetails(
   }
 
   return { success: true, jobDetails: data }
+}
+
+export async function updateJob(
+  supabase: SupabaseClient<Database>,
+  tenantId: string,
+  jobId: string,
+  updates: UpdateJobDetailsInput
+) {
+  const { data, error } = await supabase
+    .from('jobs')
+    .update(updates)
+    .eq('id', jobId)
+    .eq('tenant_id', tenantId) // Explicit tenant scoping — never trust jobId alone
+    .select()
+    .single()
+
+  if (error) {
+    return { success: false, error: error.message }
+  }
+  if (!data) {
+    return { success: false, error: 'Job not found' }
+  }
+
+  return { success: true, job: data }
 }
 
 export async function getUpcomingJobs(

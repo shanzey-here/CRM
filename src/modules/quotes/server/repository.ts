@@ -13,11 +13,13 @@ export async function createQuote(
       tenant_id: tenantId,
       contact_id: input.contact_id,
       lead_id: input.lead_id,
+      brand_id: input.brand_id,
       status: 'draft',
       total_volume: 0,
       subtotal: 0,
       surcharge_total: 0,
-      total_price: 0,
+      total_price: input.total_price ?? 0,
+      final_price: input.final_price,
     })
     .select()
     .single()
@@ -140,7 +142,7 @@ export async function getQuoteByPublicToken(
       `
       *,
       contact:contacts!quotes_contact_fk(id, first_name, last_name, email, phone),
-      tenant:tenants!quotes_tenant_fk(id)
+      tenant:tenants(id)
     `
     )
     .eq('public_token', token)

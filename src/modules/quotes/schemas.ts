@@ -4,6 +4,9 @@ import { INVENTORY_ROOMS } from '../inventory/schemas'
 export const insertQuoteSchema = z.object({
   lead_id: z.string().uuid().optional(),
   contact_id: z.string().uuid(),
+  brand_id: z.string().uuid(),
+  final_price: z.number().optional().nullable(),
+  total_price: z.number().optional().nullable(),
 })
 
 export type InsertQuoteInput = z.infer<typeof insertQuoteSchema>

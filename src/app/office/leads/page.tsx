@@ -62,7 +62,7 @@ export default async function LeadsPage() {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-slate-50">
+    <div className="flex flex-col h-[calc(100vh-64px)] bg-slate-50">
       {/* Page Header */}
       <div className="shrink-0 border-b border-slate-200 bg-white px-6 py-4">
         <div className="flex items-center justify-between">
@@ -84,7 +84,7 @@ export default async function LeadsPage() {
       </div>
 
       {/* Board */}
-      <div className="flex-1 overflow-hidden px-6 py-4">
+      <div className="flex-1 overflow-hidden py-4">
         {error ? (
           <div className="flex items-center justify-center h-full">
             <p className="text-sm text-red-500">

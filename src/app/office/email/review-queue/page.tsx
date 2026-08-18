@@ -2,6 +2,9 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { QueueItem } from './components/queue-item'
+import { LabelSuggestionQueueItem } from './components/label-suggestion-queue-item'
+import { getPendingLabelSuggestions } from '@/modules/email-labels/server/repository'
+import { getContrastTextColor } from '@/modules/email-labels/color'
 
 export const dynamic = 'force-dynamic'
 
@@ -56,46 +59,110 @@ export default async function ReviewQueuePage({
 
   const totalPages = count ? Math.ceil(count / PAGE_SIZE) : 1
 
+  // A second, independent query — email_messages and its authored_by enum
+  // are untouched. The type discriminator lives here at the query/page
+  // layer, not baked into either table's schema.
+  const { data: labelSuggestions } = await getPendingLabelSuggestions(supabase, tenantId)
+
+  type QueueEntry =
+    | { type: 'draft'; timestamp: string; item: (typeof items extends (infer T)[] | null ? T : never) }
+    | { type: 'label_suggestion'; timestamp: string; item: NonNullable<typeof labelSuggestions>[number] }
+
+  const draftEntries: QueueEntry[] = (items ?? []).map((item) => ({ type: 'draft', timestamp: item.created_at, item }))
+  const labelEntries: QueueEntry[] = (labelSuggestions ?? []).map((item) => ({
+    type: 'label_suggestion',
+    timestamp: item.suggested_at,
+    item,
+  }))
+  const queueEntries = [...draftEntries, ...labelEntries].sort(
+    (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+  )
+
   return (
     <div>
       <h1 className="text-2xl font-bold text-slate-900 mb-1">Review Queue</h1>
       <p className="text-sm text-slate-500 mb-8">
-        AI-drafted replies waiting for your approval, across all connected mailboxes — oldest first.
+        AI-drafted replies and suggested labels waiting for your approval, across all connected mailboxes — oldest first.
       </p>
 
       {error && <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded text-red-700 text-sm">Failed to load queue: {error.message}</div>}
 
-      {items && items.length === 0 && (
+      {queueEntries.length === 0 && (
         <div className="text-center py-16 text-slate-500">
           <p className="text-lg font-medium text-slate-700">You're all caught up</p>
-          <p className="text-sm mt-1">No AI-drafted replies are waiting for review.</p>
+          <p className="text-sm mt-1">No AI-drafted replies or label suggestions are waiting for review.</p>
         </div>
       )}
 
       <div className="space-y-4">
-        {(items ?? []).map((item) => {
+        {queueEntries.map((entry) => {
+          if (entry.type === 'draft') {
+            const item = entry.item
+            const thread = item.email_threads as any
+            const contact = thread?.contacts
+            const mailbox = thread?.mailboxes
+            const customerName = contact ? `${contact.first_name}${contact.last_name ? ` ${contact.last_name}` : ''}` : null
+            const aiMetadata = item.ai_metadata as any
+            const computedPrice: number | null = aiMetadata?.computedPrice ?? null
+
+            return (
+              <div key={`draft-${item.id}`} className="p-4 rounded-lg border border-slate-200 bg-white">
+                <div className="flex items-start justify-between gap-3 mb-2">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold text-slate-900 truncate">
+                        {customerName || thread?.subject || 'Unknown customer'}
+                      </span>
+                      {computedPrice != null ? (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-blue-50 text-blue-700">
+                          Quote — £{Number(computedPrice).toFixed(2)}
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-50 text-amber-700">
+                          AI draft
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-slate-500 mt-0.5 truncate">
+                      {thread?.subject || '(no subject)'} {mailbox?.mailbox_address ? `· ${mailbox.mailbox_address}` : ''}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <span className="text-[11px] text-slate-400">{timeAgo(item.created_at)}</span>
+                    <Link href={`/office/email/${item.thread_id}`} className="text-xs text-emerald-600 hover:underline">
+                      View full thread
+                    </Link>
+                  </div>
+                </div>
+
+                <QueueItem messageId={item.id} initialBody={item.body_text || ''} claimedAt={item.claimed_at} />
+              </div>
+            )
+          }
+
+          // type === 'label_suggestion'
+          const item = entry.item
           const thread = item.email_threads as any
+          const label = item.email_labels as any
           const contact = thread?.contacts
           const mailbox = thread?.mailboxes
           const customerName = contact ? `${contact.first_name}${contact.last_name ? ` ${contact.last_name}` : ''}` : null
-          const aiMetadata = item.ai_metadata as any
-          const computedPrice: number | null = aiMetadata?.computedPrice ?? null
+          const textColor = label ? getContrastTextColor(label.color_hex) : '#000000'
 
           return (
-            <div key={item.id} className="p-4 rounded-lg border border-slate-200 bg-white">
+            <div key={`label-${item.id}`} className="p-4 rounded-lg border border-slate-200 bg-white">
               <div className="flex items-start justify-between gap-3 mb-2">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-semibold text-slate-900 truncate">
                       {customerName || thread?.subject || 'Unknown customer'}
                     </span>
-                    {computedPrice != null ? (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-indigo-50 text-indigo-700">
-                        Quote — £{Number(computedPrice).toFixed(2)}
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-50 text-amber-700">
-                        AI draft
+                    {label && (
+                      <span
+                        className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium"
+                        style={{ backgroundColor: label.color_hex, color: textColor }}
+                      >
+                        Suggested: {label.name}
                       </span>
                     )}
                   </div>
@@ -104,14 +171,14 @@ export default async function ReviewQueuePage({
                   </p>
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
-                  <span className="text-[11px] text-slate-400">{timeAgo(item.created_at)}</span>
+                  <span className="text-[11px] text-slate-400">{timeAgo(item.suggested_at)}</span>
                   <Link href={`/office/email/${item.thread_id}`} className="text-xs text-emerald-600 hover:underline">
                     View full thread
                   </Link>
                 </div>
               </div>
 
-              <QueueItem messageId={item.id} initialBody={item.body_text || ''} claimedAt={item.claimed_at} />
+              <LabelSuggestionQueueItem suggestionId={item.id} threadId={item.thread_id} labelId={item.label_id} />
             </div>
           )
         })}

@@ -21,7 +21,7 @@ function toBytea(buffer: Buffer): string {
 export async function createOAuthMailbox(
   serviceClient: SupabaseClient<Database>,
   tenantId: string,
-  { provider, mailboxAddress, refreshToken }: { provider: 'gmail'; mailboxAddress: string; refreshToken: string }
+  { provider, mailboxAddress, refreshToken, brandId }: { provider: 'gmail'; mailboxAddress: string; refreshToken: string; brandId?: string | null }
 ) {
   const encrypted = encryptCredential(refreshToken)
 
@@ -30,6 +30,7 @@ export async function createOAuthMailbox(
     .upsert(
       {
         tenant_id: tenantId,
+        brand_id: brandId ?? null,
         provider,
         connection_method: 'oauth',
         mailbox_address: mailboxAddress,
@@ -54,7 +55,8 @@ export async function createImapMailbox(
     smtpHost,
     smtpPort,
     password,
-  }: { mailboxAddress: string; host: string; port: number; smtpHost: string; smtpPort: number; password: string }
+    brandId,
+  }: { mailboxAddress: string; host: string; port: number; smtpHost: string; smtpPort: number; password: string; brandId?: string | null }
 ) {
   const encrypted = encryptCredential(password)
 
@@ -63,6 +65,7 @@ export async function createImapMailbox(
     .upsert(
       {
         tenant_id: tenantId,
+        brand_id: brandId ?? null,
         provider: 'imap_generic',
         connection_method: 'imap_password',
         mailbox_address: mailboxAddress,

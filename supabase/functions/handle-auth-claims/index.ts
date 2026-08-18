@@ -238,7 +238,22 @@ Deno.serve(async (req: Request): Promise<Response> => {
           throw error;
         }
 
-        // Sync to public.users table
+        // Sync to public.users table. The on_auth_user_created DB trigger
+        // should already have created this row; this ensure-exists upsert
+        // (DO NOTHING on conflict, so it never clobbers real data) is just a
+        // self-healing fallback, followed by the actual field update.
+        await supabaseAdmin.from("users").upsert(
+          {
+            id: user_id,
+            email: userData.user.email,
+            full_name:
+              (userData.user.user_metadata?.full_name as string | undefined) ??
+              userData.user.email ??
+              "Unknown",
+          },
+          { onConflict: "id", ignoreDuplicates: true }
+        );
+
         const { error: updateError } = await supabaseAdmin
           .from("users")
           .update({ role: tenant_role })
@@ -268,6 +283,16 @@ Deno.serve(async (req: Request): Promise<Response> => {
       case "set_super_admin": {
         const { user_id } = body as SetSuperAdminPayload;
 
+        const { data: userData, error: fetchError } =
+          await supabaseAdmin.auth.admin.getUserById(user_id);
+
+        if (fetchError || !userData?.user) {
+          return new Response(
+            JSON.stringify({ error: `User not found: ${user_id}` }),
+            { status: 404, headers: { "Content-Type": "application/json" } }
+          );
+        }
+
         const { error } = await supabaseAdmin.auth.admin.updateUserById(
           user_id,
           {
@@ -283,7 +308,24 @@ Deno.serve(async (req: Request): Promise<Response> => {
           throw error;
         }
 
-        // Sync to public.users table
+        // Sync to public.users table. The on_auth_user_created DB trigger
+        // should already have created this row (this was previously the
+        // exact bug: a plain UPDATE here silently did nothing when the row
+        // didn't exist yet, since super-admin accounts don't go through
+        // set_tenant_claims's upsert path). Ensure-exists first (DO NOTHING
+        // on conflict, never clobbers real data), then update the fields.
+        await supabaseAdmin.from("users").upsert(
+          {
+            id: user_id,
+            email: userData.user.email,
+            full_name:
+              (userData.user.user_metadata?.full_name as string | undefined) ??
+              userData.user.email ??
+              "Unknown",
+          },
+          { onConflict: "id", ignoreDuplicates: true }
+        );
+
         const { error: updateError } = await supabaseAdmin
           .from("users")
           .update({ tenant_id: null, role: null })

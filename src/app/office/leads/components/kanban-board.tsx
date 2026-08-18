@@ -8,7 +8,9 @@ import {
   useSensors,
   type DragEndEvent,
   type DragStartEvent,
+  type CollisionDetection,
   closestCorners,
+  pointerWithin,
 } from '@dnd-kit/core'
 import { useState, useTransition, useCallback } from 'react'
 import { KanbanColumn } from './kanban-column'
@@ -19,6 +21,25 @@ import type { Lead } from '@/modules/leads/server/repository'
 
 interface KanbanBoardProps {
   initialLeads: Lead[]
+}
+
+// Every LeadCard is also its own droppable (useSortable registers a droppable
+// keyed by the card's id, alongside each column's useDroppable keyed by stage
+// id). closestCorners alone can resolve to a card's rect instead of its
+// parent column's, so handleDragEnd's over.id ends up being a lead UUID
+// rather than a valid stage — silently rejected, card snaps back. Try
+// pointerWithin first and prefer a real column id when one is among the
+// results; only fall back to closestCorners if the pointer isn't within any
+// registered droppable at all.
+const STAGE_IDS = KANBAN_STAGES.map((s) => s.id) as string[]
+
+const columnAwareCollisionDetection: CollisionDetection = (args) => {
+  const pointerCollisions = pointerWithin(args)
+  if (pointerCollisions.length > 0) {
+    const columnCollision = pointerCollisions.find((c) => STAGE_IDS.includes(c.id as string))
+    return columnCollision ? [columnCollision] : [pointerCollisions[0]]
+  }
+  return closestCorners(args)
 }
 
 export function KanbanBoard({ initialLeads }: KanbanBoardProps) {
@@ -104,17 +125,18 @@ export function KanbanBoard({ initialLeads }: KanbanBoardProps) {
       <DndContext
         id="kanban-board-dnd-context"
         sensors={sensors}
-        collisionDetection={closestCorners}
+        collisionDetection={columnAwareCollisionDetection}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <div className="flex gap-4 overflow-x-auto pb-4 flex-1">
-          {KANBAN_STAGES.map((stage) => (
+        <div className="flex gap-4 overflow-x-auto pb-4 pl-6 flex-1 after:content-[''] after:w-6 after:shrink-0">
+          {KANBAN_STAGES.map((stage, index) => (
             <KanbanColumn
               key={stage.id}
               stage={stage}
-              leads={leadsByStage(stage.id)}
+              leads={leadsByStage(stage.id as KanbanStage)}
               isPending={isPending}
+              index={index}
             />
           ))}
         </div>

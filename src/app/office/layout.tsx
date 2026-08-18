@@ -1,8 +1,12 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { HeaderNav } from './components/header-nav'
-import { RealtimeAlerts } from './components/realtime-alerts'
+import { SidebarNav } from './components/header-nav'
+import { NotificationBell } from './components/notification-bell'
+import { AnnouncementBannerStack } from './components/announcement-banner-stack'
+import { getActiveAnnouncementsForTenant } from '@/modules/announcements/server/repository'
+import { isPastDueAccessExpired } from '@/modules/subscriptions/server/grace-period'
+import { getTenantSettings } from '@/modules/settings/branding/server/repository'
 
 export default async function OfficeLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -37,7 +41,11 @@ export default async function OfficeLayout({ children }: { children: React.React
   // this is safely scoped to tenant staff.
   const { headers } = await import('next/headers')
   const headersList = await headers()
-  const currentPath = headersList.get('x-invoke-path') || ''
+  // Set by src/lib/supabase/middleware.ts (proxy) on every request — layouts
+  // have no built-in access to the current pathname (Next.js's own docs:
+  // "Layouts do not re-render on navigation, so they do not access
+  // pathname"), so it's forwarded as a header instead.
+  const currentPath = headersList.get('x-pathname') || ''
   
   const { getTenantSubscription } = await import('@/modules/subscriptions/server/repository')
   const subscription = await getTenantSubscription(supabase, tenantId)
@@ -45,7 +53,16 @@ export default async function OfficeLayout({ children }: { children: React.React
 
   const isBillingPage = currentPath.startsWith('/office/settings/billing')
 
-  if (!isBillingPage && (subStatus === 'cancelled' || subStatus === 'suspended' || subscription?.manually_suspended)) {
+  // past_due gets a 7-day grace period (isPastDueAccessExpired), unlike
+  // cancelled/suspended/manually_suspended which block immediately — reuses
+  // this exact same redirect, same billing-page exemption, not a second check.
+  if (
+    !isBillingPage &&
+    (subStatus === 'cancelled' ||
+      subStatus === 'suspended' ||
+      subscription?.manually_suspended ||
+      isPastDueAccessExpired(subscription?.past_due_since ?? null))
+  ) {
     redirect('/office/settings/billing?restricted=true')
   }
 
@@ -53,50 +70,90 @@ export default async function OfficeLayout({ children }: { children: React.React
   let trialDaysRemaining = null
   if (subStatus === 'trialing' && subscription?.current_period_end) {
     const { differenceInDays } = await import('date-fns')
+    const { TRIAL_WARNING_DAYS } = await import('@/modules/subscriptions/server/trial-sweep')
     const days = differenceInDays(new Date(subscription.current_period_end), new Date())
-    if (days >= 0 && days <= 3) {
+    if (days >= 0 && days <= TRIAL_WARNING_DAYS) {
       trialDaysRemaining = days
     }
   }
 
+  // Platform announcements are tenant_admin-only — the query itself is gated
+  // by role, not just the JSX below. dispatcher never calls this.
+  const planId = subscription?.saas_prices?.saas_plans?.id ?? null
+  const activeAnnouncements =
+    role === 'tenant_admin'
+      ? await getActiveAnnouncementsForTenant(supabase, { tenantId, planId, userId: user.id })
+      : []
+
+  // Tenant-level UI theme (internal /office dashboard only — completely
+  // separate from tenant_settings.primary_color, which brands the
+  // customer-facing proposal pages and is never read here). Applied via the
+  // real .dark class selector already defined in globals.css
+  // (@custom-variant dark (&:is(.dark *))) — server-rendered directly onto
+  // the root wrapper below, so the correct theme paints on first response
+  // with no client-side toggle, no flash of the wrong theme, no reload
+  // logic to write.
+  const { data: tenantSettings } = await getTenantSettings(supabase, tenantId)
+  const isDarkTheme = tenantSettings?.ui_theme === 'dark'
+
   // 5. Layout Render
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
-      {subStatus === 'past_due' && (
-        <div className="bg-amber-600 px-4 py-3 text-white text-sm font-medium text-center shadow-inner">
-          Your last payment failed. Please update your billing information to avoid service interruption.{' '}
-          <Link href="/office/settings/billing" className="underline hover:text-amber-100">
-            Manage Billing
-          </Link>
+    <div className={isDarkTheme ? 'dark' : undefined}>
+    <div className="min-h-screen bg-background flex">
+      {/* Sidebar (Fixed) */}
+      <div className="fixed inset-y-0 left-0 w-64 bg-sidebar border-r border-sidebar-border flex flex-col shadow-sm z-50">
+        <div className="h-16 flex items-center px-6 border-b border-sidebar-border shrink-0">
+          <Link href="/office" className="text-xl font-bold text-emerald-600 dark:text-emerald-400">Gomove</Link>
         </div>
-      )}
-      {trialDaysRemaining !== null && (
-        <div className="bg-amber-500 px-4 py-3 text-amber-950 text-sm font-medium text-center shadow-inner">
-          Your free trial expires in {trialDaysRemaining === 0 ? 'less than a day' : `${trialDaysRemaining} days`}. Please update your billing information to avoid service interruption.{' '}
-          <Link href="/office/settings/billing" className="underline hover:text-amber-950 font-bold">
-            Manage Billing
-          </Link>
+        <div className="flex-1 overflow-y-auto py-4 px-3">
+          <SidebarNav role={role} />
         </div>
-      )}
-      <header className="bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex">
-              <div className="flex-shrink-0 flex items-center">
-                <Link href="/office/leads" className="text-xl font-bold text-emerald-600">Gomove</Link>
-              </div>
-              <HeaderNav />
-            </div>
-            <div className="flex items-center">
-              <span className="text-sm text-slate-500 mr-4">{user.email}</span>
-            </div>
+        <div className="p-4 border-t border-sidebar-border bg-sidebar-accent/40 shrink-0">
+          <div className="text-sm font-medium text-sidebar-foreground truncate" title={user.email}>{user.email}</div>
+          <form action="/auth/signout" method="POST" className="mt-2">
+            <button type="submit" className="text-xs font-medium text-muted-foreground hover:text-red-600 dark:hover:text-red-400 transition-colors">Log Out</button>
+          </form>
+        </div>
+      </div>
+
+      {/* Main Content Area */}
+      <div className="flex-1 ml-64 flex flex-col min-h-screen min-w-0">
+        {/* Global Banners */}
+        {role === 'tenant_admin' && activeAnnouncements.length > 0 && (
+          <AnnouncementBannerStack
+            initial={activeAnnouncements}
+            tenantId={tenantId}
+            planId={planId}
+            userId={user.id}
+          />
+        )}
+        {subStatus === 'past_due' && (
+          <div className="bg-amber-600 px-4 py-3 text-white text-sm font-medium text-center shadow-inner">
+            Your last payment failed. Please update your billing information to avoid service interruption.{' '}
+            <Link href="/office/settings/billing" className="underline hover:text-amber-100">
+              Manage Billing
+            </Link>
           </div>
-        </div>
-      </header>
-      <main className="flex-1">
-        {children}
-      </main>
-      <RealtimeAlerts tenantId={tenantId} />
+        )}
+        {trialDaysRemaining !== null && (
+          <div className="bg-amber-500 px-4 py-3 text-amber-950 text-sm font-medium text-center shadow-inner">
+            Your free trial expires in {trialDaysRemaining === 0 ? 'less than a day' : `${trialDaysRemaining} days`}. Please update your billing information to avoid service interruption.{' '}
+            <Link href="/office/settings/billing" className="underline hover:text-amber-950 font-bold">
+              Manage Billing
+            </Link>
+          </div>
+        )}
+
+        {/* Minimal Top Header */}
+        <header className="h-16 bg-background/80 backdrop-blur-sm border-b border-border flex items-center justify-end px-8 sticky top-0 z-40 shrink-0">
+          <NotificationBell userId={user.id} />
+        </header>
+
+        <main className="flex-1 min-w-0">
+          {children}
+        </main>
+      </div>
+    </div>
     </div>
   )
 }

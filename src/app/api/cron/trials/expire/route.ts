@@ -1,81 +1,79 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
+import { sweepExpiredTrials, notifyApproachingTrials } from '@/modules/subscriptions/server/trial-sweep'
+import { logCronRun } from '@/modules/platform-health/server/cron-log'
 
-// Vercel Cron standardizes on sending a Bearer token matching CRON_SECRET
-// For local testing, you can pass ?secret=XYZ or Bearer XYZ
+const JOB_NAME = 'trials/expire'
+
+// Authenticated via Bearer CRON_SECRET, matching the project-wide convention
+// established in src/app/api/cron/mailboxes/sync/route.ts and
+// src/app/api/cron/crates/bill-overdue/route.ts.
+//
+// SECURITY: Fails CLOSED — if CRON_SECRET is not configured this route
+// refuses to run entirely.  The previous behaviour (failing open when the env
+// var was unset) was a genuine security gap: any unauthenticated caller could
+// trigger trial transitions across all tenants.
+//
+// LOCAL DEV: no real cron runs locally; trigger manually with:
+//   curl -s -H "Authorization: Bearer <CRON_SECRET>" \
+//        http://localhost:3000/api/cron/trials/expire | jq .
 export async function GET(request: Request) {
-  const authHeader = request.headers.get('authorization')
+  // --- Auth (fail CLOSED) ---
   const expectedSecret = process.env.CRON_SECRET
+  if (!expectedSecret) {
+    return NextResponse.json(
+      { error: 'CRON_SECRET is not configured — refusing to run' },
+      { status: 500 }
+    )
+  }
 
-  if (
-    expectedSecret &&
-    authHeader !== `Bearer ${expectedSecret}`
-  ) {
+  const authHeader = request.headers.get('authorization')
+  if (authHeader !== `Bearer ${expectedSecret}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
+  // --- Supabase service-role client ---
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
   if (!supabaseUrl || !supabaseKey) {
-    return NextResponse.json({ error: 'Missing Supabase service role environment variables' }, { status: 500 })
+    return NextResponse.json(
+      { error: 'Missing Supabase service role environment variables' },
+      { status: 500 }
+    )
   }
 
-  // Use service_role client to bypass RLS and perform cross-tenant operations
-  const supabase = createClient(supabaseUrl, supabaseKey, {
+  const serviceClient = createClient(supabaseUrl, supabaseKey, {
     auth: { autoRefreshToken: false, persistSession: false },
   })
 
+  const startedAt = new Date()
+
   try {
-    // 1. Identify all expired trials
-    // Note: To remain idempotent and efficient, we strictly filter `status = 'trialing'`
-    // The `now()` comparison requires using raw RPC or fetching & updating if we can't do it cleanly in JS.
-    // Supabase JS allows `.lt('current_period_end', new Date().toISOString())`
-    
-    const nowIso = new Date().toISOString()
-    
-    const { data: expiredTrials, error: fetchErr } = await supabase
-      .from('tenant_subscriptions')
-      .select('id, tenant_id')
-      .eq('status', 'trialing')
-      .lt('current_period_end', nowIso)
+    // 1. Transition expired trials → suspended
+    const expiredResult = await sweepExpiredTrials(serviceClient)
 
-    if (fetchErr) {
-      throw new Error(`Failed to fetch expired trials: ${fetchErr.message}`)
-    }
+    // 2. Notify trials approaching expiry (error-isolated per tenant inside
+    //    notifyApproachingTrials — a failure here never breaks step 1)
+    const notifyResult = await notifyApproachingTrials(serviceClient)
 
-    if (!expiredTrials || expiredTrials.length === 0) {
-      return NextResponse.json({ 
-        success: true, 
-        message: 'No expired trials found', 
-        processed: 0 
-      })
-    }
+    await logCronRun(serviceClient, { jobName: JOB_NAME, startedAt, status: 'success' })
 
-    // 2. Transition them to suspended
-    const expiredIds = expiredTrials.map(t => t.id)
-    
-    const { error: updateErr } = await supabase
-      .from('tenant_subscriptions')
-      .update({ status: 'suspended', updated_at: nowIso })
-      .in('id', expiredIds)
-
-    if (updateErr) {
-      throw new Error(`Failed to update subscriptions: ${updateErr.message}`)
-    }
-
-    // Since audit.log_action() trigger fires on UPDATE, the database will automatically
-    // log this transition against the service_role context.
-
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Successfully expired trials', 
-      processed: expiredIds.length,
-      tenantIds: expiredTrials.map(t => t.tenant_id)
+    return NextResponse.json({
+      success: true,
+      expired: {
+        processed: expiredResult.processed,
+        tenantIds: expiredResult.tenantIds,
+      },
+      notifications: {
+        notified: notifyResult.notified,
+        skipped: notifyResult.skipped,
+        errors: notifyResult.errors,
+      },
     })
-
   } catch (err: any) {
-    console.error('[CRON] Trial Expiry Error:', err)
+    console.error('[CRON] Trial sweep error:', err)
+    await logCronRun(serviceClient, { jobName: JOB_NAME, startedAt, status: 'failure', errorMessage: err.message })
     return NextResponse.json({ success: false, error: err.message }, { status: 500 })
   }
 }

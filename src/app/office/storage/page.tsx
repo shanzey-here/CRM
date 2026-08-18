@@ -4,13 +4,15 @@ import { redirect } from 'next/navigation'
 import { CRATE_STATUS_LABELS, ALL_CRATE_STATUSES, CrateStatus } from '@/modules/storage/transitions'
 import { listCratesWithBillingIssues } from '@/modules/storage/server/repository'
 
+import { CrateStatsMatrix } from './components/crate-stats-matrix'
+
 export const dynamic = 'force-dynamic'
 
 const STATUS_BADGE: Record<string, string> = {
   in_warehouse: 'bg-slate-50 text-slate-600 ring-slate-500/10',
   reserved: 'bg-amber-50 text-amber-700 ring-amber-600/20',
   with_customer: 'bg-blue-50 text-blue-700 ring-blue-600/20',
-  returned: 'bg-indigo-50 text-indigo-700 ring-indigo-600/20',
+  returned: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20',
   lost: 'bg-red-50 text-red-700 ring-red-600/20',
   damaged: 'bg-red-50 text-red-700 ring-red-600/20',
 }
@@ -28,11 +30,24 @@ export default async function StoragePage({ searchParams }: { searchParams: Prom
   const tenantId = user.app_metadata?.tenant_id as string | undefined
   if (!tenantId) redirect('/login?error=no_tenant_context')
 
+  // Fetch stats and lists in parallel
   let crates: any[] | null = null
   let error: { message: string } | null = null
+  let stats = { total: 0, available: 0, inUse: 0, billingIssues: 0 }
+
+  const [issueCrates, statsResult] = await Promise.all([
+    listCratesWithBillingIssues(supabase, tenantId),
+    supabase.rpc('get_crate_stats', { p_tenant_id: tenantId })
+  ])
+
+  stats.billingIssues = issueCrates.length
+  if (statsResult.data && statsResult.data.length > 0) {
+    stats.total = Number(statsResult.data[0].total_crates)
+    stats.available = Number(statsResult.data[0].available_crates)
+    stats.inUse = Number(statsResult.data[0].in_use_crates)
+  }
 
   if (billingIssuesFilter) {
-    const issueCrates = await listCratesWithBillingIssues(supabase, tenantId)
     const crateIds = issueCrates.map((c) => c.id)
     if (crateIds.length > 0) {
       const result = await supabase
@@ -61,7 +76,7 @@ export default async function StoragePage({ searchParams }: { searchParams: Prom
 
   return (
     <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-      <div className="sm:flex sm:items-center sm:justify-between">
+      <div className="sm:flex sm:items-center sm:justify-between mb-8">
         <div>
           <h1 className="text-2xl font-bold leading-7 text-slate-900 sm:truncate sm:text-3xl sm:tracking-tight">Crates</h1>
           <p className="mt-2 text-sm text-slate-500">Track individual rentable crates and which storage unit or customer they're currently with.</p>
@@ -75,6 +90,8 @@ export default async function StoragePage({ searchParams }: { searchParams: Prom
           </Link>
         </div>
       </div>
+
+      <CrateStatsMatrix stats={stats} />
 
       <div className="mt-6 flex items-center gap-2 flex-wrap">
         <Link
@@ -94,7 +111,7 @@ export default async function StoragePage({ searchParams }: { searchParams: Prom
         ))}
         <Link
           href="/office/storage?billing_issues=1"
-          className={`text-xs px-3 py-1.5 rounded-full font-medium ${billingIssuesFilter ? 'bg-red-600 text-white' : 'bg-red-50 text-red-700 hover:bg-red-100'}`}
+          className={`text-xs px-3 py-1.5 rounded-full font-medium ${billingIssuesFilter ? 'border-2 border-red-500 bg-white text-red-700' : 'bg-red-50 text-red-700 hover:bg-red-100'}`}
         >
           Billing issues
         </Link>
@@ -129,7 +146,7 @@ export default async function StoragePage({ searchParams }: { searchParams: Prom
                 <tbody className="divide-y divide-slate-200 bg-white">
                   {crates && crates.length > 0 ? (
                     crates.map((crate: any) => (
-                      <tr key={crate.id}>
+                      <tr key={crate.id} className="hover:bg-slate-50 transition-colors relative group">
                         <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-slate-900 sm:pl-6">{crate.crate_number}</td>
                         <td className="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
                           <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${STATUS_BADGE[crate.status] ?? ''}`}>
@@ -141,7 +158,7 @@ export default async function StoragePage({ searchParams }: { searchParams: Prom
                           {crate.contacts ? `${crate.contacts.first_name} ${crate.contacts.last_name}` : '—'}
                         </td>
                         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                          <Link href={`/office/storage/crates/${crate.id}`} className="text-blue-600 hover:text-blue-900">
+                          <Link href={`/office/storage/crates/${crate.id}`} className="text-blue-600 hover:text-blue-900 after:absolute after:inset-0">
                             View<span className="sr-only">, {crate.crate_number}</span>
                           </Link>
                         </td>

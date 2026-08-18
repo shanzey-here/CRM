@@ -1,6 +1,9 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 import { runMailboxSync } from '@/modules/mailboxes/server/sync'
+import { logCronRun } from '@/modules/platform-health/server/cron-log'
+
+const JOB_NAME = 'mailboxes/sync'
 
 // Same shape as the trial-expiry cron (src/app/api/cron/trials/expire/route.ts):
 // external scheduler (Vercel Cron or similar) hits this on an interval,
@@ -28,18 +31,37 @@ export async function GET(request: Request) {
     auth: { autoRefreshToken: false, persistSession: false },
   })
 
-  const result = await runMailboxSync(serviceClient)
+  const startedAt = new Date()
 
-  if (result.skipped) {
-    return NextResponse.json({ success: true, skipped: true, reason: result.reason })
+  try {
+    const result = await runMailboxSync(serviceClient)
+
+    if (result.skipped) {
+      await logCronRun(serviceClient, { jobName: JOB_NAME, startedAt, status: 'success' })
+      return NextResponse.json({ success: true, skipped: true, reason: result.reason })
+    }
+
+    const failed = result.results.filter((r) => !r.ok).length
+    // A sync that ran but had per-mailbox failures is still a "failure" run
+    // for cron-health purposes — the route itself didn't crash, but the
+    // outcome wasn't clean, and that's exactly what the health tab should surface.
+    await logCronRun(serviceClient, {
+      jobName: JOB_NAME,
+      startedAt,
+      status: failed > 0 ? 'failure' : 'success',
+      errorMessage: failed > 0 ? `${failed} of ${result.results.length} mailbox(es) failed to sync` : null,
+    })
+
+    return NextResponse.json({
+      success: true,
+      skipped: false,
+      processed: result.results.length,
+      succeeded: result.results.filter((r) => r.ok).length,
+      failed,
+      results: result.results,
+    })
+  } catch (err: any) {
+    await logCronRun(serviceClient, { jobName: JOB_NAME, startedAt, status: 'failure', errorMessage: err.message })
+    return NextResponse.json({ success: false, error: err.message }, { status: 500 })
   }
-
-  return NextResponse.json({
-    success: true,
-    skipped: false,
-    processed: result.results.length,
-    succeeded: result.results.filter((r) => r.ok).length,
-    failed: result.results.filter((r) => !r.ok).length,
-    results: result.results,
-  })
 }

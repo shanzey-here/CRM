@@ -28,16 +28,20 @@ export default async function ProposalPage({ params }: ProposalPageProps) {
     notFound()
   }
 
-  const { data: tenant } = await supabase
-    .from('tenant_settings')
-    .select('company_legal_name, logo_url, primary_color, terms_template')
-    .eq('tenant_id', quote.tenant_id)
-    .single()
+  // Identity comes from this quote's own brand (brand_id, NOT NULL on
+  // quotes since Part 3) — a multi-brand tenant's proposal must show the
+  // brand that actually quoted it, not just the tenant's default.
+  // primary_color remains tenant-wide (tenant_settings), unrelated to
+  // brand identity.
+  const [{ data: brand }, { data: settings }] = await Promise.all([
+    supabase.from('brands').select('name, logo_url, terms_text').eq('id', quote.brand_id).single(),
+    supabase.from('tenant_settings').select('primary_color').eq('tenant_id', quote.tenant_id).single(),
+  ])
 
   const contact = (quote.contact as any) || {}
   const lead = (quote.lead as any) || {}
   const finalPrice = quote.final_price || quote.computed_price || 0
-  const primaryColor = tenant?.primary_color || '#1a56db'
+  const primaryColor = settings?.primary_color || '#1a56db'
 
   let originAddr = null
   let destAddr = null
@@ -65,11 +69,11 @@ export default async function ProposalPage({ params }: ProposalPageProps) {
       <div style={{ backgroundColor: primaryColor, color: 'white', padding: '32px 0' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
-            {tenant?.logo_url && (
-              <img src={tenant.logo_url} alt="Logo" style={{ height: '48px', objectFit: 'contain' }} />
+            {brand?.logo_url && (
+              <img src={brand.logo_url} alt="Logo" style={{ height: '48px', objectFit: 'contain' }} />
             )}
             <h1 style={{ fontSize: '30px', fontWeight: 'bold', margin: 0 }}>
-              {tenant?.company_legal_name || 'Proposal'}
+              {brand?.name || 'Proposal'}
             </h1>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -140,10 +144,10 @@ export default async function ProposalPage({ params }: ProposalPageProps) {
               </div>
             </div>
 
-            {tenant?.terms_template && (
+            {brand?.terms_text && (
               <div style={{ backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', padding: '24px' }}>
                 <h3 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '16px' }}>Terms & Conditions</h3>
-                <p style={{ color: '#4b5563', whiteSpace: 'pre-wrap', fontSize: '14px' }}>{tenant.terms_template}</p>
+                <p style={{ color: '#4b5563', whiteSpace: 'pre-wrap', fontSize: '14px' }}>{brand.terms_text}</p>
               </div>
             )}
           </div>

@@ -4,7 +4,8 @@ import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { Plus, Trash2, ArrowUp, ArrowDown, AlertCircle, Save } from 'lucide-react'
+import Link from 'next/link'
+import { Plus, Trash2, ArrowUp, ArrowDown, AlertCircle, Save, Lock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
@@ -29,6 +30,7 @@ export function WorkflowBuilderForm({ initialData, isAiEmailEnabled }: Props) {
   const router = useRouter()
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [blockedByEntitlement, setBlockedByEntitlement] = useState(false)
 
   const defaultValues: WorkflowFormValues = initialData || {
     name: '',
@@ -59,11 +61,16 @@ export function WorkflowBuilderForm({ initialData, isAiEmailEnabled }: Props) {
   async function onSubmit(data: WorkflowFormValues) {
     setIsSaving(true)
     setError(null)
+    setBlockedByEntitlement(false)
     const result = await saveWorkflow(data, initialData?.id)
     setIsSaving(false)
 
     if (result.error) {
-      setError(result.error)
+      if ('reason' in result && result.reason === 'entitlement') {
+        setBlockedByEntitlement(true)
+      } else {
+        setError(result.error)
+      }
     } else {
       router.push('/office/workflows')
       router.refresh()
@@ -77,6 +84,21 @@ export function WorkflowBuilderForm({ initialData, isAiEmailEnabled }: Props) {
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      {blockedByEntitlement && (
+        <Alert className="bg-indigo-50 border-indigo-200 text-indigo-900">
+          <Lock className="h-4 w-4 text-indigo-600" />
+          <AlertTitle>Upgrade to save this workflow</AlertTitle>
+          <AlertDescription className="text-indigo-800">
+            Your current plan doesn&apos;t include Automation Workflows. You can keep building and
+            exploring this workflow freely — upgrading your plan is all that&apos;s needed to save
+            and activate it.{' '}
+            <Link href="/office/settings/billing" className="font-medium underline underline-offset-2">
+              View plans
+            </Link>
+          </AlertDescription>
         </Alert>
       )}
 
@@ -104,9 +126,6 @@ export function WorkflowBuilderForm({ initialData, isAiEmailEnabled }: Props) {
                 <Label htmlFor="is_active" className="text-base font-medium text-slate-900">
                   Active Status
                 </Label>
-                <span className="text-sm text-slate-500">
-                  Workflows are currently in configuration-only mode. Activating this workflow will not trigger automated actions until the Workflow Engine is released.
-                </span>
               </div>
               <Switch
                 id="is_active"
@@ -230,6 +249,16 @@ export function WorkflowBuilderForm({ initialData, isAiEmailEnabled }: Props) {
                             form.setValue(`actions.${index}`, { action_type: 'create_task', action_config: { title: '' } })
                           } else if (val === 'update_lead_stage') {
                             form.setValue(`actions.${index}`, { action_type: 'update_lead_stage', action_config: { stage: 'inquiry' } })
+                          } else if (val === 'delay') {
+                            form.setValue(`actions.${index}`, { action_type: 'delay', action_config: { delay_hours: 24, delay_minutes: 0 } })
+                          } else if (val === 'condition') {
+                            form.setValue(`actions.${index}`, { action_type: 'condition', action_config: { field: '', operator: '===', value: '' } })
+                          } else if (val === 'send_email') {
+                            form.setValue(`actions.${index}`, { action_type: 'send_email', action_config: { to: '', subject: '', body: '' } })
+                          } else if (val === 'send_sms') {
+                            form.setValue(`actions.${index}`, { action_type: 'send_sms', action_config: { phone: '', message: '' } })
+                          } else if (val === 'notify_staff') {
+                            form.setValue(`actions.${index}`, { action_type: 'notify_staff', action_config: { user_id: '', message: '' } })
                           }
                         }}
                       >
@@ -239,7 +268,13 @@ export function WorkflowBuilderForm({ initialData, isAiEmailEnabled }: Props) {
                         <SelectContent>
                           {workflowActionTypes.map((t) => (
                             <SelectItem key={t} value={t}>
-                              {t === 'create_task' ? 'Create Task' : 'Update Lead Stage'}
+                              {t === 'create_task' ? 'Create Task' : 
+                               t === 'update_lead_stage' ? 'Update Lead Stage' : 
+                               t === 'delay' ? 'Wait / Delay' :
+                               t === 'condition' ? 'Condition (If/Else)' :
+                               t === 'send_email' ? 'Send Email' :
+                               t === 'send_sms' ? 'Send SMS' :
+                               t === 'notify_staff' ? 'Notify Staff' : t}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -289,12 +324,28 @@ export function WorkflowBuilderForm({ initialData, isAiEmailEnabled }: Props) {
                         </div>
                         <div className="col-span-2 sm:col-span-1">
                           <Label>Due Offset (Days)</Label>
-                          <Input 
-                            type="number" 
-                            {...form.register(`actions.${index}.action_config.due_offset_days` as const, { valueAsNumber: true })} 
-                            className="mt-1 bg-white" 
+                          <Input
+                            type="number"
+                            value={
+                              (form.watch(`actions.${index}.action_config` as const) as any)?.due_offset_days ?? ''
+                            }
+                            onChange={(e) => {
+                              const raw = e.target.value
+                              form.setValue(
+                                `actions.${index}.action_config.due_offset_days` as const,
+                                raw === '' ? undefined : Number(raw)
+                              )
+                            }}
+                            className="mt-1 bg-white"
                             placeholder="e.g. 2"
                           />
+                          {form.formState.errors.actions?.[index] &&
+                            'action_config' in form.formState.errors.actions[index]! &&
+                            (form.formState.errors.actions[index] as any).action_config?.due_offset_days && (
+                              <p className="mt-1 text-sm text-red-600">
+                                {(form.formState.errors.actions[index] as any).action_config.due_offset_days.message}
+                              </p>
+                            )}
                         </div>
                       </div>
                     )}
@@ -318,6 +369,145 @@ export function WorkflowBuilderForm({ initialData, isAiEmailEnabled }: Props) {
                               ))}
                             </SelectContent>
                           </Select>
+                        </div>
+                      </div>
+                    )}
+
+                    {currentActionType === 'delay' && (
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <div className="col-span-2 sm:col-span-1">
+                          <Label>Delay (Hours)</Label>
+                          <Input
+                            type="number"
+                            value={(form.watch(`actions.${index}.action_config` as const) as any)?.delay_hours ?? ''}
+                            onChange={(e) => {
+                              const raw = e.target.value
+                              form.setValue(`actions.${index}.action_config.delay_hours` as const, raw === '' ? 0 : Number(raw))
+                            }}
+                            className="mt-1 bg-white"
+                            placeholder="e.g. 24"
+                          />
+                        </div>
+                        <div className="col-span-2 sm:col-span-1">
+                          <Label>Delay (Minutes)</Label>
+                          <Input
+                            type="number"
+                            value={(form.watch(`actions.${index}.action_config` as const) as any)?.delay_minutes ?? ''}
+                            onChange={(e) => {
+                              const raw = e.target.value
+                              form.setValue(`actions.${index}.action_config.delay_minutes` as const, raw === '' ? 0 : Number(raw))
+                            }}
+                            className="mt-1 bg-white"
+                            placeholder="e.g. 30"
+                          />
+                        </div>
+                      </div>
+                    )}
+                    
+                    {currentActionType === 'condition' && (
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                        <div className="col-span-3 sm:col-span-1">
+                          <Label>Field</Label>
+                          <Input 
+                            {...form.register(`actions.${index}.action_config.field` as const)} 
+                            className="mt-1 bg-white" 
+                            placeholder="e.g. amount"
+                          />
+                        </div>
+                        <div className="col-span-3 sm:col-span-1">
+                          <Label>Operator</Label>
+                          <Select
+                            value={(form.watch(`actions.${index}.action_config` as const) as any)?.operator || '==='}
+                            onValueChange={(val: any) => form.setValue(`actions.${index}.action_config.operator`, val)}
+                          >
+                            <SelectTrigger className="mt-1 bg-white">
+                              <SelectValue placeholder="Select operator" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="===">Equals (===)</SelectItem>
+                              <SelectItem value=">">Greater than (&gt;)</SelectItem>
+                              <SelectItem value="<">Less than (&lt;)</SelectItem>
+                              <SelectItem value="includes">Includes</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="col-span-3 sm:col-span-1">
+                          <Label>Value</Label>
+                          <Input 
+                            {...form.register(`actions.${index}.action_config.value` as const)} 
+                            className="mt-1 bg-white" 
+                            placeholder="e.g. 1000"
+                          />
+                        </div>
+                        <div className="col-span-3">
+                          <Label>If False, Jump to Step (Optional)</Label>
+                          <Input
+                            type="number"
+                            value={(form.watch(`actions.${index}.action_config` as const) as any)?.false_branch_jump_to ?? ''}
+                            onChange={(e) => {
+                              const raw = e.target.value
+                              form.setValue(`actions.${index}.action_config.false_branch_jump_to` as const, raw === '' ? undefined : Number(raw))
+                            }}
+                            className="mt-1 bg-white max-w-xs"
+                            placeholder="e.g. 4 (Leave blank to end workflow if false)"
+                          />
+                          <p className="mt-1 text-xs text-slate-500">If true, workflow naturally continues to the next step.</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {currentActionType === 'send_email' && (
+                      <div className="grid grid-cols-1 gap-4">
+                        <div>
+                          <Label>To (Email or Field Name)</Label>
+                          <Input {...form.register(`actions.${index}.action_config.to` as const)} className="mt-1 bg-white" placeholder="e.g. {{customer.email}}" />
+                        </div>
+                        <div>
+                          <Label>Subject</Label>
+                          <Input {...form.register(`actions.${index}.action_config.subject` as const)} className="mt-1 bg-white" placeholder="e.g. Your Quote is Ready" />
+                        </div>
+                        <div>
+                          <Label>Body</Label>
+                          <textarea 
+                            {...form.register(`actions.${index}.action_config.body` as const)} 
+                            className="mt-1 block w-full rounded-md border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" 
+                            rows={3}
+                            placeholder="e.g. Hi there..."
+                          />
+                        </div>
+                      </div>
+                    )}
+                    
+                    {currentActionType === 'send_sms' && (
+                      <div className="grid grid-cols-1 gap-4">
+                        <div>
+                          <Label>Phone Number</Label>
+                          <Input {...form.register(`actions.${index}.action_config.phone` as const)} className="mt-1 bg-white" placeholder="e.g. {{customer.phone}}" />
+                        </div>
+                        <div>
+                          <Label>Message</Label>
+                          <textarea 
+                            {...form.register(`actions.${index}.action_config.message` as const)} 
+                            className="mt-1 block w-full rounded-md border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" 
+                            rows={2}
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {currentActionType === 'notify_staff' && (
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <div className="col-span-2 sm:col-span-1">
+                          <Label>Staff User ID</Label>
+                          <Input {...form.register(`actions.${index}.action_config.user_id` as const)} className="mt-1 bg-white" placeholder="e.g. user-uuid-123" />
+                        </div>
+                        <div className="col-span-2">
+                          <Label>Message</Label>
+                          <textarea 
+                            {...form.register(`actions.${index}.action_config.message` as const)} 
+                            className="mt-1 block w-full rounded-md border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" 
+                            rows={2}
+                          />
                         </div>
                       </div>
                     )}

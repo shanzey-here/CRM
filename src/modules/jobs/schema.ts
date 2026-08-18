@@ -36,3 +36,43 @@ export const CreateJobFromQuoteSchema = z.object({
 export type CreateJobFromQuoteData = z.infer<typeof CreateJobFromQuoteSchema> & {
   invoicePlan: InvoicePlan
 }
+
+// ============================================================================
+// JOB DETAILS EDIT (excludes status, contact, quote, addresses — read-only /
+// managed through their own dedicated flows elsewhere)
+// ============================================================================
+// internal_notes: dispatcher-facing special instructions (e.g. "narrow
+// driveway, use smaller van"), separate from the quote's own notes.
+// customer_notes: post-job outcome/feedback notes, recorded after
+// completion — distinct from job_signoffs' legal signature capture.
+export const updateJobDetailsSchema = z.object({
+  internal_notes: z.string().optional().nullable(),
+  customer_notes: z.string().optional().nullable(),
+})
+
+export type UpdateJobDetailsInput = z.infer<typeof updateJobDetailsSchema>
+
+export const CreateManualJobSchema = z.object({
+  contact_id: z.string().uuid('Contact is required'),
+  // Optional here too (server resolves the tenant's default brand when
+  // omitted) — a manual job has no quote/lead to inherit a brand from, so
+  // this is the one place a brand must be supplied explicitly when a
+  // tenant has more than one.
+  brand_id: z.string().uuid().optional(),
+  title: z.string().min(1, 'Title is required'),
+  description: z.string().optional(),
+  move_date: z.string().refine((val) => !isNaN(Date.parse(val)), 'Invalid date'),
+  origin_address_id: z.string().uuid().nullable().optional(),
+  destination_address_id: z.string().uuid().nullable().optional(),
+  line_items: z.array(z.object({
+    description: z.string().min(1, 'Description is required'),
+    quantity: z.number().min(1, 'Quantity must be at least 1'),
+    unit_price: z.number().min(0, 'Price must be non-negative')
+  })).min(1, 'At least one line item is required'),
+  assigned_crew: z.array(z.string().uuid()).default([]),
+  assigned_vehicles: z.array(z.string().uuid()).default([]),
+  start_time: z.string().optional(),
+  end_time: z.string().optional(),
+})
+
+export type CreateManualJobData = z.infer<typeof CreateManualJobSchema>

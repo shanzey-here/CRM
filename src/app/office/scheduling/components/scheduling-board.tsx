@@ -119,7 +119,7 @@ export function SchedulingBoard({ date, vehicles, crew, jobs }: { date: string, 
 
       {/* Error Toast */}
       {errorToast && (
-        <div className="absolute top-24 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-red-600 text-white px-4 py-3 rounded-lg shadow-lg animate-in fade-in slide-in-from-top-4">
+        <div className="absolute top-24 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-white border-2 border-red-500 text-red-700 px-4 py-3 rounded-lg shadow-xl animate-in fade-in slide-in-from-top-4">
           <AlertCircle className="h-5 w-5" />
           <span className="font-medium">{errorToast}</span>
         </div>
@@ -127,7 +127,7 @@ export function SchedulingBoard({ date, vehicles, crew, jobs }: { date: string, 
 
       {/* Main Content */}
       <div className="flex flex-1 overflow-hidden">
-        <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+        <DndContext id="scheduling-dispatch-board" onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
           
           {/* Left Panel: Unassigned Jobs */}
           <div className="w-80 flex-none border-r bg-slate-50 flex flex-col">
@@ -238,8 +238,8 @@ function DraggableJobCard({ job, hasCrew, hasVehicle, isOverlay }: { job: Job, h
       {...listeners} 
       {...attributes}
       className={cn(
-        "bg-white p-3 rounded-md border shadow-sm cursor-grab active:cursor-grabbing hover:border-emerald-400 transition-colors w-full",
-        isOverlay && "opacity-90 shadow-xl ring-2 ring-emerald-500 cursor-grabbing rotate-2"
+        "bg-white p-3 rounded-md border shadow-sm cursor-grab active:cursor-grabbing hover:border-blue-400 transition-colors w-full",
+        isOverlay && "opacity-90 shadow-xl ring-2 ring-blue-500 cursor-grabbing rotate-2"
       )}
     >
       <div className="font-medium text-slate-900 truncate">
@@ -250,7 +250,7 @@ function DraggableJobCard({ job, hasCrew, hasVehicle, isOverlay }: { job: Job, h
         <span>~{duration} hrs</span>
       </div>
       <div className="mt-2 flex gap-1 flex-wrap">
-        {!hasCrew && <span className="text-[10px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded font-medium">Needs Crew</span>}
+        {!hasCrew && <span className="text-[10px] border border-red-300 text-red-700 bg-white px-1.5 py-0.5 rounded font-medium">Needs Crew</span>}
         {!hasVehicle && <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-medium">Needs Vehicle</span>}
       </div>
     </div>
@@ -304,9 +304,9 @@ function ResourceRow({ resource, type, date, assignments, jobs }: { resource: an
               style={{
                 left: `${leftPercent}%`,
                 width: `${widthPercent}%`,
-                backgroundColor: type === 'vehicle' ? '#f0fdf4' : '#eff6ff',
-                borderColor: type === 'vehicle' ? '#86efac' : '#bfdbfe',
-                color: type === 'vehicle' ? '#166534' : '#1e3a8a',
+                backgroundColor: type === 'vehicle' ? '#eff6ff' : '#dbeafe',
+                borderColor: type === 'vehicle' ? '#bfdbfe' : '#93c5fd',
+                color: '#1e3a8a',
               }}
             >
               <div className="font-semibold truncate">
@@ -331,7 +331,7 @@ function DroppableCell({ id }: { id: string }) {
       ref={setNodeRef}
       className={cn(
         "flex-1 border-r transition-colors",
-        isOver && "bg-emerald-100/50 outline outline-2 outline-emerald-400 outline-offset-[-2px]"
+        isOver && "bg-blue-100/50 outline outline-2 outline-blue-400 outline-offset-[-2px]"
       )}
     />
   )

@@ -2,10 +2,14 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import { getJobDetails } from '@/modules/jobs/server/repository'
+import { getJobAssignments } from '@/modules/scheduling/server/repository'
 import { format } from 'date-fns'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { ArrowLeft, MapPin, Phone, Mail, User, Printer } from 'lucide-react'
+import { ArrowLeft, MapPin, Phone, Mail, User, Printer, Truck, Users } from 'lucide-react'
+import { EditJobForm } from './components/edit-job-form'
+import { EditActualTimesForm } from './components/edit-actual-times-form'
+import { CompletionSummaryCard } from './components/completion-summary-card'
 
 export const dynamic = 'force-dynamic'
 
@@ -21,8 +25,11 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   }
   const tenantId = user.app_metadata.tenant_id
 
-  // 2. Fetch Job Details
-  const { success, jobDetails, error } = await getJobDetails(supabase, tenantId, id)
+  // 2. Fetch Job Details and Assignments
+  const [{ success, jobDetails, error }, assignmentsRes] = await Promise.all([
+    getJobDetails(supabase, tenantId, id),
+    getJobAssignments(supabase, tenantId, id)
+  ])
 
   if (!success || !jobDetails) {
     notFound()
@@ -34,6 +41,8 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   const dest = job.destination_address
   const quoteData = job.quote
   const quote = Array.isArray(quoteData) ? quoteData[0] : quoteData
+  const crewAssignments = assignmentsRes.success ? assignmentsRes.crewAssignments : []
+  const vehicleAssignments = assignmentsRes.success ? assignmentsRes.vehicleAssignments : []
 
   return (
     <div className="p-8 max-w-5xl mx-auto space-y-6">
@@ -50,25 +59,42 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
             <Badge variant="secondary" className="uppercase text-xs tracking-wider">
               {job.status.replace('_', ' ')}
             </Badge>
+            <Badge variant="outline" className="bg-slate-50 text-slate-600 capitalize">
+              {quote?.lead?.source ? quote.lead.source.replace(/_/g, ' ') : 'Unknown Source'}
+            </Badge>
           </div>
           <p className="text-slate-500 mt-1">
             Scheduled for: {job.move_date ? format(new Date(job.move_date), 'EEEE, MMMM do, yyyy') : 'TBD'}
           </p>
         </div>
         
-        {/* Print Job Sheet Action */}
-        <Link 
-          href={`/print/jobs/${job.id}`} 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-950 disabled:pointer-events-none disabled:opacity-50 bg-emerald-600 text-white shadow hover:bg-emerald-700 h-9 px-4 py-2"
-        >
-          <Printer className="mr-2 h-4 w-4" />
-          Print Job Sheet
-        </Link>
+        {/* Actions */}
+        <div className="flex gap-2">
+          <EditJobForm
+            jobId={job.id}
+            internalNotes={job.internal_notes ?? null}
+            customerNotes={job.customer_notes ?? null}
+          />
+          <Link
+            href={`/print/jobs/${job.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-950 disabled:pointer-events-none disabled:opacity-50 bg-emerald-600 text-white shadow hover:bg-emerald-700 h-9 px-4 py-2"
+          >
+            <Printer className="mr-2 h-4 w-4" />
+            Print Job Sheet
+          </Link>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <CompletionSummaryCard
+          jobId={job.id}
+          jobStatus={job.status}
+          summary={job.completion_summary ?? null}
+          generatedAt={job.completion_summary_generated_at ?? null}
+        />
+
         {/* Customer Information */}
         <Card>
           <CardHeader>
@@ -153,6 +179,102 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                 <p className="text-slate-500 text-sm italic">No destination address provided.</p>
               )}
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Special Instructions */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Special Instructions</CardTitle>
+            <CardDescription>Job-specific logistics, separate from the quote's own notes</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {job.internal_notes ? (
+              <p className="text-sm text-slate-700 whitespace-pre-wrap">{job.internal_notes}</p>
+            ) : (
+              <p className="text-sm text-slate-400 italic">No special instructions added.</p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Post-Job Notes */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Post-Job Notes</CardTitle>
+            <CardDescription>Outcome, issues, or customer feedback after completion</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {job.customer_notes ? (
+              <p className="text-sm text-slate-700 whitespace-pre-wrap">{job.customer_notes}</p>
+            ) : (
+              <p className="text-sm text-slate-400 italic">No post-job notes added.</p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Assignments */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Users className="h-5 w-5 text-slate-400" />
+              Assigned Crew
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {crewAssignments && crewAssignments.length > 0 ? (
+              <div className="space-y-3">
+                {crewAssignments.map((ca: any) => (
+                  <div key={ca.id} className="flex justify-between items-center text-sm border-b border-slate-100 pb-2 last:border-0 last:pb-0">
+                    <div>
+                      <p className="font-medium text-slate-900">{ca.user?.full_name}</p>
+                      <p className="text-xs text-slate-500">
+                        Scheduled: {ca.scheduled_start ? format(new Date(ca.scheduled_start), 'h:mm a') : 'TBD'} -
+                        {ca.scheduled_end ? format(new Date(ca.scheduled_end), ' h:mm a') : ' TBD'}
+                      </p>
+                      {(ca.actual_start || ca.actual_end) && (
+                        <p className="text-xs text-emerald-600 mt-0.5">
+                          Actual: {ca.actual_start ? format(new Date(ca.actual_start), 'h:mm a') : 'TBD'} -
+                          {ca.actual_end ? format(new Date(ca.actual_end), ' h:mm a') : ' TBD'}
+                        </p>
+                      )}
+                    </div>
+                    <EditActualTimesForm
+                      jobId={job.id}
+                      assignmentId={ca.id}
+                      actualStart={ca.actual_start ?? null}
+                      actualEnd={ca.actual_end ?? null}
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-slate-500 italic">No crew assigned yet.</p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Truck className="h-5 w-5 text-slate-400" />
+              Assigned Vehicles
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {vehicleAssignments && vehicleAssignments.length > 0 ? (
+              <div className="space-y-3">
+                {vehicleAssignments.map((va: any) => (
+                  <div key={va.id} className="flex justify-between items-center text-sm border-b border-slate-100 pb-2 last:border-0 last:pb-0">
+                    <div>
+                      <p className="font-medium text-slate-900">{va.vehicle?.name}</p>
+                      <p className="text-xs text-slate-500 capitalize">{va.vehicle?.type?.replace('_', ' ')}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-slate-500 italic">No vehicles assigned yet.</p>
+            )}
           </CardContent>
         </Card>
       </div>

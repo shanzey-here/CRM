@@ -54,13 +54,6 @@ export default async function WorkflowLogsPage({ params }: { params: Promise<{ i
         </div>
       </div>
 
-      <Alert className="mb-8 bg-blue-50 border-blue-200 text-blue-800">
-        <AlertCircle className="h-4 w-4 text-blue-600" />
-        <AlertTitle className="text-blue-900 font-medium">Workflows are in Preview</AlertTitle>
-        <AlertDescription className="text-blue-800">
-          Workflows are currently in configuration-only mode. They are not executing yet, so this log will remain empty until the Workflow Engine is released.
-        </AlertDescription>
-      </Alert>
 
       <div className="bg-white shadow sm:rounded-lg overflow-hidden">
         {logs && logs.length > 0 ? (

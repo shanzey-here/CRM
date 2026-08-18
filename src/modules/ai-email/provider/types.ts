@@ -12,11 +12,22 @@ export interface LlmAdapter {
 export type ClassifyInput = {
   systemPrompt: string
   threadText: string
+  // The tenant's real default (is_default = true) email labels, passed in so
+  // the model can only ever suggest a label that actually exists — never
+  // invent one, and never suggest a tenant's custom label (out of scope for
+  // v1, see suggestedLabelIds below). Empty array is valid (no default
+  // labels configured, or none apply) and simply yields no suggestions.
+  defaultLabels: { id: string; name: string }[]
 }
 
 export type ClassifyResult = {
   needsQuote: boolean
   model: string
+  // Real email_labels.id values, filtered server-side against defaultLabels
+  // — never trust an id/name the model returns that isn't genuinely in the
+  // closed list it was given, same defensive pattern as extract()'s catalog
+  // handling below.
+  suggestedLabelIds: string[]
 }
 
 export type DraftInput = {

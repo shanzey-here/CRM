@@ -10,6 +10,11 @@ export async function isWorkflowModuleEnabled(
   supabase: SupabaseClient<Database>,
   tenantId: string
 ): Promise<boolean> {
+  // Bypass for local development testing
+  if (process.env.NODE_ENV === 'development') {
+    return true
+  }
+
   // 1. Check if the tenant has explicitly enabled the module
   const { data: moduleSettings, error } = await supabase
     .from('tenant_modules')

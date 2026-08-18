@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { updateStorageUnitAction } from '../../actions'
 
 type Unit = {
@@ -12,6 +13,7 @@ type Unit = {
 }
 
 export function UnitRow({ unit }: { unit: Unit }) {
+  const router = useRouter()
   const [isEditing, setIsEditing] = useState(false)
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
@@ -23,7 +25,10 @@ export function UnitRow({ unit }: { unit: Unit }) {
 
   if (!isEditing) {
     return (
-      <tr>
+      <tr 
+        onClick={() => router.push(`/office/storage/units/${unit.id}`)}
+        className="hover:bg-slate-50 transition-colors cursor-pointer"
+      >
         <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-slate-900 sm:pl-6">{unit.unit_number}</td>
         <td className="whitespace-nowrap px-3 py-4 text-sm text-slate-500">{unit.capacity_cubic_feet} cu ft</td>
         <td className="whitespace-nowrap px-3 py-4 text-sm text-slate-500">
@@ -37,7 +42,13 @@ export function UnitRow({ unit }: { unit: Unit }) {
         </td>
         <td className="whitespace-nowrap px-3 py-4 text-sm text-slate-500">{unit.location_notes || '—'}</td>
         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-          <button onClick={() => setIsEditing(true)} className="text-blue-600 hover:text-blue-900">
+          <button 
+            onClick={(e) => {
+              e.stopPropagation()
+              setIsEditing(true)
+            }} 
+            className="text-blue-600 hover:text-blue-900 relative z-10"
+          >
             Edit
           </button>
         </td>

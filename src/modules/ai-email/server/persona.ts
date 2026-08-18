@@ -1,18 +1,21 @@
 import { Database } from '@/types/database.types'
 
-type TenantSettingsRow = Database['public']['Tables']['tenant_settings']['Row']
+type BrandRow = Database['public']['Tables']['brands']['Row']
 type PricingSettingsRow = Database['public']['Tables']['pricing_settings']['Row']
 
-// Built from real tenant data only — company_legal_name/address/terms_template
-// (the same field set the branding module already treats as this tenant's
-// identity), never invented. Pricing facts are deliberately QUALITATIVE only
-// ("charges based on distance, volume, and labour time") — the literal
-// pricing_settings numbers are never included here, so the model is
-// structurally unable to quote a specific figure even under adversarial
-// prompting, on top of the explicit instruction below never to invent one.
-export function buildSystemPrompt(tenantSettings: TenantSettingsRow | null, pricingSettings: PricingSettingsRow | null): string {
-  const companyName = tenantSettings?.company_legal_name || 'this removals company'
-  const location = [tenantSettings?.address_city, tenantSettings?.address_country].filter(Boolean).join(', ')
+// Built from real brand data only — name/address/terms_text (the identity
+// of the specific brand this mailbox belongs to, not the tenant as a whole:
+// a tenant running multiple businesses must have AI replies through each
+// mailbox introduce themselves as THAT brand), never invented. Pricing
+// facts are deliberately QUALITATIVE only ("charges based on distance,
+// volume, and labour time") — the literal pricing_settings numbers are
+// never included here (pricing is genuinely tenant-wide, shared across
+// brands, unlike identity), so the model is structurally unable to quote a
+// specific figure even under adversarial prompting, on top of the explicit
+// instruction below never to invent one.
+export function buildSystemPrompt(brand: BrandRow | null, pricingSettings: PricingSettingsRow | null): string {
+  const companyName = brand?.name || 'this removals company'
+  const location = [brand?.address_city, brand?.address_country].filter(Boolean).join(', ')
 
   const pricingFacts: string[] = []
   if (pricingSettings) {
@@ -32,7 +35,7 @@ export function buildSystemPrompt(tenantSettings: TenantSettingsRow | null, pric
     pricingModelSentence + 'You do NOT have access to exact rates, and you must NEVER state, imply, or estimate a specific price, total cost, or numeric figure of any kind in your reply — not even a rough range.',
     'Never promise a specific availability date, time slot, or timeline you cannot confirm from the thread itself.',
     'Never invent facts about the move (size, distance, items) that are not stated in the thread — ask a clarifying question instead if something is genuinely unclear.',
-    tenantSettings?.terms_template ? `Company terms context (do not quote verbatim unless relevant): ${tenantSettings.terms_template}` : '',
+    brand?.terms_text ? `Company terms context (do not quote verbatim unless relevant): ${brand.terms_text}` : '',
   ]
     .filter(Boolean)
     .join('\n')

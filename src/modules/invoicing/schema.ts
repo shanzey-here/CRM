@@ -5,6 +5,8 @@ export const invoiceSchema = z.object({
   tenant_id: z.string().uuid(),
   job_id: z.string().uuid().nullable(),
   contact_id: z.string().uuid(),
+  brand_id: z.string().uuid(),
+  brand_snapshot: z.unknown(),
   invoice_number: z.string().nullable(),
   status: z.enum(['draft', 'sent', 'partially_paid', 'paid', 'overdue', 'void']),
   subtotal: z.number().min(0),
@@ -63,9 +65,51 @@ export const paymentSchema = z.object({
 
 export type Payment = z.infer<typeof paymentSchema>
 
+// Real, structured location data this app actually tracks for a job — no
+// time-of-day field exists anywhere in the schema, so none is invented here.
+export type InvoiceAddressInfo = {
+  line_1: string
+  line_2: string | null
+  city: string
+  county: string | null
+  postcode: string
+  country: string
+} | null
+
+export type InvoiceJobInfo = {
+  status: string
+  move_date: string | null
+  customer_notes: string | null
+  origin_address: InvoiceAddressInfo
+  destination_address: InvoiceAddressInfo
+} | null
+
 // Composite type for UI to easily display an invoice with its line items and schedules
 export type InvoiceWithDetails = Invoice & {
   lineItems: InvoiceLineItem[]
   schedules: PaymentSchedule[]
   payments: Payment[]
+  job: InvoiceJobInfo
 }
+
+// ============================================================================
+// DRAFT INVOICE EDITING
+// ============================================================================
+// amount is deliberately absent — it's always quantity * unit_price,
+// recomputed server-side inside update_draft_invoice, never accepted from
+// the client. subtotal/total are similarly never part of this input; they're
+// always derived from the sum of these line items.
+export const editInvoiceLineItemSchema = z.object({
+  description: z.string().min(1, 'Description is required'),
+  quantity: z.number().positive('Quantity must be greater than 0'),
+  unit_price: z.number().min(0, 'Unit price cannot be negative'),
+  sort_order: z.number().int(),
+})
+
+export const updateDraftInvoiceSchema = z.object({
+  notes: z.string().optional().nullable(),
+  lineItems: z.array(editInvoiceLineItemSchema).min(1, 'At least one line item is required'),
+})
+
+export type EditInvoiceLineItemInput = z.infer<typeof editInvoiceLineItemSchema>
+export type UpdateDraftInvoiceInput = z.infer<typeof updateDraftInvoiceSchema>

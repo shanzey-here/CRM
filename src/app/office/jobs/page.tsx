@@ -27,6 +27,12 @@ export default async function JobsListPage() {
           <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Jobs</h1>
           <p className="text-slate-500 mt-1">Manage scheduled moves and active jobs.</p>
         </div>
+        <Link 
+          href="/office/jobs/new" 
+          className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background bg-slate-900 text-white hover:bg-slate-900/90 h-10 py-2 px-4"
+        >
+          New Job
+        </Link>
       </div>
 
       <div className="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden">
@@ -42,7 +48,7 @@ export default async function JobsListPage() {
           <tbody className="divide-y divide-slate-200">
             {success && jobs && jobs.length > 0 ? (
               jobs.map((job: any) => (
-                <tr key={job.id} className="hover:bg-slate-50 transition-colors">
+                <tr key={job.id} className="hover:bg-slate-50 transition-colors relative group">
                   <td className="px-6 py-4 font-medium text-slate-900">
                     {job.contact?.first_name} {job.contact?.last_name || ''}
                   </td>
@@ -57,7 +63,7 @@ export default async function JobsListPage() {
                   <td className="px-6 py-4 text-right">
                     <Link 
                       href={`/office/jobs/${job.id}`} 
-                      className="text-emerald-600 hover:text-emerald-700 font-medium"
+                      className="text-emerald-600 hover:text-emerald-700 font-medium after:absolute after:inset-0"
                     >
                       View Details &rarr;
                     </Link>

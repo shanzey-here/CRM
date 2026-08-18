@@ -53,11 +53,18 @@ export async function GET(request: NextRequest) {
       return redirectToSettings(request, { error: 'no_email_address' })
     }
 
+    let brandId = request.cookies.get('gmail_oauth_brand_id')?.value
+    if (!brandId) {
+      const { getDefaultBrandId } = await import('@/modules/settings/brands/server/repository')
+      brandId = (await getDefaultBrandId(supabase, tenantId)) ?? undefined
+    }
+
     const serviceClient = createServiceRoleClient()
     const { error: insertError } = await createOAuthMailbox(serviceClient, tenantId, {
       provider: 'gmail',
       mailboxAddress,
       refreshToken,
+      brandId,
     })
 
     if (insertError) {
@@ -66,6 +73,7 @@ export async function GET(request: NextRequest) {
 
     const response = redirectToSettings(request, { connected: mailboxAddress })
     response.cookies.delete('gmail_oauth_state')
+    response.cookies.delete('gmail_oauth_brand_id')
     return response
   } catch (err) {
     console.error('[Gmail OAuth callback]', err)

@@ -1,6 +1,7 @@
 import { SupabaseClient } from '@supabase/supabase-js'
 import { Database } from '@/types/database.types'
-import { TenantSettingsInput } from '../schemas'
+
+type TenantSettingsRow = Database['public']['Tables']['tenant_settings']['Row']
 
 export async function getTenantSettings(
   supabase: SupabaseClient<Database>,
@@ -18,7 +19,7 @@ export async function getTenantSettings(
 export async function updateTenantSettings(
   supabase: SupabaseClient<Database>,
   tenantId: string,
-  updates: Partial<TenantSettingsInput>
+  updates: Partial<TenantSettingsRow>
 ) {
   const { data, error } = await supabase
     .from('tenant_settings')

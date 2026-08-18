@@ -3,7 +3,7 @@ import { Database } from '@/types/database.types'
 import { createAddress } from '@/modules/clients/server/repository'
 import { createLead } from '@/modules/leads/server/repository'
 import { createQuote, saveQuoteInventory } from '@/modules/quotes/server/repository'
-import { getRouteDetails } from '@/modules/quotes/server/routing'
+import { calculateFullCycleRoute } from '@/modules/quotes/server/routing'
 import { calculateQuotePrice, savePricingCalculation } from '@/modules/quotes/server/pricing'
 import { findOrCreateContactByEmail } from './contact-resolution'
 import { CatalogEntry } from './extract'
@@ -36,6 +36,24 @@ export async function createQuoteFromExtraction(
     catalog: CatalogEntry[]
   }
 ): Promise<QuoteCreationResult> {
+  // 0. Resolve the brand this lead/quote belongs to from the thread's own
+  // mailbox (denormalized onto email_threads.brand_id) — falls back to the
+  // tenant's default brand for a thread on a mailbox connected before brand
+  // assignment existed.
+  const { data: threadForBrand } = await serviceClient
+    .from('email_threads')
+    .select('brand_id')
+    .eq('id', threadId)
+    .eq('tenant_id', tenantId)
+    .maybeSingle()
+
+  let brandId = threadForBrand?.brand_id ?? null
+  if (!brandId) {
+    const { getDefaultBrandId } = await import('@/modules/settings/brands/server/repository')
+    brandId = await getDefaultBrandId(serviceClient, tenantId)
+  }
+  if (!brandId) return { success: false, error: 'No default brand found for this tenant' }
+
   // 1. Find-or-create contact.
   const { data: contact, error: contactErr } = await findOrCreateContactByEmail(serviceClient, tenantId, {
     email: senderEmail,
@@ -64,6 +82,7 @@ export async function createQuoteFromExtraction(
   // schema origin/destination addresses can attach for getRouteDetails().
   const { data: lead, error: leadErr } = await createLead(serviceClient, tenantId, {
     contact_id: contact.id,
+    brand_id: brandId,
     stage: 'inquiry',
     source: 'ai_email',
     origin_address_id: originAddress.id,
@@ -84,6 +103,7 @@ export async function createQuoteFromExtraction(
   const { data: quote, error: quoteErr } = await createQuote(serviceClient, tenantId, {
     contact_id: contact.id,
     lead_id: lead.id,
+    brand_id: brandId,
   })
   if (quoteErr || !quote) return { success: false, error: `Failed to create quote: ${quoteErr?.message}` }
 
@@ -108,14 +128,14 @@ export async function createQuoteFromExtraction(
   if (!inventoryResult.success) return { success: false, error: `Failed to save inventory: ${inventoryResult.error}` }
 
   // 7. Real distance — same cache-backed function the manual quote page uses.
-  const route = await getRouteDetails(serviceClient, tenantId, originAddress, destinationAddress)
-  if (route.distanceMeters === null) return { success: false, error: 'Failed to compute route distance' }
+  const route = await calculateFullCycleRoute(serviceClient, tenantId, originAddress, destinationAddress)
+  if (route.hasError || route.totalDistanceMeters === null) return { success: false, error: 'Failed to compute route distance' }
 
   const { error: routeUpdateErr } = await serviceClient
     .from('quotes')
     .update({
-      travel_distance_miles: Math.round(route.distanceMeters * 0.000621371),
-      travel_time_minutes: route.durationSeconds ? Math.round(route.durationSeconds / 60) : null,
+      travel_distance_miles: Math.round(route.totalDistanceMeters * 0.000621371),
+      travel_time_minutes: route.totalDurationSeconds ? Math.round(route.totalDurationSeconds / 60) : null,
     })
     .eq('id', quote.id)
     .eq('tenant_id', tenantId)
@@ -135,8 +155,9 @@ export async function createQuoteFromExtraction(
   const pricingResult = await calculateQuotePrice(serviceClient, {
     tenantId,
     quoteId: quote.id,
+    contactId: contact.id,
     totalVolume: refreshedQuote.total_volume ?? 0,
-    distanceMeters: route.distanceMeters,
+    distanceMeters: route.totalDistanceMeters,
     selectedSurcharges: [],
   })
   if (!pricingResult.success || !pricingResult.result) {

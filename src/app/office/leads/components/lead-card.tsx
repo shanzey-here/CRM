@@ -70,12 +70,12 @@ export function LeadCard({ lead, isDragOverlay = false, isPending = false }: Lea
       style={style}
       onClick={handleCardClick}
       className={[
-        'group relative bg-white rounded-lg border px-3 py-3 select-none',
-        'transition-all duration-150 cursor-pointer',
+        'group relative bg-white rounded-xl border px-3 py-3 select-none',
+        'transition-all cursor-pointer',
         isDragging && !isDragOverlay
           ? 'opacity-40 scale-95 border-dashed border-slate-300 shadow-none'
           : 'border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5',
-        isDragOverlay ? 'rotate-1 shadow-xl ring-2 ring-indigo-400/40' : '',
+        isDragOverlay ? 'rotate-1 shadow-xl ring-2 ring-blue-400/40' : '',
         isPending ? 'pointer-events-none opacity-70' : '',
       ].join(' ')}
     >
@@ -110,6 +110,15 @@ export function LeadCard({ lead, isDragOverlay = false, isPending = false }: Lea
         <span>Move: {formatDate(lead.preferred_move_date)}</span>
       </div>
 
+      {/* Source */}
+      {!!lead.source && (
+        <div className="flex items-center gap-1 mt-1 text-xs text-slate-500">
+          <span className="inline-block px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 capitalize">
+            {lead.source.replace(/_/g, ' ')}
+          </span>
+        </div>
+      )}
+
       {/* Time in stage — highlighted in amber/red when stale */}
       <div
         className={[
@@ -119,7 +128,7 @@ export function LeadCard({ lead, isDragOverlay = false, isPending = false }: Lea
         title={isStale ? `This lead has been in this stage for ${diffDays} days` : undefined}
       >
         <Clock className="h-3 w-3 shrink-0" />
-        <span>
+        <span suppressHydrationWarning>
           {timeInStage(lead.updated_at, lead.created_at)}
           {isStale && ' ⚠'}
         </span>
