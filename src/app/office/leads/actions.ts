@@ -22,6 +22,21 @@ const ACTIVE_STAGE_VALUES = [
   'confirmed_booking',
 ] as const
 
+// KNOWN LIMITATION — flagged deliberately, not to be fixed here:
+// This is a hardcoded z.enum of the 5 fixed board stages every tenant
+// currently shares. It's correct today because every real transition
+// target (the drag-and-drop board, StageControl's manual override, and
+// each of the four quick actions in Epics D–G) only ever targets one of
+// these fixed stages.
+//
+// `feature/phase4-custom-column-create-ui` (Epic H) will let tenants
+// create their own custom stages, and once it does, this fixed enum will
+// reject any transition into a tenant-defined stage — `updateLeadStage`
+// will 'Invalid stage' on something that's actually valid for that
+// tenant. At that point this needs real rework: validating against the
+// tenant's real, dynamic stage list (once a stages table exists) instead
+// of a fixed enum. Do not attempt that here — Epic H owns the data model
+// this depends on, which doesn't exist yet.
 const kanbanStageSchema = z.enum(ACTIVE_STAGE_VALUES)
 
 export type KanbanStage = z.infer<typeof kanbanStageSchema>
