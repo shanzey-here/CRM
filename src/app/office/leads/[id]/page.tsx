@@ -7,6 +7,7 @@ import { getQuotesForLead } from '@/modules/quotes/server/repository'
 import { EditLeadForm } from './components/edit-lead-form'
 import { EditContactForm } from '../../clients/[id]/components/edit-contact-form'
 import { StageControl } from './components/stage-control'
+import { LeadQuickActionsBar } from './components/lead-quick-actions-bar'
 import { QuotesList } from './components/quotes-list'
 import { TimelineView } from '../../components/timeline-view'
 import { Badge } from '@/components/ui/badge'
@@ -120,7 +121,8 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
           )}
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
+          <LeadQuickActionsBar lead={{ ...lead, contact }} />
           <StageControl leadId={lead.id} currentStage={lead.stage} isEditable={isEditableStage} />
           <EditLeadForm lead={lead} tenantStaff={tenantStaff || []} />
         </div>
