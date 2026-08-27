@@ -5,6 +5,18 @@ import { InsertLeadInput, UpdateLeadInput } from '../schemas'
 // Define the precise database types for return values
 export type Lead = Database['public']['Tables']['leads']['Row']
 
+export type LeadContact = {
+  first_name?: string | null
+  last_name?: string | null
+  email?: string | null
+  phone?: string | null
+  company_name?: string | null
+}
+
+export type LeadWithContact = Lead & {
+  contact?: LeadContact | LeadContact[] | null
+}
+
 export interface PaginationOptions {
   limit?: number
   offset?: number

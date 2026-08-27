@@ -22,8 +22,13 @@ export async function publicCaptureAction(widgetKey: string, payload: PublicWidg
   const supabase = createServiceRoleClient()
   
   // Try to get IP address for rate limiting
-  const headersList = await headers()
-  const ipAddress = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'unknown'
+  let ipAddress = 'unknown'
+  try {
+    const headersList = await headers()
+    ipAddress = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'unknown'
+  } catch {
+    // Fallback when called outside a Next.js HTTP request scope (e.g. automated tests)
+  }
 
   // 3. Rate Limiting Check & Pruning (Service Role)
   // Prune expired rate limits first to avoid unbounded table growth
