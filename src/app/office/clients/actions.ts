@@ -203,18 +203,34 @@ export async function createClientCore(
 
     if (leadErr || !leadData) {
       console.error('Create Lead Error during Client creation:', leadErr)
-    } else if (data.quote_amount != null) {
-      // 2c. Create the Quote if amount provided — inherits the same brand
-      // as the lead just created above, not a separate lookup.
-      const { error: quoteErr } = await createQuote(supabase, tenantId, {
-        contact_id: contact.id,
-        lead_id: leadData.id,
-        brand_id: resolvedBrandId,
-        final_price: data.quote_amount,
-        total_price: data.quote_amount
-      })
-      if (quoteErr) {
-        console.error('Create Quote Error during Client creation:', quoteErr)
+    } else {
+      // Emit lead.created domain event to trigger workflows and real-time notifications
+      const { emitEvent } = await import('@/utils/supabase/event-bus')
+      await emitEvent(
+        supabase,
+        'lead.created',
+        'crm',
+        {
+          lead_id: leadData.id,
+          source: data.source || 'manual',
+          created_by: userId || null,
+        },
+        tenantId
+      )
+
+      if (data.quote_amount != null) {
+        // 2c. Create the Quote if amount provided — inherits the same brand
+        // as the lead just created above, not a separate lookup.
+        const { error: quoteErr } = await createQuote(supabase, tenantId, {
+          contact_id: contact.id,
+          lead_id: leadData.id,
+          brand_id: resolvedBrandId,
+          final_price: data.quote_amount,
+          total_price: data.quote_amount
+        })
+        if (quoteErr) {
+          console.error('Create Quote Error during Client creation:', quoteErr)
+        }
       }
     }
   }

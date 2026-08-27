@@ -78,12 +78,21 @@ async function runTests() {
     .select()
     .single()
 
+  // Fetch default brand for tenant A
+  const { data: brandA } = await srClient
+    .from('brands')
+    .select('id')
+    .eq('tenant_id', tenantAId)
+    .eq('is_default', true)
+    .single()
+
   // Create a lead in tenant A
   const { data: leadA } = await srClient
     .from('leads')
     .insert({
       tenant_id: tenantAId,
       contact_id: contactA!.id,
+      brand_id: brandA!.id,
       stage: 'inquiry',
     })
     .select()

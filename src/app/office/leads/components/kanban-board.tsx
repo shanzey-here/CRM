@@ -17,10 +17,10 @@ import { KanbanColumn } from './kanban-column'
 import { LeadCard } from './lead-card'
 import { updateLeadStage, type KanbanStage } from '../actions'
 import { KANBAN_STAGES } from '../constants'
-import type { Lead } from '@/modules/leads/server/repository'
+import type { LeadWithContact } from '@/modules/leads/server/repository'
 
 interface KanbanBoardProps {
-  initialLeads: Lead[]
+  initialLeads: LeadWithContact[]
 }
 
 // Every LeadCard is also its own droppable (useSortable registers a droppable
@@ -44,7 +44,7 @@ const columnAwareCollisionDetection: CollisionDetection = (args) => {
 
 export function KanbanBoard({ initialLeads }: KanbanBoardProps) {
   // Local optimistic state — mutated instantly on drag, rolled back on failure
-  const [leads, setLeads] = useState<Lead[]>(initialLeads)
+  const [leads, setLeads] = useState<LeadWithContact[]>(initialLeads)
   const [activeId, setActiveId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()

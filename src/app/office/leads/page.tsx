@@ -50,7 +50,8 @@ export default async function LeadsPage() {
       source,
       assigned_to,
       created_by,
-      updated_by
+      updated_by,
+      contact:contacts(first_name, last_name, email, phone, company_name)
     `)
     .eq('tenant_id', tenantId)
     .eq('is_archived', false)

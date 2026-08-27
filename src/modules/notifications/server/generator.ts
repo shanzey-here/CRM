@@ -21,7 +21,17 @@ export async function generateNotifications(
   try {
     // 1. Resolve tenant_id.
     const serviceClient = createServiceRoleClient()
-    let tenantId = explicitTenantId
+    let tenantId = explicitTenantId || payload.tenant_id
+    if (!tenantId && eventId) {
+      const { data: eventRow } = await serviceClient
+        .from('domain_events')
+        .select('tenant_id')
+        .eq('id', eventId)
+        .single()
+      if (eventRow) {
+        tenantId = eventRow.tenant_id
+      }
+    }
     if (!tenantId) {
       // If no explicit tenantId, attempt to derive from payload or fail gracefully.
       // Background workers usually pass explicitTenantId.

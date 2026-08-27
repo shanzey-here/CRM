@@ -21,12 +21,27 @@ export async function emitEvent(
   payload: Record<string, any> = {},
   tenantId?: string
 ): Promise<{ data: string | null; error: Error | null }> {
-  const { data, error } = await supabase.rpc('emit_domain_event', {
+  // PostgreSQL's emit_domain_event RPC only permits p_tenant_id for service_role callers.
+  // When an authenticated user is present, the RPC automatically derives tenant from current_tenant_id().
+  let isServiceRole = false
+  try {
+    const { data: authData } = await supabase.auth.getUser()
+    isServiceRole = !authData?.user
+  } catch {
+    isServiceRole = true
+  }
+
+  const rpcParams: Record<string, any> = {
     p_event_type: eventType,
     p_source_module: sourceModule,
     p_payload: payload,
-    ...(tenantId ? { p_tenant_id: tenantId } : {}),
-  })
+  }
+
+  if (tenantId && isServiceRole) {
+    rpcParams.p_tenant_id = tenantId
+  }
+
+  const { data, error } = await supabase.rpc('emit_domain_event', rpcParams)
 
   if (error) {
     console.error(`[Event Bus] Failed to emit event '${eventType}':`, error.message)

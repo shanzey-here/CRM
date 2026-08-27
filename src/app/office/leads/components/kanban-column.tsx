@@ -4,7 +4,7 @@ import { useDroppable } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { motion, useReducedMotion } from 'framer-motion'
 import { LeadCard } from './lead-card'
-import type { Lead } from '@/modules/leads/server/repository'
+import type { LeadWithContact } from '@/modules/leads/server/repository'
 import type { KanbanStage } from '../actions'
 
 interface ColumnDef {
@@ -15,7 +15,7 @@ interface ColumnDef {
 
 interface KanbanColumnProps {
   stage: ColumnDef
-  leads: Lead[]
+  leads: LeadWithContact[]
   isPending: boolean
   index: number
 }
