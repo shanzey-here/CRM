@@ -126,3 +126,20 @@ export async function markMailboxSyncFailure(serviceClient: SupabaseClient<Datab
     .update({ is_active: false, last_sync_error: message })
     .eq('id', mailboxId)
 }
+
+export async function getTenantMailboxes(serviceClient: SupabaseClient<Database>, tenantId: string) {
+  return serviceClient
+    .from('mailboxes')
+    .select('id, mailbox_address, provider, is_active, brand_id, brands(name)')
+    .eq('tenant_id', tenantId)
+}
+
+export async function getMailboxById(serviceClient: SupabaseClient<Database>, mailboxId: string, tenantId: string) {
+  return serviceClient
+    .from('mailboxes')
+    .select('id, mailbox_address, provider, is_active, brand_id, brands(name)')
+    .eq('id', mailboxId)
+    .eq('tenant_id', tenantId)
+    .maybeSingle()
+}
+

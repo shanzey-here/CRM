@@ -12,9 +12,9 @@ import { ClassifyInput, ClassifyResult, DraftInput, DraftResult, ExtractInput, E
 // own floating pointer to the current recommended model — avoids repeating
 // this exact staleness problem as the lineup moves on. Swapping either is
 // a one-line change here; nothing upstream depends on the model string.
-const CLASSIFY_MODEL = 'gemini-flash-lite-latest'
-const DRAFT_MODEL = 'gemini-flash-latest'
-const EXTRACT_MODEL = 'gemini-flash-lite-latest'
+const CLASSIFY_MODEL = 'gemini-2.5-flash-lite'
+const DRAFT_MODEL = 'gemini-3.6-flash'
+const EXTRACT_MODEL = 'gemini-2.5-flash-lite'
 
 function getApiKey(): string {
   const key = process.env.GEMINI_API_KEY
