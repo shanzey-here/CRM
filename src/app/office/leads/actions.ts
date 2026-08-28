@@ -84,9 +84,17 @@ export async function updateLeadStage(
     return { success: false, error: 'Invalid lead ID format' }
   }
 
-  // 5. Fetch the existing lead with tenant scoping before mutating it.
-  // This is the cross-tenant guard: if leadId belongs to another tenant,
-  // the query returns null and we stop here — no mutation occurs.
+  // 5. Fetch the lead pre-change, tenant-scoped. Same cross-tenant guard as
+  // before (a lead belonging to another tenant returns null and we stop
+  // here, no mutation occurs) — now also doubles as the source of the old
+  // stage value, needed below so the real, already-existing activity-log
+  // trigger can report a genuine "X → Y" transition instead of "none → Y".
+  const { data: leadBeforeChange, error: preFetchError } = await getLeadById(supabase, tenantId, leadId)
+  if (preFetchError || !leadBeforeChange) {
+    return { success: false, error: 'Lead not found or update failed' }
+  }
+  const oldStage = leadBeforeChange.stage
+
   const { data: existingLead, error: fetchError } = await updateLead(
     supabase,
     tenantId,
@@ -95,24 +103,43 @@ export async function updateLeadStage(
   )
 
   if (fetchError || !existingLead) {
-    // Could be cross-tenant attempt (lead not found for this tenant) or DB error
+    // Could be a race (lead changed/removed between the fetch above and
+    // this update) or DB error
     return { success: false, error: 'Lead not found or update failed' }
   }
 
-  // 6. Emit domain event for lead.stage_changed so the future Activities module
-  // can consume it retroactively. This matches the lead.created pattern from
-  // the public API route and uses the same emit_domain_event RPC function.
-  // Non-blocking: if the event emission fails, we do NOT roll back the stage
-  // update — the move already happened, logging is a best-effort side effect.
+  // 6. Emit domain event for lead.stage_changed. This already produces a
+  // real, visible Activity Timeline entry today — NOT via any application
+  // code, but via a real Postgres trigger (trg_activities_consume_events,
+  // supabase/migrations/00009 + 00035) that fires AFTER INSERT ON
+  // domain_events and idempotently (ON CONFLICT (source_event_id) DO
+  // NOTHING) inserts into `activities`, exactly the same mechanism
+  // lead.created/lead.updated/task.completed already use. That's the one
+  // real shared path — do not add a second, parallel createActivity() call
+  // here or anywhere else; the trigger already covers every caller of this
+  // function (drag-and-drop, StageControl, and any future quick action)
+  // automatically the moment it emits this event.
+  //
+  // The real, confirmed gap this branch found: the trigger reads
+  // `payload->>'old_stage'` to build its "Moved from X to Y" message, but
+  // this call never included it — every entry silently said "Moved from
+  // none to Y". Adding `old_stage` below is the actual, minimal fix.
+  // Non-blocking: if the event emission fails, we do NOT roll back the
+  // stage update — the move already happened, logging is a best-effort
+  // side effect.
   await emitEvent(supabase, 'lead.stage_changed', 'crm', {
     lead_id: leadId,
     tenant_id: tenantId,
+    old_stage: oldStage,
     new_stage: validatedStage,
     changed_by: user.id,
   })
 
-  // 7. Invalidate the Kanban board cache
+  // 7. Invalidate the Kanban board cache and this lead's detail page (the
+  // Activity Timeline lives there and needs the new entry to show up
+  // without a manual refresh).
   revalidatePath('/office/leads')
+  revalidatePath(`/office/leads/${leadId}`)
 
   return { success: true }
 }
