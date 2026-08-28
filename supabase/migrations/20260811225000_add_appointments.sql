@@ -1,3 +1,10 @@
+-- No `type`/kind column here by deliberate decision, audited under
+-- feature/phase4-survey-concept-audit-and-data-model: as of that audit,
+-- "Schedule Survey" is the only real appointment-creating feature anywhere
+-- in this app, and nothing filters/queries appointments by kind — see the
+-- full reasoning and the pattern to follow when a real second kind is
+-- needed in src/modules/appointments/schemas.ts, right above
+-- baseAppointmentSchema.
 CREATE TABLE appointments (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id uuid NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
