@@ -263,6 +263,27 @@ export async function maybeDraftAiReply(
       } else {
         await serviceClient.from('email_threads').update({ last_message_at: insertRow.sent_at }).eq('id', threadId)
       }
+
+      // If a real quote was computed and sent, mark quote as 'sent' and advance lead to 'quote_sent'
+      if (quoteComputed && quoteId) {
+        const { markQuoteSent } = await import('@/modules/quotes/server/repository')
+        await markQuoteSent(serviceClient, mailbox.tenant_id, quoteId)
+
+        const { data: qData } = await serviceClient
+          .from('quotes')
+          .select('lead_id')
+          .eq('id', quoteId)
+          .eq('tenant_id', mailbox.tenant_id)
+          .single()
+
+        if (qData?.lead_id) {
+          await serviceClient
+            .from('leads')
+            .update({ stage: 'quote_sent', updated_at: new Date().toISOString() })
+            .eq('id', qData.lead_id)
+            .eq('tenant_id', mailbox.tenant_id)
+        }
+      }
     } else {
       const { error: insertErr } = await serviceClient.from('email_messages').insert({
         tenant_id: mailbox.tenant_id,

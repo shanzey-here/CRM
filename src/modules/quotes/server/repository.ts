@@ -132,6 +132,34 @@ export async function generateQuotePublicToken(
   return { success: true, token }
 }
 
+export async function markQuoteSent(
+  supabase: SupabaseClient<Database>,
+  tenantId: string,
+  quoteId: string
+): Promise<{ success: boolean; token?: string; error?: string }> {
+  // 1. Ensure token is generated
+  const tokenRes = await generateQuotePublicToken(supabase, tenantId, quoteId)
+  if (!tokenRes.success || !tokenRes.token) {
+    return { success: false, error: tokenRes.error || 'Failed to generate proposal token' }
+  }
+
+  // 2. Set quote status to 'sent' and update updated_at
+  const { error: updateError } = await supabase
+    .from('quotes')
+    .update({
+      status: 'sent',
+      updated_at: new Date().toISOString(),
+    } as any)
+    .eq('tenant_id', tenantId)
+    .eq('id', quoteId)
+
+  if (updateError) {
+    return { success: false, error: updateError.message }
+  }
+
+  return { success: true, token: tokenRes.token }
+}
+
 export async function getQuoteByPublicToken(
   supabase: SupabaseClient<Database>,
   token: string

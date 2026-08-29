@@ -317,6 +317,28 @@ export async function approveAiDraftAction(messageId: string, editedBodyText?: s
   })
   if (resolutionErr) console.error('[ai-draft-resolutions] Failed to log approval resolution:', resolutionErr.message)
 
+  // If this approved draft was for an extracted quote, mark the quote as 'sent' and advance lead stage
+  const aiMeta = (draft.ai_metadata as any) || {}
+  if (aiMeta.quoteComputed && aiMeta.quoteId) {
+    const { markQuoteSent } = await import('@/modules/quotes/server/repository')
+    await markQuoteSent(serviceClient, tenantId, aiMeta.quoteId)
+
+    const { data: qData } = await serviceClient
+      .from('quotes')
+      .select('lead_id')
+      .eq('id', aiMeta.quoteId)
+      .eq('tenant_id', tenantId)
+      .single()
+
+    if (qData?.lead_id) {
+      await serviceClient
+        .from('leads')
+        .update({ stage: 'quote_sent', updated_at: new Date().toISOString() })
+        .eq('id', qData.lead_id)
+        .eq('tenant_id', tenantId)
+    }
+  }
+
   revalidatePath(`/office/email/${draft.thread_id}`)
   return { success: true, recorded: true }
 }
