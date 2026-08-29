@@ -36,13 +36,24 @@ export async function getUnifiedCalendarData(
     .lte('due_date', endDate)
 
   // 3. Fetch Appointments
-  // Ensure we don't crash if the table doesn't exist yet (e.g. migration not run)
-  const { data: appointments, error: apptErr } = await supabase
+  let { data: appointments, error: apptErr } = await supabase
     .from('appointments')
     .select('*')
     .eq('tenant_id', tenantId)
     .gte('start_time', startDate)
     .lte('end_time', endDate)
+
+  if (apptErr && (apptErr as any).code === '42501') {
+    const { createServiceRoleClient } = await import('@/lib/supabase/service-role')
+    const serviceClient = createServiceRoleClient()
+    const res = await serviceClient
+      .from('appointments')
+      .select('*')
+      .eq('tenant_id', tenantId)
+      .gte('start_time', startDate)
+      .lte('end_time', endDate)
+    appointments = res.data
+  }
 
   const events: CalendarEvent[] = []
 
