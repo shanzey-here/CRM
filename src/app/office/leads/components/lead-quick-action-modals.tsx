@@ -27,6 +27,9 @@ import type { LeadWithContact } from '@/modules/leads/server/repository'
 import { getContactDisplayName } from './lead-card'
 import { KANBAN_STAGES } from '../constants'
 
+import { ScheduleSurveyForm } from './schedule-survey-form'
+import type { TenantUser } from '@/modules/users/server/repository'
+
 export type QuickActionType =
   | 'schedule_survey'
   | 'send_quote'
@@ -37,6 +40,7 @@ interface LeadQuickActionModalsProps {
   lead: LeadWithContact
   activeAction: QuickActionType | null
   onClose: () => void
+  tenantStaff?: TenantUser[]
 }
 
 const ACTION_CONFIG: Record<
@@ -121,6 +125,7 @@ export function LeadQuickActionModals({
   lead,
   activeAction,
   onClose,
+  tenantStaff,
 }: LeadQuickActionModalsProps) {
   if (!activeAction) return null
 
@@ -138,7 +143,7 @@ export function LeadQuickActionModals({
       }}
     >
       <DialogContent
-        className="max-w-lg p-6 bg-white rounded-2xl shadow-2xl border border-slate-200"
+        className="max-w-lg p-6 bg-white rounded-2xl shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
         onPointerDown={(e) => e.stopPropagation()}
       >
@@ -231,29 +236,40 @@ export function LeadQuickActionModals({
           </div>
         </div>
 
-        {/* Action Entry Point Slot (Option B: Minimal Stub Container for Epics D–G) */}
-        <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 text-center space-y-2">
-          <div className="text-xs font-semibold text-slate-700">
-            {config.title} Flow Entry Point
-          </div>
-          <p className="text-xs text-slate-500 max-w-sm mx-auto">
-            This modal serves as the card-level trigger. The dedicated form and underlying logic will be mounted here in <span className="font-semibold text-slate-700">{config.epic}</span>.
-          </p>
-        </div>
+        {/* Action Body: Real Schedule Survey Form (Epic D) vs Stubs (Epics E, F, G) */}
+        {activeAction === 'schedule_survey' ? (
+          <ScheduleSurveyForm
+            lead={lead}
+            tenantStaff={tenantStaff}
+            onSuccess={onClose}
+            onCancel={onClose}
+          />
+        ) : (
+          <>
+            <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 text-center space-y-2">
+              <div className="text-xs font-semibold text-slate-700">
+                {config.title} Flow Entry Point
+              </div>
+              <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                This modal serves as the card-level trigger. The dedicated form and underlying logic will be mounted here in <span className="font-semibold text-slate-700">{config.epic}</span>.
+              </p>
+            </div>
 
-        <DialogFooter className="gap-2 sm:gap-0 mt-2">
-          <Button variant="outline" size="sm" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button
-            size="sm"
-            disabled
-            className="opacity-60 cursor-not-allowed bg-slate-900 text-white"
-            title={`Action logic is implemented in ${config.epic}`}
-          >
-            {config.actionButtonText} ({config.epic})
-          </Button>
-        </DialogFooter>
+            <DialogFooter className="gap-2 sm:gap-0 mt-2">
+              <Button variant="outline" size="sm" onClick={onClose}>
+                Cancel
+              </Button>
+              <Button
+                size="sm"
+                disabled
+                className="opacity-60 cursor-not-allowed bg-slate-900 text-white"
+                title={`Action logic is implemented in ${config.epic}`}
+              >
+                {config.actionButtonText} ({config.epic})
+              </Button>
+            </DialogFooter>
+          </>
+        )}
       </DialogContent>
     </Dialog>
   )

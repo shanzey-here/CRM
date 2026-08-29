@@ -49,5 +49,21 @@ export const updateAppointmentSchema = baseAppointmentSchema.partial().refine((d
   path: ["end_time"]
 })
 
+export const scheduleSurveyFormSchema = z.object({
+  title: z.string().min(1, 'Survey title is required'),
+  contact_id: z.string().uuid().optional().nullable(),
+  assigned_to: z.string().optional().nullable(),
+  start_time: z.string().min(1, 'Start time is required'),
+  end_time: z.string().min(1, 'End time is required'),
+  description: z.string().optional().nullable(),
+}).refine((data) => {
+  if (!data.start_time || !data.end_time) return true
+  return new Date(data.end_time).getTime() > new Date(data.start_time).getTime()
+}, {
+  message: "End time must be after start time",
+  path: ["end_time"]
+})
+
+export type ScheduleSurveyFormInput = z.infer<typeof scheduleSurveyFormSchema>
 export type InsertAppointmentInput = z.infer<typeof insertAppointmentSchema>
 export type UpdateAppointmentInput = z.infer<typeof updateAppointmentSchema>

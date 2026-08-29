@@ -26,7 +26,15 @@ const QUICK_ACTIONS: {
   { type: 'confirm_booking', label: 'Confirm Booking', icon: CheckCircle2, colorClass: 'text-indigo-700 hover:bg-indigo-50' },
 ]
 
-export function LeadQuickActionsBar({ lead }: { lead: LeadWithContact }) {
+import type { TenantUser } from '@/modules/users/server/repository'
+
+export function LeadQuickActionsBar({
+  lead,
+  tenantStaff,
+}: {
+  lead: LeadWithContact
+  tenantStaff?: TenantUser[]
+}) {
   const [activeAction, setActiveAction] = useState<QuickActionType | null>(null)
 
   return (
@@ -55,6 +63,7 @@ export function LeadQuickActionsBar({ lead }: { lead: LeadWithContact }) {
         lead={lead}
         activeAction={activeAction}
         onClose={() => setActiveAction(null)}
+        tenantStaff={tenantStaff}
       />
     </>
   )

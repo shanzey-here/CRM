@@ -3,7 +3,12 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { insertQuoteSchema, saveQuoteInventorySchema } from '@/modules/quotes/schemas'
-import { createQuote as repoCreateQuote, saveQuoteInventory as repoSaveQuoteInventory, generateQuotePublicToken } from '@/modules/quotes/server/repository'
+import {
+  createQuote as repoCreateQuote,
+  saveQuoteInventory as repoSaveQuoteInventory,
+  generateQuotePublicToken,
+  markQuoteSent,
+} from '@/modules/quotes/server/repository'
 
 export async function createQuoteAction(payload: unknown) {
   const supabase = await createClient()
@@ -101,8 +106,8 @@ export async function generateProposalLinkAction(quoteId: string) {
 
   const tenantId = user.app_metadata.tenant_id as string
 
-  const result = await generateQuotePublicToken(supabase, tenantId, quoteId)
-  if (!result.success) {
+  const result = await markQuoteSent(supabase, tenantId, quoteId)
+  if (!result.success || !result.token) {
     return { success: false, error: result.error }
   }
 
@@ -110,4 +115,115 @@ export async function generateProposalLinkAction(quoteId: string) {
   const proposalUrl = `${baseUrl}/proposal/${result.token}`
 
   return { success: true, token: result.token, url: proposalUrl }
+}
+
+export async function sendQuoteAction(input: {
+  quoteId: string
+  leadId: string
+  sendEmail?: boolean
+  customEmailMessage?: string
+}): Promise<{
+  success: boolean
+  token?: string
+  url?: string
+  emailSent?: boolean
+  error?: string
+}> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user || !user.app_metadata.tenant_id) {
+    return { success: false, error: 'Unauthorized' }
+  }
+
+  const tenantId = user.app_metadata.tenant_id as string
+
+  // 1. Mark quote as sent and ensure public token exists
+  const quoteResult = await markQuoteSent(supabase, tenantId, input.quoteId)
+  if (!quoteResult.success || !quoteResult.token) {
+    return { success: false, error: quoteResult.error || 'Failed to prepare quote proposal' }
+  }
+
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+  const proposalUrl = `${baseUrl}/proposal/${quoteResult.token}`
+
+  let emailSent = false
+  // 2. If sendEmail is requested, compose and send proposal email via connected mailbox
+  if (input.sendEmail) {
+    try {
+      const { data: quote } = await supabase
+        .from('quotes')
+        .select(`
+          id, total_price, computed_price,
+          contact:contacts!quotes_contact_fk(id, first_name, last_name, email),
+          brand:brands!quotes_brand_fk(id, name)
+        `)
+        .eq('id', input.quoteId)
+        .eq('tenant_id', tenantId)
+        .single()
+
+      const contact = quote?.contact as any
+      const brand = quote?.brand as any
+      if (contact?.email) {
+        const { data: mailbox } = await supabase
+          .from('mailboxes')
+          .select('*')
+          .eq('tenant_id', tenantId)
+          .eq('status', 'connected')
+          .limit(1)
+          .maybeSingle()
+
+        if (mailbox && mailbox.mailbox_address) {
+          const { buildOutboundMessage, sendMessage } = await import('@/modules/mailboxes/server/send')
+          const { createServiceRoleClient } = await import('@/lib/supabase/service-role')
+          const serviceClient = createServiceRoleClient()
+
+          const price = quote?.computed_price || quote?.total_price || 0
+          const companyName = brand?.name || 'Gomove Removals'
+          const customerName = contact.first_name || 'Valued Customer'
+          const body = input.customEmailMessage || 
+            `Dear ${customerName},\n\nThank you for choosing ${companyName}. We have prepared your moving quote: £${Number(price).toFixed(2)}.\n\nPlease review and accept your detailed proposal online at:\n${proposalUrl}\n\nKind regards,\n${companyName}`
+
+          const { raw } = buildOutboundMessage({
+            from: mailbox.mailbox_address,
+            to: contact.email,
+            subject: `Your Moving Proposal from ${companyName}`,
+            bodyText: body,
+          })
+
+          const sendRes = await sendMessage(serviceClient, mailbox as any, raw, null, contact.email)
+          if (sendRes.ok) {
+            emailSent = true
+          }
+        }
+      }
+    } catch (emailErr) {
+      console.error('[sendQuoteAction] Email dispatch warning:', emailErr)
+    }
+  }
+
+  // 3. Auto-transition lead stage to 'quote_sent' via canonical shared transition function
+  const { updateLeadStage } = await import('@/app/office/leads/actions')
+  const stageResult = await updateLeadStage(input.leadId, 'quote_sent')
+
+  revalidatePath('/office/leads')
+  revalidatePath(`/office/leads/${input.leadId}`)
+  revalidatePath(`/office/quotes/${input.quoteId}`)
+
+  if (!stageResult.success) {
+    return {
+      success: true,
+      token: quoteResult.token,
+      url: proposalUrl,
+      emailSent,
+      error: `Quote marked as sent, but stage transition failed: ${stageResult.error}`,
+    }
+  }
+
+  return {
+    success: true,
+    token: quoteResult.token,
+    url: proposalUrl,
+    emailSent,
+  }
 }
