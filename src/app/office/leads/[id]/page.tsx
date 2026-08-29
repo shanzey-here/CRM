@@ -122,7 +122,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
         </div>
 
         <div className="flex items-center gap-2">
-          <LeadQuickActionsBar lead={{ ...lead, contact }} />
+          <LeadQuickActionsBar lead={{ ...lead, contact }} tenantStaff={tenantStaff || []} />
           <StageControl leadId={lead.id} currentStage={lead.stage} isEditable={isEditableStage} />
           <EditLeadForm lead={lead} tenantStaff={tenantStaff || []} />
         </div>
