@@ -237,8 +237,7 @@ export function LeadQuickActionModals({
           </div>
         </div>
 
-        {/* Action Body: Real Schedule Survey Form (Epic D), real Send Quote
-            entry point (Epic E) vs Stubs (Epics F, G) */}
+        {/* Action Body: Real Schedule Survey Form (Epic D), Send Quote Form (Epic E) vs Stubs (Epics F, G) */}
         {activeAction === 'schedule_survey' ? (
           <ScheduleSurveyForm
             lead={lead}
@@ -247,7 +246,11 @@ export function LeadQuickActionModals({
             onCancel={onClose}
           />
         ) : activeAction === 'send_quote' ? (
-          <SendQuoteForm lead={lead} onSuccess={onClose} onCancel={onClose} />
+          <SendQuoteForm
+            lead={lead}
+            onSuccess={onClose}
+            onCancel={onClose}
+          />
         ) : (
           <>
             <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 text-center space-y-2">
