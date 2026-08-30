@@ -13,11 +13,19 @@ import { retryStageAdvance } from '@/modules/leads/server/stage-retry'
 import { z } from 'zod'
 
 // ============================================================================
-// VALIDATED STAGE ENUM
-// Gap fix #2: The client sends a stage string from the drag event — we NEVER
-// trust it without server-side validation. This Zod enum matches the DB enum
-// exactly, and explicitly excludes 'archived' as a drag target since you
-// generally cannot drag back out of archived from the kanban board.
+// STAGE VALIDATION — now against the tenant's real pipeline_stages rows.
+//
+// Previously this was a hardcoded z.enum of the 5 board stages, flagged as a
+// known limitation to be resolved once a real stages table existed. That table
+// (public.pipeline_stages, per-tenant, keyed by `key` = the old lead_stage
+// enum value) now exists and leads.stage_id FKs to it
+// (20260831140000_leads_stage_id_migration.sql). updateLeadStage() below
+// validates the requested stage against that tenant's own rows — a key
+// ('quote_sent') or a stage_id (uuid) — so a tenant-defined custom stage is
+// accepted and a stage that only exists for a different tenant is rejected.
+//
+// ACTIVE_STAGE_VALUES / KanbanStage stay as the 5 board-column stage keys —
+// still the shape the drag board and StageControl deal in.
 // ============================================================================
 const ACTIVE_STAGE_VALUES = [
   'inquiry',
@@ -27,24 +35,7 @@ const ACTIVE_STAGE_VALUES = [
   'confirmed_booking',
 ] as const
 
-// KNOWN LIMITATION — flagged deliberately, not to be fixed here:
-// This is a hardcoded z.enum of the 5 fixed board stages every tenant
-// currently shares. It's correct today because every real transition
-// target (the drag-and-drop board, StageControl's manual override, and
-// each of the four quick actions in Epics D–G) only ever targets one of
-// these fixed stages.
-//
-// `feature/phase4-custom-column-create-ui` (Epic H) will let tenants
-// create their own custom stages, and once it does, this fixed enum will
-// reject any transition into a tenant-defined stage — `updateLeadStage`
-// will 'Invalid stage' on something that's actually valid for that
-// tenant. At that point this needs real rework: validating against the
-// tenant's real, dynamic stage list (once a stages table exists) instead
-// of a fixed enum. Do not attempt that here — Epic H owns the data model
-// this depends on, which doesn't exist yet.
-const kanbanStageSchema = z.enum(ACTIVE_STAGE_VALUES)
-
-export type KanbanStage = z.infer<typeof kanbanStageSchema>
+export type KanbanStage = (typeof ACTIVE_STAGE_VALUES)[number]
 
 export type UpdateLeadStageResult =
   | { success: true }
@@ -73,15 +64,30 @@ export async function updateLeadStage(
     return { success: false, error: 'Insufficient permissions' }
   }
 
-  // 3. Server-side stage validation — parse & reject before any DB call
-  const parseResult = kanbanStageSchema.safeParse(newStage)
-  if (!parseResult.success) {
+  // 3. Server-side stage validation — against THIS tenant's real
+  //    pipeline_stages rows, not a fixed enum. Accepts either a stage `key`
+  //    ('quote_sent' — what the board and every current caller pass) or a
+  //    `stage_id` uuid. A stage belonging to another tenant resolves to no
+  //    row here and is rejected.
+  const requestedStage = typeof newStage === 'string' ? newStage.trim() : ''
+  if (!requestedStage) {
+    return { success: false, error: `Invalid stage: "${String(newStage)}"` }
+  }
+  const isUuid = z.string().uuid().safeParse(requestedStage).success
+  const { data: stageRow } = await supabase
+    .from('pipeline_stages')
+    .select('id, key, name')
+    .eq('tenant_id', tenantId)
+    .eq(isUuid ? 'id' : 'key', requestedStage)
+    .maybeSingle()
+
+  if (!stageRow) {
     return {
       success: false,
-      error: `Invalid stage: "${newStage}". Must be one of: ${ACTIVE_STAGE_VALUES.join(', ')}`,
+      error: `Invalid stage: "${requestedStage}" is not a pipeline stage for this workspace.`,
     }
   }
-  const validatedStage = parseResult.data
+  const validatedStage = (stageRow.key ?? stageRow.id) as string
 
   // 4. Validate the lead UUID shape
   const uuidResult = z.string().uuid().safeParse(leadId)
@@ -100,11 +106,14 @@ export async function updateLeadStage(
   }
   const oldStage = leadBeforeChange.stage
 
+  // Write the FK column. The BEFORE trigger (leads_sync_stage_columns) keeps
+  // the legacy `stage` enum column in lock-step, so every not-yet-migrated
+  // reader of leads.stage stays correct with no inconsistency window.
   const { data: existingLead, error: fetchError } = await updateLead(
     supabase,
     tenantId,
     leadId,
-    { stage: validatedStage }
+    { stage_id: stageRow.id } as any
   )
 
   if (fetchError || !existingLead) {
