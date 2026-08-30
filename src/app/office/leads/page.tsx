@@ -1,9 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { getLeads } from '@/modules/leads/server/repository'
 import { KanbanBoard } from './components/kanban-board'
-import { KANBAN_STAGES } from './constants'
-import type { KanbanStage } from './actions'
 
 export const metadata = {
   title: 'Leads Pipeline | Gomove CRM',
@@ -26,12 +23,25 @@ export default async function LeadsPage() {
   const tenantId = user.app_metadata?.tenant_id as string
   if (!tenantId) redirect('/login?error=no_tenant_context')
 
-  // Fetch ALL active leads in one query — we filter into columns client-side.
-  // Exclude archived and completed from the board (they go to list view later).
-  const activeStages = KANBAN_STAGES.map((s) => s.id) as KanbanStage[]
+  // The board's "active" columns are the tenant's pipeline_stages that are NOT
+  // hidden-by-default (today: exactly the 5 non-hidden built-ins — same set the
+  // old hardcoded KANBAN_STAGES list held, now sourced from the real table).
+  // `completed` / `archived` stay off the board via is_hidden_by_default, as
+  // before.
+  const { data: activeStageRows } = await supabase
+    .from('pipeline_stages')
+    .select('key')
+    .eq('tenant_id', tenantId)
+    .eq('is_hidden_by_default', false)
+    .order('position', { ascending: true })
+
+  const activeStages = (activeStageRows ?? [])
+    .map((s) => s.key)
+    .filter((k): k is string => !!k)
 
   // We fetch each active stage — Supabase doesn't support IN operator on
-  // .eq() so we use a raw filter with the `in` method.
+  // .eq() so we use a raw filter with the `in` method. `stage` stays in sync
+  // with `stage_id` via the leads_sync_stage_columns trigger.
   const { data: leads, error } = await supabase
     .from('leads')
     .select(`
@@ -40,6 +50,7 @@ export default async function LeadsPage() {
       contact_id,
       brand_id,
       stage,
+      stage_id,
       source,
       preferred_move_date,
       origin_address_id,

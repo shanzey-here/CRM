@@ -1951,6 +1951,7 @@ export type Database = {
           priority: Database["public"]["Enums"]["priority_level"]
           source: string | null
           stage: Database["public"]["Enums"]["lead_stage"]
+          stage_id: string
           tenant_id: string
           updated_at: string | null
           updated_by: string | null
@@ -1973,6 +1974,7 @@ export type Database = {
           priority?: Database["public"]["Enums"]["priority_level"]
           source?: string | null
           stage?: Database["public"]["Enums"]["lead_stage"]
+          stage_id?: string
           tenant_id: string
           updated_at?: string | null
           updated_by?: string | null
@@ -1995,6 +1997,7 @@ export type Database = {
           priority?: Database["public"]["Enums"]["priority_level"]
           source?: string | null
           stage?: Database["public"]["Enums"]["lead_stage"]
+          stage_id?: string
           tenant_id?: string
           updated_at?: string | null
           updated_by?: string | null
