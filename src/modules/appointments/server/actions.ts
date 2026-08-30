@@ -89,6 +89,7 @@ export async function scheduleSurveyAction(input: {
   error?: string
   conflict?: boolean
   appointment?: any
+  warning?: string
 }> {
   try {
     // 1. Create the appointment via existing appointments creation path (reuses createAppointmentAction)
@@ -106,17 +107,43 @@ export async function scheduleSurveyAction(input: {
       return { success: false, error: appointmentResult.error || 'Failed to schedule survey' }
     }
 
-    // 2. Advance the lead stage to 'survey_scheduled' via existing shared transition function
+    // 2. Advance the lead stage to 'survey_scheduled' via the canonical shared
+    //    transition function. Per § 2A of PHASE4_CONFIRM_BOOKING_DECISION.md:
+    //    one retry, but skip the retry if the stage is already correct (the
+    //    "updateLeadStage persisted but its response was lost" edge case — a
+    //    second successful call would log a nonsensical
+    //    "survey_scheduled → survey_scheduled" timeline entry). This is the
+    //    exact same helper and logic proven for Confirm Booking
+    //    (src/modules/leads/server/stage-retry.ts, tests/confirm_booking_retry_test.ts).
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    const tenantId = user?.app_metadata?.tenant_id as string | undefined
+
     const { updateLeadStage } = await import('@/app/office/leads/actions')
-    const stageResult = await updateLeadStage(input.leadId, 'survey_scheduled')
-    
+    const { getLeadById } = await import('@/modules/leads/server/repository')
+    const { retryStageAdvance } = await import('@/modules/leads/server/stage-retry')
+
+    const { result: stageResult } = await retryStageAdvance({
+      target: 'survey_scheduled' as const,
+      attempt: () => updateLeadStage(input.leadId, 'survey_scheduled'),
+      currentStage: async () =>
+        tenantId
+          ? (await getLeadById(supabase, tenantId, input.leadId)).data?.stage
+          : undefined,
+    })
+
     revalidatePath('/office/scheduling')
+    revalidatePath('/office/leads')
+    revalidatePath(`/office/leads/${input.leadId}`)
 
     if (!stageResult.success) {
+      // Partial failure: the appointment genuinely exists — surface a specific,
+      // non-error warning so the form can show it instead of silently closing.
       return {
         success: true,
         appointment: appointmentResult.data,
-        error: `Appointment scheduled, but stage transition failed: ${stageResult.error}`,
+        warning:
+          "The survey appointment was created, but the lead's stage could not be updated automatically — move it to Survey Scheduled manually.",
       }
     }
 

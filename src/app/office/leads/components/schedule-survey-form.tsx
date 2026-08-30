@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import { useState, useEffect, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
@@ -31,6 +32,7 @@ import {
   AlertTriangle,
   Loader2,
   Check,
+  CheckCircle2,
 } from 'lucide-react'
 
 interface ScheduleSurveyFormProps {
@@ -77,10 +79,12 @@ export function ScheduleSurveyForm({
   onSuccess,
   onCancel,
 }: ScheduleSurveyFormProps) {
+  const router = useRouter()
   const [staffList, setStaffList] = useState<TenantUser[]>(initialStaff || [])
   const [isPending, startTransition] = useTransition()
   const [serverError, setServerError] = useState<string | null>(null)
   const [conflictWarning, setConflictWarning] = useState<boolean>(false)
+  const [partialWarning, setPartialWarning] = useState<string | null>(null)
   const [lastSubmittedData, setLastSubmittedData] = useState<ScheduleSurveyFormInput | null>(null)
 
   const contactName = getContactDisplayName(lead.contact)
@@ -120,6 +124,7 @@ export function ScheduleSurveyForm({
   const onSubmit = (data: ScheduleSurveyFormInput, ignoreConflict: boolean = false) => {
     setServerError(null)
     setConflictWarning(false)
+    setPartialWarning(null)
     setLastSubmittedData(data)
 
     startTransition(async () => {
@@ -154,6 +159,12 @@ export function ScheduleSurveyForm({
           } else {
             setServerError(res.error || 'Failed to schedule survey appointment')
           }
+        } else if (res.warning) {
+          // § 2A — the appointment was created but the stage transition failed
+          // even after the retry. Surface it in a distinct panel; do NOT close
+          // the modal as if everything succeeded.
+          router.refresh()
+          setPartialWarning(res.warning)
         } else {
           onSuccess()
         }
@@ -167,6 +178,28 @@ export function ScheduleSurveyForm({
     if (lastSubmittedData) {
       onSubmit(lastSubmittedData, true)
     }
+  }
+
+  // Post-submit § 2A state: the appointment exists, only the lead's board
+  // label is stale. Distinct from a hard error — stay open, offer Close.
+  if (partialWarning) {
+    return (
+      <div className="space-y-4 pt-1">
+        <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 flex items-start gap-2">
+          <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5" />
+          <span>The survey appointment was created on the calendar.</span>
+        </div>
+        <div className="p-3 rounded-lg bg-amber-50 border border-amber-300 text-xs text-amber-900 flex items-start gap-2">
+          <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
+          <span>{partialWarning}</span>
+        </div>
+        <div className="flex items-center justify-end pt-2 border-t border-slate-100">
+          <Button type="button" size="sm" onClick={onSuccess} className="bg-slate-900 text-white">
+            Close
+          </Button>
+        </div>
+      </div>
+    )
   }
 
   return (
