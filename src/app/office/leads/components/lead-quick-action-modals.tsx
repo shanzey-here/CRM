@@ -29,6 +29,7 @@ import { KANBAN_STAGES } from '../constants'
 
 import { ScheduleSurveyForm } from './schedule-survey-form'
 import { SendQuoteForm } from './send-quote-form'
+import { FollowUpForm } from './follow-up-form'
 import type { TenantUser } from '@/modules/users/server/repository'
 
 export type QuickActionType =
@@ -237,7 +238,8 @@ export function LeadQuickActionModals({
           </div>
         </div>
 
-        {/* Action Body: Real Schedule Survey Form (Epic D), Send Quote Form (Epic E) vs Stubs (Epics F, G) */}
+        {/* Action Body: Real Schedule Survey (Epic D), Send Quote (Epic E),
+            Log Follow-Up (Epic F) vs Stub (Epic G) */}
         {activeAction === 'schedule_survey' ? (
           <ScheduleSurveyForm
             lead={lead}
@@ -247,6 +249,12 @@ export function LeadQuickActionModals({
           />
         ) : activeAction === 'send_quote' ? (
           <SendQuoteForm
+            lead={lead}
+            onSuccess={onClose}
+            onCancel={onClose}
+          />
+        ) : activeAction === 'follow_up' ? (
+          <FollowUpForm
             lead={lead}
             onSuccess={onClose}
             onCancel={onClose}

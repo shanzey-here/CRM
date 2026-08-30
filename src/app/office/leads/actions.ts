@@ -4,7 +4,9 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { updateLead, getLeadById } from '@/modules/leads/server/repository'
 import { emitEvent } from '@/utils/supabase/event-bus'
-import { updateLeadDetailsSchema } from '@/modules/leads/schemas'
+import { updateLeadDetailsSchema, followUpFormSchema } from '@/modules/leads/schemas'
+import { createActivity } from '@/modules/activities/server/repository'
+import { createTask } from '@/modules/tasks/server/repository'
 import { z } from 'zod'
 
 // ============================================================================
@@ -140,6 +142,144 @@ export async function updateLeadStage(
   // without a manual refresh).
   revalidatePath('/office/leads')
   revalidatePath(`/office/leads/${leadId}`)
+
+  return { success: true }
+}
+
+// ============================================================================
+// LOG FOLLOW-UP (Epic F) — the manual "Follow Up" quick action.
+// Decision record: PHASE4_FOLLOW_UP_DECISION.md.
+//
+// One staff-initiated action, three REUSED systems in sequence:
+//   1. createActivity()  — the note + contact method, visible on the Activity
+//      Timeline (activity_type mapped from the method: phone→call, email→email,
+//      text→note).
+//   2. createTask()      — only if a reminder date was given. A real `tasks`
+//      row (status 'pending', due_date set) so it shows on the Dashboard
+//      TasksWidget for free — that widget already reads `tasks`.
+//   3. updateLeadStage() — moves the lead to `follow_up`. This ALREADY logs
+//      the "Moved from X to Follow Up" timeline entry via the existing
+//      domain-event → activities trigger, so we do NOT write a second
+//      activity for the transition here.
+//
+// Not atomic (Supabase has no JS-level multi-table transaction; the sibling
+// scheduleSurveyAction has the same shape). Ordered so the note — the point of
+// the action — lands first; a later failure surfaces to the user with the note
+// already safely recorded, and the stage move is best-effort (mirrors
+// scheduleSurveyAction: success:true + a warning string if only the stage
+// transition failed).
+// ============================================================================
+const METHOD_TO_ACTIVITY_TYPE = {
+  phone: 'call',
+  email: 'email',
+  text: 'note',
+} as const
+
+export async function logFollowUpAction(
+  leadId: string,
+  payload: unknown
+): Promise<{ success: boolean; error?: string; warning?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { success: false, error: 'Unauthorized' }
+  }
+
+  const tenantId = user.app_metadata?.tenant_id as string | undefined
+  if (!tenantId) {
+    return { success: false, error: 'No tenant context' }
+  }
+
+  // Same role gate as updateLeadStage — only tenant_admin / dispatcher move leads.
+  const role = user.app_metadata?.tenant_role ?? user.app_metadata?.role
+  if (role !== 'tenant_admin' && role !== 'dispatcher') {
+    return { success: false, error: 'Insufficient permissions' }
+  }
+
+  const uuidResult = z.string().uuid().safeParse(leadId)
+  if (!uuidResult.success) {
+    return { success: false, error: 'Invalid lead ID format' }
+  }
+
+  const parsed = followUpFormSchema.safeParse(payload)
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues.map((i) => i.message).join('; ') }
+  }
+  const { note, contact_method, reminder_date } = parsed.data
+
+  // Tenant-scoped fetch doubles as the cross-tenant guard: a lead from another
+  // tenant returns null and nothing below runs.
+  const { data: lead, error: leadError } = await getLeadById(supabase, tenantId, leadId)
+  if (leadError || !lead) {
+    return { success: false, error: 'Lead not found' }
+  }
+
+  // 1. The note + contact method → Activity Timeline.
+  const { error: activityError } = await createActivity(supabase, tenantId, {
+    lead_id: leadId,
+    contact_id: lead.contact_id,
+    type: METHOD_TO_ACTIVITY_TYPE[contact_method],
+    content: `Follow-up (${contact_method}): ${note}`,
+    metadata: { kind: 'follow_up', contact_method },
+    created_by: user.id,
+  })
+  if (activityError) {
+    return { success: false, error: `Failed to log follow-up note: ${activityError.message}` }
+  }
+
+  // 2. Optional reminder → a real pending task (also surfaces on the dashboard).
+  if (reminder_date) {
+    let contactName = 'lead'
+    const { data: contactRow } = await supabase
+      .from('contacts')
+      .select('first_name, last_name, company_name')
+      .eq('tenant_id', tenantId)
+      .eq('id', lead.contact_id)
+      .maybeSingle()
+    if (contactRow) {
+      contactName =
+        [contactRow.first_name, contactRow.last_name].filter(Boolean).join(' ').trim() ||
+        contactRow.company_name ||
+        'lead'
+    }
+
+    // Date-only → end-of-day ISO so a "due today" reminder isn't already past.
+    const dueIso = new Date(`${reminder_date}T17:00:00`).toISOString()
+
+    const { error: taskError } = await createTask(supabase, tenantId, {
+      lead_id: leadId,
+      contact_id: lead.contact_id,
+      title: `Follow up with ${contactName}`,
+      description: `Reminder from follow-up logged ${new Date().toLocaleDateString('en-GB')}: ${note}`,
+      due_date: dueIso,
+      status: 'pending',
+      priority: 'medium',
+      created_by: user.id,
+    })
+    if (taskError) {
+      // Note is already saved; tell the user the reminder specifically failed
+      // so they can retry that part without duplicating the note.
+      return {
+        success: false,
+        error: `Follow-up note saved, but the reminder task failed: ${taskError.message}`,
+      }
+    }
+  }
+
+  // 3. Advance the stage via the canonical shared transition function.
+  const stageResult = await updateLeadStage(leadId, 'follow_up')
+
+  revalidatePath('/office/leads')
+  revalidatePath(`/office/leads/${leadId}`)
+  revalidatePath('/office') // dashboard TasksWidget
+
+  if (!stageResult.success) {
+    return {
+      success: true,
+      warning: `Follow-up logged, but the stage transition failed: ${stageResult.error}`,
+    }
+  }
 
   return { success: true }
 }

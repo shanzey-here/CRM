@@ -45,6 +45,36 @@ export type InsertLeadInput = z.infer<typeof insertLeadSchema>
 export type UpdateLeadInput = z.infer<typeof updateLeadSchema>
 
 // ============================================================================
+// FOLLOW UP (Epic F) — manual, action-based. See PHASE4_FOLLOW_UP_DECISION.md.
+// A staff member logs a follow-up they just performed; that logged action is
+// what moves the lead to `follow_up`. Captures a note + how they made contact
+// + an optional date to be reminded to follow up again.
+// ============================================================================
+
+// Re-declared here (not imported from clients/schemas) to keep the leads
+// module self-contained, but the VALUES are the shared DB `contact_method`
+// enum — phone / email / text — exactly as `contacts.preferred_contact_method`
+// uses them. Do not diverge these.
+export const followUpContactMethodEnum = z.enum(['phone', 'email', 'text'])
+
+export const followUpFormSchema = z.object({
+  note: z.string().trim().min(1, 'A note is required — record what happened'),
+  contact_method: followUpContactMethodEnum,
+  // Optional: a follow-up doesn't always warrant another reminder (lead just
+  // converted, or went cold for good). Date-only string (YYYY-MM-DD) from the
+  // <input type="date">; the server normalises it to an ISO datetime for the
+  // tasks table. Empty string is treated as "no reminder".
+  reminder_date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Enter a valid date')
+    .optional()
+    .nullable()
+    .or(z.literal('')),
+})
+
+export type FollowUpFormInput = z.infer<typeof followUpFormSchema>
+
+// ============================================================================
 // PUBLIC LEAD-CAPTURE FORM SUBMISSION
 // ============================================================================
 // Deliberately its own schema, not a reuse of insertLeadSchema — the public
