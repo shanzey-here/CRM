@@ -135,6 +135,7 @@ export function LeadCard({ lead, isDragOverlay = false, isPending = false }: Lea
         ref={setNodeRef}
         style={style}
         onClick={handleCardClick}
+        data-testid={`lead-card-${lead.id}`}
         className={[
           'group relative bg-white rounded-xl border px-3 py-3 select-none',
           'transition-all cursor-pointer',

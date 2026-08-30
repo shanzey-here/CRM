@@ -154,9 +154,9 @@ export async function sendQuoteAction(input: {
       const { data: quote } = await supabase
         .from('quotes')
         .select(`
-          id, total_price, computed_price,
+          id, total_price, computed_price, brand_id,
           contact:contacts!quotes_contact_fk(id, first_name, last_name, email),
-          brand:brands!quotes_brand_fk(id, name)
+          brand:brands(id, name)
         `)
         .eq('id', input.quoteId)
         .eq('tenant_id', tenantId)
@@ -226,4 +226,40 @@ export async function sendQuoteAction(input: {
     url: proposalUrl,
     emailSent,
   }
+}
+
+export async function getQuotesForLeadAction(leadId: string): Promise<{
+  success: boolean
+  quotes?: {
+    id: string
+    status: string
+    total_volume: number | null
+    total_price: number
+    computed_price: number | null
+    public_token: string | null
+    created_at: string
+    updated_at: string | null
+  }[]
+  error?: string
+}> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user || !user.app_metadata.tenant_id) {
+    return { success: false, error: 'Unauthorized' }
+  }
+
+  const tenantId = user.app_metadata.tenant_id as string
+  const { data, error } = await supabase
+    .from('quotes')
+    .select('id, status, total_volume, total_price, computed_price, public_token, created_at, updated_at')
+    .eq('tenant_id', tenantId)
+    .eq('lead_id', leadId)
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    return { success: false, error: error.message }
+  }
+
+  return { success: true, quotes: data || [] }
 }

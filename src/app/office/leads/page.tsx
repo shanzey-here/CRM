@@ -36,21 +36,25 @@ export default async function LeadsPage() {
     .from('leads')
     .select(`
       id,
+      tenant_id,
       contact_id,
+      brand_id,
       stage,
+      source,
       preferred_move_date,
-      estimated_volume,
       origin_address_id,
       destination_address_id,
+      estimated_volume,
+      estimated_hours,
+      estimated_crew_size,
       notes,
-      created_at,
-      updated_at,
-      is_archived,
-      tenant_id,
-      source,
+      priority,
       assigned_to,
       created_by,
       updated_by,
+      created_at,
+      updated_at,
+      is_archived,
       contact:contacts(first_name, last_name, email, phone, company_name)
     `)
     .eq('tenant_id', tenantId)

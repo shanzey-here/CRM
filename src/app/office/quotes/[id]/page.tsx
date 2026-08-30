@@ -7,6 +7,7 @@ import { getAddressById } from '@/modules/clients/server/repository'
 import { calculateFullCycleRoute, FullCycleRouteResult } from '@/modules/quotes/server/routing'
 import { VolumeCalculator } from './components/volume-calculator'
 import { RouteSummary } from './components/route-summary'
+import { LeadReferenceEstimatesBanner } from './components/lead-reference-estimates-banner'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
@@ -42,10 +43,12 @@ export default async function QuoteWorkspacePage({ params }: { params: Promise<{
   let routeCalc: FullCycleRouteResult = { totalDistanceMeters: null, totalDurationSeconds: null, legs: [], hasError: true }
   let originString = ''
   let destinationString = ''
+  let leadRecord: any = null
 
   if (quote.lead_id) {
     const { data: lead } = await getLeadById(supabase, tenantId, quote.lead_id)
     if (lead) {
+      leadRecord = lead
       if (lead.origin_address_id) {
         const { data } = await getAddressById(supabase, tenantId, lead.origin_address_id)
         originAddress = data
@@ -105,6 +108,12 @@ export default async function QuoteWorkspacePage({ params }: { params: Promise<{
         </div>
       </div>
 
+      <LeadReferenceEstimatesBanner
+        estimatedVolume={leadRecord?.estimated_volume}
+        estimatedHours={leadRecord?.estimated_hours}
+        estimatedCrewSize={leadRecord?.estimated_crew_size}
+      />
+
       <RouteSummary
         quoteId={quote.id}
         quoteStatus={quote.status}
@@ -157,6 +166,14 @@ export default async function QuoteWorkspacePage({ params }: { params: Promise<{
           </CardContent>
         </Card>
       )}
+
+      <SendQuoteButton
+        quoteId={quote.id}
+        leadId={quote.lead_id}
+        quoteStatus={quote.status}
+        publicToken={quote.public_token}
+        hasPricing={quote.computed_price !== null}
+      />
     </div>
   )
 }
