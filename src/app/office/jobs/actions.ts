@@ -90,6 +90,16 @@ export async function regenerateJobCompletionSummaryAction(jobId: string) {
   return { success: true }
 }
 
+// REUSE POINT — the Kanban "Confirm Booking" quick action (Epic G, audited
+// under feature/phase4-confirm-booking-source-audit; full record in
+// PHASE4_CONFIRM_BOOKING_DECISION.md) calls THIS action directly to create a
+// real Job + draft invoice for a booking closed outside the online proposal
+// flow, then separately calls updateLeadStage(leadId, 'confirmed_booking')
+// (this RPC does not touch `leads`). Do NOT fork this into a third
+// job-creation path — extend here if the quick action needs it.
+// Partial-failure handling (job created, stage update then fails) is decided
+// in PHASE4_CONFIRM_BOOKING_DECISION.md § 2A — one retry, then a specific
+// warning; implemented in the caller, not here.
 export async function createManualJobAction(payload: unknown) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
