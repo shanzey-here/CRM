@@ -114,6 +114,21 @@ export async function archiveLead(
   return { error }
 }
 
+// DELIBERATE DECISION — this function is LEFT AS-IS by Epic F (audited under
+// feature/phase4-follow-up-definition; full record in PHASE4_FOLLOW_UP_DECISION.md).
+//
+// Despite the name, this has NO staleness/time threshold — it returns the most
+// recently-updated non-archived leads in `inquiry`/`quote_sent` (never the
+// `follow_up` stage itself), and its ONLY caller is the Dashboard
+// LeadsFollowUpWidget (src/app/office/page.tsx). It is purely informational.
+//
+// "Follow Up" as a Kanban concept was decided to be MANUAL and action-based:
+// a staff member logs a real follow-up (note + contact method + optional
+// reminder date) via the quick action, and that logged action moves the lead
+// to `follow_up` through the canonical updateLeadStage(). There is no
+// automatic, staleness-driven transition. This function is NOT reused or
+// extended by that action — do not add a time threshold here, do not call it
+// from the Follow Up action, and renaming it is out of scope for Epic F.
 export async function getLeadsNeedingFollowUp(
   supabase: SupabaseClient<Database>,
   tenantId: string,
