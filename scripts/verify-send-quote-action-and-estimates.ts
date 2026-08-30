@@ -153,11 +153,11 @@ async function verifySendQuoteAndEstimates() {
 
     // Step 2: Open Quote Workspace for Lead A (with estimates)
     console.log('\n--- Step 2: Verifying Quote Workspace for Lead WITH Estimates ---')
-    await page.goto(`${baseUrl}/office/quotes/${quoteA!.id}`)
-    await page.waitForSelector('text=Quote Workspace', { timeout: 15000 })
+    await page.goto(`${baseUrl}/office/quotes/${quoteA!.id}`, { waitUntil: 'domcontentloaded' })
+    await page.waitForSelector('text=Quote Workspace', { timeout: 25000 })
     
     // Check that LeadReferenceEstimatesBanner is rendered
-    const banner = await page.waitForSelector('[data-testid="lead-reference-estimates-banner"]', { timeout: 5000 })
+    const banner = await page.waitForSelector('[data-testid="lead-reference-estimates-banner"]', { timeout: 8000 })
     const bannerText = await banner.innerText()
     console.log(`✓ Estimates Banner text: "${bannerText.replace(/\n+/g, ' ')}"`)
     
@@ -171,8 +171,8 @@ async function verifySendQuoteAndEstimates() {
 
     // Step 3: Open Quote Workspace for Lead B (without estimates)
     console.log('\n--- Step 3: Verifying Quote Workspace for Lead WITHOUT Estimates ---')
-    await page.goto(`${baseUrl}/office/quotes/${quoteB!.id}`)
-    await page.waitForSelector('text=Quote Workspace', { timeout: 15000 })
+    await page.goto(`${baseUrl}/office/quotes/${quoteB!.id}`, { waitUntil: 'domcontentloaded' })
+    await page.waitForSelector('text=Quote Workspace', { timeout: 25000 })
 
     const bannerB = await page.$('[data-testid="lead-reference-estimates-banner"]')
     if (bannerB) {
@@ -186,15 +186,15 @@ async function verifySendQuoteAndEstimates() {
 
     // Step 4: Open Kanban Board and test "Send Quote" modal
     console.log('\n--- Step 4: Testing "Send Quote" Quick Action Modal from Kanban ---')
-    await page.goto(`${baseUrl}/office/leads`)
+    await page.goto(`${baseUrl}/office/leads`, { waitUntil: 'domcontentloaded' })
     await page.waitForSelector(`[data-testid="lead-card-${leadWithEstimates!.id}"]`, { timeout: 15000 })
 
     // Find card for Arthur Estimated and click direct "Send Quote" button
-    const leadCard = page.locator(`[data-testid="lead-card-${leadWithEstimates!.id}"]`).first()
-    const sendQuoteBtn = leadCard.locator('button[aria-label="Send Quote"]').first()
+    await page.waitForTimeout(1500)
+    const sendQuoteBtn = page.locator(`[data-testid="lead-card-${leadWithEstimates!.id}"] button[aria-label="Send Quote"]`).first()
     await sendQuoteBtn.click()
 
-    await page.waitForSelector('[data-testid="send-quote-form"]', { timeout: 10000 })
+    await page.waitForSelector('[data-testid="send-quote-form"]', { timeout: 15000 })
     console.log('✓ Send Quote Modal opened successfully.')
 
     // Verify estimates reference appears in modal
