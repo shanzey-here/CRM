@@ -8,6 +8,7 @@ import { calculateFullCycleRoute, FullCycleRouteResult } from '@/modules/quotes/
 import { VolumeCalculator } from './components/volume-calculator'
 import { RouteSummary } from './components/route-summary'
 import { LeadReferenceEstimatesBanner } from './components/lead-reference-estimates-banner'
+import { SendQuoteButton } from './components/send-quote-button'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'

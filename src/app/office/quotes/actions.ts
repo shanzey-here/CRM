@@ -111,6 +111,23 @@ export async function generateProposalLinkAction(quoteId: string) {
     return { success: false, error: result.error }
   }
 
+  // If quote is linked to a lead, auto-transition lead stage to 'quote_sent' via canonical shared transition
+  const { data: quote } = await supabase
+    .from('quotes')
+    .select('lead_id')
+    .eq('id', quoteId)
+    .eq('tenant_id', tenantId)
+    .single()
+
+  if (quote?.lead_id) {
+    const { updateLeadStage } = await import('@/app/office/leads/actions')
+    await updateLeadStage(quote.lead_id, 'quote_sent')
+    revalidatePath(`/office/leads/${quote.lead_id}`)
+  }
+
+  revalidatePath('/office/leads')
+  revalidatePath(`/office/quotes/${quoteId}`)
+
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
   const proposalUrl = `${baseUrl}/proposal/${result.token}`
 
