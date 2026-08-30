@@ -7,6 +7,8 @@ import { getAddressById } from '@/modules/clients/server/repository'
 import { calculateFullCycleRoute, FullCycleRouteResult } from '@/modules/quotes/server/routing'
 import { VolumeCalculator } from './components/volume-calculator'
 import { RouteSummary } from './components/route-summary'
+import { SendQuoteButton } from './components/send-quote-button'
+import { LeadEstimateReference } from './components/lead-estimate-reference'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
@@ -42,10 +44,18 @@ export default async function QuoteWorkspacePage({ params }: { params: Promise<{
   let routeCalc: FullCycleRouteResult = { totalDistanceMeters: null, totalDurationSeconds: null, legs: [], hasError: true }
   let originString = ''
   let destinationString = ''
+  // Rough intake estimates the lead may already carry — surfaced read-only in
+  // the builder as reference context, never fed into pricing/inventory.
+  let leadEstimatedVolume: number | null = null
+  let leadEstimatedHours: number | null = null
+  let leadEstimatedCrewSize: number | null = null
 
   if (quote.lead_id) {
     const { data: lead } = await getLeadById(supabase, tenantId, quote.lead_id)
     if (lead) {
+      leadEstimatedVolume = lead.estimated_volume ?? null
+      leadEstimatedHours = lead.estimated_hours ?? null
+      leadEstimatedCrewSize = lead.estimated_crew_size ?? null
       if (lead.origin_address_id) {
         const { data } = await getAddressById(supabase, tenantId, lead.origin_address_id)
         originAddress = data
@@ -105,6 +115,12 @@ export default async function QuoteWorkspacePage({ params }: { params: Promise<{
         </div>
       </div>
 
+      <LeadEstimateReference
+        estimatedVolume={leadEstimatedVolume}
+        estimatedHours={leadEstimatedHours}
+        estimatedCrewSize={leadEstimatedCrewSize}
+      />
+
       <RouteSummary
         quoteId={quote.id}
         quoteStatus={quote.status}
@@ -157,6 +173,14 @@ export default async function QuoteWorkspacePage({ params }: { params: Promise<{
           </CardContent>
         </Card>
       )}
+
+      <SendQuoteButton
+        quoteId={quote.id}
+        leadId={quote.lead_id}
+        quoteStatus={quote.status}
+        publicToken={quote.public_token}
+        hasPricing={quote.computed_price !== null}
+      />
     </div>
   )
 }
