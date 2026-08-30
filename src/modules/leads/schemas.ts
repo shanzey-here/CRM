@@ -75,6 +75,37 @@ export const followUpFormSchema = z.object({
 export type FollowUpFormInput = z.infer<typeof followUpFormSchema>
 
 // ============================================================================
+// CONFIRM BOOKING (Epic G) — full conversion. See PHASE4_CONFIRM_BOOKING_DECISION.md.
+// For a booking closed OUTSIDE the online proposal flow. The action reuses the
+// existing createManualJobAction (→ create_manual_job_transaction: real job +
+// draft invoice), then moves the lead to `confirmed_booking`.
+//
+// Only fields with NO lead source are collected fresh: title, one summary line
+// item, and (when the lead has no address on file) origin/destination
+// city+postcode. Contact, brand and move date come off the lead.
+// `*_on_file` are hidden flags the form sets from the lead so the schema can
+// require the address text only when it isn't already captured.
+// ============================================================================
+// Field-level shape only. The "address required when the lead has none on file"
+// rule is conditional on lead data the schema can't see, so it is enforced
+// authoritatively in confirmBookingAction (and mirrored as a client-side guard
+// in the form). Keeps zodResolver mapping to a clean object.
+export const confirmBookingFormSchema = z.object({
+  title: z.string().trim().min(1, 'A job title is required'),
+  move_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Enter a valid move date'),
+  line_item_description: z.string().trim().min(1, 'Describe the agreed work'),
+  // registered with valueAsNumber → empty field arrives as NaN, which
+  // z.number() rejects (shows the message) rather than silently coercing to 0.
+  agreed_price: z.number({ message: 'Enter the agreed price' }).min(0, 'Price must be zero or more'),
+  origin_city: z.string().trim(),
+  origin_postcode: z.string().trim(),
+  destination_city: z.string().trim(),
+  destination_postcode: z.string().trim(),
+})
+
+export type ConfirmBookingFormInput = z.infer<typeof confirmBookingFormSchema>
+
+// ============================================================================
 // PUBLIC LEAD-CAPTURE FORM SUBMISSION
 // ============================================================================
 // Deliberately its own schema, not a reuse of insertLeadSchema — the public

@@ -7,9 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogFooter,
 } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import {
   CalendarClock,
@@ -30,6 +28,7 @@ import { KANBAN_STAGES } from '../constants'
 import { ScheduleSurveyForm } from './schedule-survey-form'
 import { SendQuoteForm } from './send-quote-form'
 import { FollowUpForm } from './follow-up-form'
+import { ConfirmBookingForm } from './confirm-booking-form'
 import type { TenantUser } from '@/modules/users/server/repository'
 
 export type QuickActionType =
@@ -109,7 +108,7 @@ const ACTION_CONFIG: Record<
     targetStageLabel: 'Confirmed Booking',
     targetStageColor: '#10b981',
     processExplanation:
-      'This process action accepts the quote, creates the operational job in dispatch & calendar, snapshots the invoice schedule, and automatically transitions the lead stage to Confirmed Booking upon completion.',
+      'For a booking closed outside the online proposal flow. This process action creates a real operational job and a draft invoice (the same path as the New Job page), then transitions the lead stage to Confirmed Booking. Crew, vehicles and scheduling times are added afterwards on the job.',
     actionButtonText: 'Confirm Booking & Create Job',
   },
 }
@@ -239,7 +238,7 @@ export function LeadQuickActionModals({
         </div>
 
         {/* Action Body: Real Schedule Survey (Epic D), Send Quote (Epic E),
-            Log Follow-Up (Epic F) vs Stub (Epic G) */}
+            Log Follow-Up (Epic F), Confirm Booking (Epic G) */}
         {activeAction === 'schedule_survey' ? (
           <ScheduleSurveyForm
             lead={lead}
@@ -260,30 +259,11 @@ export function LeadQuickActionModals({
             onCancel={onClose}
           />
         ) : (
-          <>
-            <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 text-center space-y-2">
-              <div className="text-xs font-semibold text-slate-700">
-                {config.title} Flow Entry Point
-              </div>
-              <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                This modal serves as the card-level trigger. The dedicated form and underlying logic will be mounted here in <span className="font-semibold text-slate-700">{config.epic}</span>.
-              </p>
-            </div>
-
-            <DialogFooter className="gap-2 sm:gap-0 mt-2">
-              <Button variant="outline" size="sm" onClick={onClose}>
-                Cancel
-              </Button>
-              <Button
-                size="sm"
-                disabled
-                className="opacity-60 cursor-not-allowed bg-slate-900 text-white"
-                title={`Action logic is implemented in ${config.epic}`}
-              >
-                {config.actionButtonText} ({config.epic})
-              </Button>
-            </DialogFooter>
-          </>
+          <ConfirmBookingForm
+            lead={lead}
+            onSuccess={onClose}
+            onCancel={onClose}
+          />
         )}
       </DialogContent>
     </Dialog>

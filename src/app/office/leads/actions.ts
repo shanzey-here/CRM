@@ -4,9 +4,12 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { updateLead, getLeadById } from '@/modules/leads/server/repository'
 import { emitEvent } from '@/utils/supabase/event-bus'
-import { updateLeadDetailsSchema, followUpFormSchema } from '@/modules/leads/schemas'
+import { updateLeadDetailsSchema, followUpFormSchema, confirmBookingFormSchema } from '@/modules/leads/schemas'
 import { createActivity } from '@/modules/activities/server/repository'
 import { createTask } from '@/modules/tasks/server/repository'
+import { createAddress } from '@/modules/clients/server/repository'
+import { createManualJobAction } from '@/app/office/jobs/actions'
+import { retryStageAdvance } from '@/modules/leads/server/stage-retry'
 import { z } from 'zod'
 
 // ============================================================================
@@ -282,6 +285,142 @@ export async function logFollowUpAction(
   }
 
   return { success: true }
+}
+
+// ============================================================================
+// CONFIRM BOOKING (Epic G) — the manual "Confirm Booking" quick action.
+// Decision record: PHASE4_CONFIRM_BOOKING_DECISION.md (incl. § 2A).
+//
+// For a booking closed OUTSIDE the online proposal flow. Full conversion:
+//   1. Resolve origin/destination address ids — pass the lead's through when
+//      set, otherwise create `addresses` rows from inline city/postcode via
+//      the shared createAddress() (same pattern as create-client-form).
+//   2. createManualJobAction() — THE SHARED job path (→ create_manual_job_
+//      transaction: real `jobs` row + draft invoice). Not forked here.
+//   3. updateLeadStage(leadId, 'confirmed_booking') — the RPC does not touch
+//      `leads`. Per § 2A: one retry, but re-read the stage first and skip the
+//      retry if it is already `confirmed_booking` (avoids a duplicate
+//      "confirmed_booking → confirmed_booking" timeline entry in the
+//      lost-response edge case).
+//   4. If the retry also fails: return success (the job/invoice genuinely
+//      exist) with a SPECIFIC warning naming the job — never roll back.
+// ============================================================================
+export async function confirmBookingAction(
+  leadId: string,
+  payload: unknown
+): Promise<{ success: boolean; error?: string; jobId?: string; warning?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { success: false, error: 'Unauthorized' }
+  }
+  const tenantId = user.app_metadata?.tenant_id as string | undefined
+  if (!tenantId) {
+    return { success: false, error: 'No tenant context' }
+  }
+  const role = user.app_metadata?.tenant_role ?? user.app_metadata?.role
+  if (role !== 'tenant_admin' && role !== 'dispatcher') {
+    return { success: false, error: 'Insufficient permissions' }
+  }
+
+  const uuidResult = z.string().uuid().safeParse(leadId)
+  if (!uuidResult.success) {
+    return { success: false, error: 'Invalid lead ID format' }
+  }
+
+  const parsed = confirmBookingFormSchema.safeParse(payload)
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues.map((i) => i.message).join('; ') }
+  }
+  const f = parsed.data
+
+  // Tenant-scoped fetch = cross-tenant guard + the real lead data we pre-fill from.
+  const { data: lead, error: leadError } = await getLeadById(supabase, tenantId, leadId)
+  if (leadError || !lead) {
+    return { success: false, error: 'Lead not found' }
+  }
+
+  // 1. Resolve addresses. On-file ids pass straight through; otherwise the
+  //    inline city+postcode become mandatory (this is the "addresses up front"
+  //    rule from the decision record — enforced here, authoritatively).
+  //    New rows are created via the shared createAddress() (line_1 '-' — the
+  //    same shape create-client-form uses).
+  let originAddressId = lead.origin_address_id ?? null
+  if (!originAddressId) {
+    if (!f.origin_city || !f.origin_postcode) {
+      return { success: false, error: 'A pickup city and postcode are required (the lead has no address on file).' }
+    }
+    const { data: addr, error } = await createAddress(supabase, tenantId, {
+      line_1: '-',
+      city: f.origin_city,
+      postcode: f.origin_postcode,
+      country: 'GB',
+    })
+    if (error || !addr) {
+      return { success: false, error: `Failed to save the pickup address: ${error?.message ?? 'unknown error'}` }
+    }
+    originAddressId = addr.id
+  }
+
+  let destinationAddressId = lead.destination_address_id ?? null
+  if (!destinationAddressId) {
+    if (!f.destination_city || !f.destination_postcode) {
+      return { success: false, error: 'A delivery city and postcode are required (the lead has no address on file).' }
+    }
+    const { data: addr, error } = await createAddress(supabase, tenantId, {
+      line_1: '-',
+      city: f.destination_city,
+      postcode: f.destination_postcode,
+      country: 'GB',
+    })
+    if (error || !addr) {
+      return { success: false, error: `Failed to save the delivery address: ${error?.message ?? 'unknown error'}` }
+    }
+    destinationAddressId = addr.id
+  }
+
+  // 2. Create the real job + draft invoice via the SHARED action. No new path.
+  const jobResult = await createManualJobAction({
+    contact_id: lead.contact_id,
+    brand_id: lead.brand_id,
+    title: f.title,
+    move_date: f.move_date,
+    origin_address_id: originAddressId,
+    destination_address_id: destinationAddressId,
+    line_items: [{ description: f.line_item_description, quantity: 1, unit_price: f.agreed_price }],
+    assigned_crew: [],
+    assigned_vehicles: [],
+  })
+
+  if (!jobResult.success || !jobResult.jobId) {
+    return { success: false, error: jobResult.error || 'Failed to create the job' }
+  }
+  const jobId = jobResult.jobId
+
+  // 3. Advance the lead stage — canonical shared function; the RPC did NOT.
+  //    § 2A: one retry, skipping if the stage is already correct.
+  const { result: stageResult } = await retryStageAdvance({
+    target: 'confirmed_booking' as const,
+    attempt: () => updateLeadStage(leadId, 'confirmed_booking'),
+    currentStage: async () => (await getLeadById(supabase, tenantId, leadId)).data?.stage,
+  })
+
+  revalidatePath('/office/leads')
+  revalidatePath(`/office/leads/${leadId}`)
+  revalidatePath('/office/jobs')
+  revalidatePath('/office/scheduling')
+
+  // 4. § 2A: job exists regardless — surface a specific, non-error warning.
+  if (!stageResult.success) {
+    return {
+      success: true,
+      jobId,
+      warning: `Job and draft invoice created (Job #${jobId.slice(0, 8)}), but the lead's stage could not be updated automatically — move it to Confirmed Booking manually.`,
+    }
+  }
+
+  return { success: true, jobId }
 }
 
 export async function updateLeadDetailsAction(
