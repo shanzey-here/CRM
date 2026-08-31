@@ -22,14 +22,14 @@ interface ConfirmedBookingsTableProps {
   unlinkedLeadsCount: number
 }
 
-type TimeframeFilter = 'upcoming' | 'this_month' | 'past' | 'all'
+type TimeframeFilter = 'all' | 'upcoming' | 'this_month' | 'past'
 
 export function ConfirmedBookingsTable({
   initialBookings,
   unlinkedLeadsCount,
 }: ConfirmedBookingsTableProps) {
   const [search, setSearch] = useState('')
-  const [timeframe, setTimeframe] = useState<TimeframeFilter>('upcoming')
+  const [timeframe, setTimeframe] = useState<TimeframeFilter>('all')
   const [statusFilter, setStatusFilter] = useState<string>('all')
 
   // Calculate metrics
@@ -222,6 +222,18 @@ export function ConfirmedBookingsTable({
         <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg">
           <button
             type="button"
+            onClick={() => setTimeframe('all')}
+            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+              timeframe === 'all'
+                ? 'bg-white text-slate-900 shadow-sm font-semibold'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+            data-testid="filter-timeframe-all"
+          >
+            All Bookings
+          </button>
+          <button
+            type="button"
             onClick={() => setTimeframe('upcoming')}
             className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
               timeframe === 'upcoming'
@@ -243,18 +255,6 @@ export function ConfirmedBookingsTable({
             data-testid="filter-timeframe-this-month"
           >
             This Month
-          </button>
-          <button
-            type="button"
-            onClick={() => setTimeframe('all')}
-            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
-              timeframe === 'all'
-                ? 'bg-white text-slate-900 shadow-sm font-semibold'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-            data-testid="filter-timeframe-all"
-          >
-            All Bookings
           </button>
           <button
             type="button"
