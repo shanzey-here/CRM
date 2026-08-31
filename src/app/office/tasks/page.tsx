@@ -54,6 +54,17 @@ export default async function TasksPage() {
               <TasksList tasks={incompleteTasks} tenantStaff={tenantStaff || []} />
             </CardContent>
           </Card>
+
+          {completedTasks.length > 0 && (
+            <Card className="shadow-sm border-slate-200">
+              <CardHeader className="bg-slate-50/50 pb-4">
+                <CardTitle className="text-lg">Completed</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0 px-0">
+                <TasksList tasks={completedTasks} tenantStaff={tenantStaff || []} />
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Right Column: Create Task */}

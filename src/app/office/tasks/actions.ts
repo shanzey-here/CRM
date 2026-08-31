@@ -82,9 +82,15 @@ export async function updateTaskStatusAction(taskId: string, status: 'pending' |
 
   const tenantId = user.app_metadata.tenant_id
 
+  // Keep the completion columns consistent with `status` in BOTH directions —
+  // otherwise un-completing a task via the toggle leaves a stale completed_at.
   const payload: any = { status }
   if (status === 'completed') {
     payload.completed_at = new Date().toISOString()
+    payload.completed_by = user.id
+  } else {
+    payload.completed_at = null
+    payload.completed_by = null
   }
 
   const { data, error } = await updateTask(supabase, tenantId, taskId, payload)
