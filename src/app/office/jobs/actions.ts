@@ -209,8 +209,38 @@ export async function createManualJobAction(payload: unknown) {
     }
   }
 
+  // Ensure corresponding lead at stage confirmed_booking exists for pipeline & Kanban consistency
+  try {
+    const { data: confirmedStage } = await supabase
+      .from('pipeline_stages')
+      .select('id')
+      .eq('tenant_id', tenantId)
+      .eq('key', 'confirmed_booking')
+      .single()
+
+    if (confirmedStage) {
+      await supabase.from('leads').insert({
+        tenant_id: tenantId,
+        brand_id: brandId,
+        contact_id: data.contact_id,
+        stage: 'confirmed_booking',
+        stage_id: confirmedStage.id,
+        preferred_move_date: data.move_date,
+        origin_address_id: data.origin_address_id || null,
+        destination_address_id: data.destination_address_id || null,
+        notes: `Confirmed booking (Job #${jobId.slice(0, 8)})`,
+        source: 'direct_booking',
+      })
+    }
+  } catch (leadSyncErr) {
+    console.warn('[createManualJobAction] Optional lead creation skipped:', leadSyncErr)
+  }
+
   revalidatePath('/office/jobs')
+  revalidatePath('/office/jobs/confirmed')
+  revalidatePath('/office/leads')
   revalidatePath('/office/scheduling')
+  revalidatePath('/office')
 
   return { success: true, jobId }
 }
