@@ -106,7 +106,7 @@ export default async function OfficeLayout({ children }: { children: React.React
           <Link href="/office" className="text-xl font-bold text-emerald-600 dark:text-emerald-400">Gomove</Link>
         </div>
         <div className="flex-1 overflow-y-auto py-4 px-3">
-          <SidebarNav role={role} />
+          <SidebarNav role={role} userId={user.id} />
         </div>
         <div className="p-4 border-t border-sidebar-border bg-sidebar-accent/40 shrink-0">
           <div className="text-sm font-medium text-sidebar-foreground truncate" title={user.email}>{user.email}</div>

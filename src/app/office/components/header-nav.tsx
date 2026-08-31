@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import { ClientsNavBadge } from './clients-nav-badge'
 
 import { 
   LayoutDashboard, 
@@ -20,7 +21,7 @@ import {
   Settings 
 } from 'lucide-react'
 
-export function SidebarNav({ role }: { role?: string }) {
+export function SidebarNav({ role, userId }: { role?: string; userId?: string }) {
   const pathname = usePathname()
 
   const links = [
@@ -68,6 +69,7 @@ export function SidebarNav({ role }: { role?: string }) {
           >
             <Icon size={18} className={isActive ? "text-emerald-700 dark:text-emerald-400" : "text-sidebar-foreground/40"} />
             {link.name}
+            {link.name === 'Clients' && userId && <ClientsNavBadge userId={userId} />}
           </Link>
         )
       })}

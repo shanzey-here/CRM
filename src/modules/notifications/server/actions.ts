@@ -26,7 +26,39 @@ export async function getUserNotificationsAction() {
   return { success: true, data }
 }
 
-export async function markNotificationsReadAction(ids?: string[]) {
+// Live count of this user's UNREAD `new_lead` notifications — the exact same
+// rows / RLS / "unread = read_at IS NULL" semantics the bell uses, just a
+// COUNT filtered to one type. Backs the Clients nav badge; it and the bell can
+// never disagree because they read the same rows.
+export async function getUnreadNewLeadCountAction() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user || !user.app_metadata?.tenant_id) {
+    return { success: false, error: 'Unauthorized', count: 0 }
+  }
+
+  const { count, error } = await supabase
+    .from('notifications')
+    .select('*', { count: 'exact', head: true })
+    .eq('target_user_id', user.id)
+    .eq('notification_type', 'new_lead')
+    .is('read_at', null)
+
+  if (error) {
+    console.error('[Notifications] Failed to count unread new_lead notifications:', error)
+    return { success: false, error: 'Failed to count notifications', count: 0 }
+  }
+
+  return { success: true, count: count ?? 0 }
+}
+
+type NotificationType = 'new_lead' | 'quote_accepted' | 'task_assigned' | 'trial_expiring_soon'
+
+export async function markNotificationsReadAction(
+  ids?: string[],
+  opts?: { type?: NotificationType },
+) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -39,8 +71,12 @@ export async function markNotificationsReadAction(ids?: string[]) {
   if (ids && ids.length > 0) {
     query = query.in('id', ids).eq('target_user_id', user.id)
   } else {
-    // Mark all as read
+    // Mark all this user's unread notifications read — optionally narrowed to
+    // one type (the Clients nav badge passes `new_lead` on visiting /office/clients).
     query = query.eq('target_user_id', user.id).is('read_at', null)
+    if (opts?.type) {
+      query = query.eq('notification_type', opts.type)
+    }
   }
 
   const { error } = await query
