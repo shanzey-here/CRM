@@ -121,15 +121,12 @@ export function KanbanColumn({
 
           {!isDragOverlay && (onEditColumn || onDeleteColumn) && (
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  type="button"
-                  className="p-1 rounded text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors focus:outline-none cursor-pointer"
-                  aria-label={`Options for ${stage.label}`}
-                  data-testid={`column-menu-trigger-${stage.id}`}
-                >
-                  <MoreHorizontal className="w-4 h-4" />
-                </button>
+              <DropdownMenuTrigger
+                className="p-1 rounded text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors focus:outline-none cursor-pointer"
+                aria-label={`Options for ${stage.label}`}
+                data-testid={`column-menu-trigger-${stage.id}`}
+              >
+                <MoreHorizontal className="w-4 h-4" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-44">
                 {onEditColumn && (
