@@ -7,7 +7,8 @@ import { getUpcomingJobs } from '@/modules/jobs/server/repository'
 import { getPendingTasks } from '@/modules/tasks/server/repository'
 import { getLeadsNeedingFollowUp } from '@/modules/leads/server/repository'
 import { getOutstandingInvoices } from '@/modules/invoicing/server/repository'
-import { format } from 'date-fns'
+import { format, isToday, isTomorrow, differenceInCalendarDays } from 'date-fns'
+import { MapPin, ArrowRight, Truck } from 'lucide-react'
 
 import { WidgetError } from './components/widget-error'
 import { OnboardingReminderBanner } from './components/onboarding-reminder-banner'
@@ -31,28 +32,102 @@ function WidgetSkeleton() {
 // Pass adminSupabase to each widget so they can bypass the broken auth hook.
 // RLS is safely bypassed because we hardcode the tenantId from the verified user session.
 async function UpcomingMovesWidget({ tenantId, adminSupabase }: { tenantId: string, adminSupabase: any }) {
-  const { success, jobs, error } = await getUpcomingJobs(adminSupabase, tenantId, 5)
+  const { success, jobs, error } = await getUpcomingJobs(adminSupabase, tenantId, { days: 7 })
 
   if (!success) return <WidgetError message={error || 'Unknown error'} />
   if (!jobs || jobs.length === 0) {
-    return <div className="text-sm text-muted-foreground">No upcoming moves scheduled.</div>
+    return (
+      <div className="py-8 px-4 text-center bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-dashed border-slate-200 dark:border-slate-800">
+        <Truck className="w-8 h-8 mx-auto text-slate-300 dark:text-slate-600 mb-2" />
+        <p className="text-sm font-medium text-slate-700 dark:text-slate-300">No moves in the next 7 days</p>
+        <p className="text-xs text-muted-foreground mt-1">All upcoming moves are on schedule.</p>
+        <Link
+          href="/office/jobs/confirmed"
+          className="inline-flex items-center gap-1.5 text-xs text-emerald-600 hover:text-emerald-700 font-medium mt-3"
+        >
+          View all bookings <ArrowRight className="w-3 h-3" />
+        </Link>
+      </div>
+    )
+  }
+
+  function getRelativeDateLabel(dateStr: string) {
+    const d = new Date(dateStr)
+    if (isToday(d)) return { text: 'Today', color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' }
+    if (isTomorrow(d)) return { text: 'Tomorrow', color: 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300' }
+    const diff = differenceInCalendarDays(d, new Date())
+    return { text: `In ${diff} days`, color: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300' }
   }
 
   return (
-    <div className="space-y-3">
-      {jobs.map((job) => (
-        <div key={job.id} className="flex justify-between items-center text-sm border-b border-border pb-2 last:border-0">
-          <div>
-            <p className="font-medium text-foreground">{job.contact?.first_name} {job.contact?.last_name}</p>
-            <p className="text-xs text-muted-foreground">Status: {job.status}</p>
-          </div>
-          <div className="text-right">
-            <span className="bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 text-xs px-2.5 py-0.5 rounded-md font-medium">
-              {job.move_date ? format(new Date(job.move_date), 'MMM d, yyyy') : 'TBD'}
-            </span>
-          </div>
-        </div>
-      ))}
+    <div className="space-y-2.5 max-h-[380px] overflow-y-auto pr-1" data-testid="upcoming-moves-list">
+      {jobs.map((job) => {
+        const relativeDate = job.move_date ? getRelativeDateLabel(job.move_date) : null
+        const originCity = job.origin_address?.city || (job.origin_address?.line_1 ? job.origin_address.line_1.split(',')[0] : null)
+        const destCity = job.destination_address?.city || (job.destination_address?.line_1 ? job.destination_address.line_1.split(',')[0] : null)
+        const routeText = originCity && destCity ? `${originCity} → ${destCity}` : originCity ? `From ${originCity}` : destCity ? `To ${destCity}` : null
+
+        return (
+          <Link
+            key={job.id}
+            href={`/office/jobs/${job.id}`}
+            className="block p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-xs transition-all group"
+            data-testid={`upcoming-job-card-${job.id}`}
+          >
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold text-sm text-slate-900 dark:text-slate-100 group-hover:text-emerald-600 transition-colors">
+                    {job.contact?.first_name || 'Customer'} {job.contact?.last_name || ''}
+                  </span>
+                  <span className="text-[11px] font-mono text-slate-400">
+                    JOB-{job.id.slice(0, 8).toUpperCase()}
+                  </span>
+                </div>
+
+                {routeText && (
+                  <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-1">
+                    <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
+                    <span className="truncate">{routeText}</span>
+                  </p>
+                )}
+              </div>
+
+              <div className="text-right shrink-0 flex flex-col items-end gap-1">
+                {relativeDate && (
+                  <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${relativeDate.color}`}>
+                    {relativeDate.text}
+                  </span>
+                )}
+                <span className="text-[11px] text-slate-500 font-medium">
+                  {job.move_date ? format(new Date(job.move_date), 'EEE, MMM d') : 'Date TBD'}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 dark:border-slate-800/80 text-[11px]">
+              <span className="capitalize inline-flex items-center gap-1 text-slate-600 dark:text-slate-400 font-medium">
+                {job.status === 'in_progress' ? (
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                ) : (
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                )}
+                {job.status.replace('_', ' ')}
+              </span>
+
+              {job.quote?.total_price != null ? (
+                <span className="font-semibold text-slate-900 dark:text-slate-200">
+                  £{Number(job.quote.total_price).toFixed(2)}
+                </span>
+              ) : (
+                <span className="text-emerald-600 group-hover:underline flex items-center gap-0.5">
+                  View Job <ArrowRight className="w-3 h-3" />
+                </span>
+              )}
+            </div>
+          </Link>
+        )
+      })}
     </div>
   )
 }
@@ -191,7 +266,17 @@ export default async function OfficeDashboard() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <MotionCard index={0} className="p-5 shadow-sm border border-border bg-card ring-0">
-            <h2 className="text-lg font-semibold text-foreground mb-4 border-b border-border pb-2">Upcoming Moves</h2>
+            <div className="flex items-center justify-between mb-4 border-b border-border pb-2">
+              <div className="flex items-center gap-2">
+                <h2 className="text-lg font-semibold text-foreground">Upcoming Moves</h2>
+                <span className="text-[11px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium px-2 py-0.5 rounded-full">
+                  Next 7 Days
+                </span>
+              </div>
+              <Link href="/office/jobs/confirmed" className="text-xs text-emerald-600 hover:text-emerald-700 font-medium flex items-center gap-1">
+                All Bookings <ArrowRight className="w-3 h-3" />
+              </Link>
+            </div>
             <Suspense fallback={<WidgetSkeleton />}>
               <UpcomingMovesWidget tenantId={tenantId} adminSupabase={adminSupabase} />
             </Suspense>
