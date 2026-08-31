@@ -1,6 +1,7 @@
 import { SupabaseClient } from '@supabase/supabase-js'
 import { Database } from '@/types/database.types'
 import { CreateJobFromQuoteData, JobSchema, Job, UpdateJobDetailsInput } from '../schema'
+import { format, addDays } from 'date-fns'
 
 export async function createJobFromQuoteTransaction(
   supabase: SupabaseClient<Database>,
@@ -283,30 +284,71 @@ export async function updateJob(
   return { success: true, job: data }
 }
 
+export interface UpcomingJobItem {
+  id: string
+  status: Database['public']['Enums']['job_status']
+  move_date: string | null
+  customer_notes?: string | null
+  contact: {
+    first_name: string | null
+    last_name: string | null
+    phone?: string | null
+    email?: string | null
+  } | null
+  origin_address?: {
+    line_1: string | null
+    city: string | null
+    postcode: string | null
+  } | null
+  destination_address?: {
+    line_1: string | null
+    city: string | null
+    postcode: string | null
+  } | null
+  quote?: {
+    total_price: number | null
+  } | null
+}
+
 export async function getUpcomingJobs(
   supabase: SupabaseClient<Database>,
   tenantId: string,
-  limit: number = 5
-) {
-  const { data, error } = await supabase
+  options?: { days?: number; limit?: number } | number
+): Promise<{ success: boolean; jobs?: UpcomingJobItem[]; error?: string }> {
+  const days = typeof options === 'number' ? undefined : (options?.days ?? 7)
+  const limit = typeof options === 'number' ? options : options?.limit
+
+  const todayStr = format(new Date(), 'yyyy-MM-dd')
+  const maxDateStr = format(addDays(new Date(), days ?? 7), 'yyyy-MM-dd')
+
+  let query = supabase
     .from('jobs')
     .select(`
       id,
       status,
       move_date,
-      contact:contacts(first_name, last_name)
+      customer_notes,
+      contact:contacts(first_name, last_name, phone, email),
+      origin_address:addresses!jobs_origin_address_fk(line_1, city, postcode),
+      destination_address:addresses!jobs_destination_address_fk(line_1, city, postcode),
+      quote:quotes(total_price)
     `)
     .eq('tenant_id', tenantId)
-    .gte('move_date', new Date().toISOString().split('T')[0])
-    .not('status', 'eq', 'completed')
-    .not('status', 'eq', 'cancelled')
+    .gte('move_date', todayStr)
+    .lte('move_date', maxDateStr)
+    .in('status', ['scheduled', 'in_progress'])
     .order('move_date', { ascending: true })
-    .limit(limit)
+
+  if (limit) {
+    query = query.limit(limit)
+  }
+
+  const { data, error } = await query
 
   if (error) {
     return { success: false, error: error.message }
   }
 
-  return { success: true, jobs: data }
+  return { success: true, jobs: (data as any) || [] }
 }
 
