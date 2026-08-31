@@ -4,7 +4,14 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { updateLead, getLeadById } from '@/modules/leads/server/repository'
 import { emitEvent } from '@/utils/supabase/event-bus'
-import { updateLeadDetailsSchema, followUpFormSchema, confirmBookingFormSchema } from '@/modules/leads/schemas'
+import {
+  updateLeadDetailsSchema,
+  followUpFormSchema,
+  confirmBookingFormSchema,
+  createCustomStageSchema,
+  type PipelineStageDef,
+  type CreateCustomStageInput,
+} from '@/modules/leads/schemas'
 import { createActivity } from '@/modules/activities/server/repository'
 import { createTask } from '@/modules/tasks/server/repository'
 import { createAddress } from '@/modules/clients/server/repository'
@@ -558,4 +565,91 @@ export async function createLeadAction(payload: unknown): Promise<{ success: boo
   revalidatePath(`/office/clients/${newLead.contact_id}`)
 
   return { success: true, data: newLead }
+}
+
+// ============================================================================
+// CREATE CUSTOM STAGE COLUMN (Epic H)
+// ============================================================================
+export type CreateCustomColumnResult =
+  | { success: true; data: PipelineStageDef }
+  | { success: false; error: string }
+
+export async function createCustomColumnAction(
+  rawInput: unknown
+): Promise<CreateCustomColumnResult> {
+  // 1. Auth check
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { success: false, error: 'Unauthorized' }
+  }
+
+  const tenantId = user.app_metadata?.tenant_id as string | undefined
+  if (!tenantId) {
+    return { success: false, error: 'No tenant context' }
+  }
+
+  // 2. Role check — tenant_admin and dispatcher only
+  const role = user.app_metadata?.tenant_role ?? user.app_metadata?.role
+  if (role !== 'tenant_admin' && role !== 'dispatcher') {
+    return { success: false, error: 'Insufficient permissions' }
+  }
+
+  // 3. Schema validation
+  const parseResult = createCustomStageSchema.safeParse(rawInput)
+  if (!parseResult.success) {
+    const issue = parseResult.error.issues[0]?.message ?? 'Validation failed'
+    return { success: false, error: issue }
+  }
+
+  const { name, color } = parseResult.data
+
+  // 4. Case-insensitive name uniqueness check for this tenant
+  const { data: existing } = await supabase
+    .from('pipeline_stages')
+    .select('id')
+    .eq('tenant_id', tenantId)
+    .ilike('name', name)
+    .maybeSingle()
+
+  if (existing) {
+    return { success: false, error: `A pipeline stage named "${name}" already exists.` }
+  }
+
+  // 5. Calculate position (appended after highest position)
+  const { data: highestPositionStage } = await supabase
+    .from('pipeline_stages')
+    .select('position')
+    .eq('tenant_id', tenantId)
+    .order('position', { ascending: false })
+    .limit(1)
+
+  const nextPosition = (highestPositionStage?.[0]?.position ?? 0) + 1
+
+  // 6. Insert new custom stage
+  const { data: newStage, error: insertError } = await supabase
+    .from('pipeline_stages')
+    .insert({
+      tenant_id: tenantId,
+      name,
+      color: color || '#64748b',
+      position: nextPosition,
+      is_system: false,
+      is_hidden_by_default: false,
+      key: null,
+    })
+    .select('id, key, name, color, position, is_system, is_hidden_by_default')
+    .single()
+
+  if (insertError || !newStage) {
+    if (insertError?.code === '23505') {
+      return { success: false, error: `A pipeline stage named "${name}" already exists.` }
+    }
+    return { success: false, error: insertError?.message ?? 'Failed to create stage column' }
+  }
+
+  revalidatePath('/office/leads')
+
+  return { success: true, data: newStage as PipelineStageDef }
 }
