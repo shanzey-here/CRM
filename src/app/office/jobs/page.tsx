@@ -35,6 +35,22 @@ export default async function JobsListPage() {
         </Link>
       </div>
 
+      {/* Sub-Navigation Tabs */}
+      <div className="flex border-b border-slate-200 gap-6 text-sm font-medium">
+        <Link
+          href="/office/jobs"
+          className="pb-3 border-b-2 border-blue-600 text-blue-600 font-semibold flex items-center gap-2"
+        >
+          <span>All Jobs</span>
+        </Link>
+        <Link
+          href="/office/jobs/confirmed"
+          className="pb-3 text-slate-500 hover:text-slate-800 transition-colors flex items-center gap-2"
+        >
+          <span>Confirmed Bookings</span>
+        </Link>
+      </div>
+
       <div className="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden">
         <table className="w-full text-sm text-left">
           <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-medium">
