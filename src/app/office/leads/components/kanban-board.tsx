@@ -23,6 +23,8 @@ import { Plus } from 'lucide-react'
 import { KanbanColumn } from './kanban-column'
 import { LeadCard } from './lead-card'
 import { AddColumnDialog } from './add-column-dialog'
+import { EditColumnDialog } from './edit-column-dialog'
+import { DeleteColumnDialog } from './delete-column-dialog'
 import { updateLeadStage, reorderPipelineStagesAction } from '../actions'
 import type { LeadWithContact } from '@/modules/leads/server/repository'
 import type { PipelineStageDef } from '@/modules/leads/schemas'
@@ -38,6 +40,8 @@ export function KanbanBoard({ initialStages, initialLeads }: KanbanBoardProps) {
   const [leads, setLeads] = useState<LeadWithContact[]>(initialLeads)
   const [activeColumn, setActiveColumn] = useState<PipelineStageDef | null>(null)
   const [activeLead, setActiveLead] = useState<LeadWithContact | null>(null)
+  const [editingStage, setEditingStage] = useState<PipelineStageDef | null>(null)
+  const [deletingStage, setDeletingStage] = useState<PipelineStageDef | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
@@ -235,10 +239,19 @@ export function KanbanBoard({ initialStages, initialLeads }: KanbanBoardProps) {
                   key: stage.key,
                   label: stage.name,
                   color: stage.color || '#64748b',
+                  is_system: stage.is_system,
                 }}
                 leads={leadsByStage(stage)}
                 isPending={isPending}
                 index={index}
+                onEditColumn={(col) => {
+                  const s = stages.find((st) => st.id === col.id)
+                  if (s) setEditingStage(s)
+                }}
+                onDeleteColumn={(col) => {
+                  const s = stages.find((st) => st.id === col.id)
+                  if (s) setDeletingStage(s)
+                }}
               />
             ))}
           </SortableContext>
@@ -268,6 +281,7 @@ export function KanbanBoard({ initialStages, initialLeads }: KanbanBoardProps) {
                 key: activeColumn.key,
                 label: activeColumn.name,
                 color: activeColumn.color || '#64748b',
+                is_system: activeColumn.is_system,
               }}
               leads={leadsByStage(activeColumn)}
               isPending={isPending}
@@ -286,6 +300,48 @@ export function KanbanBoard({ initialStages, initialLeads }: KanbanBoardProps) {
         onClose={() => setIsAddModalOpen(false)}
         onColumnCreated={(newStage) => {
           setStages((prev) => [...prev, newStage])
+        }}
+      />
+
+      {/* Edit / Rename Column Modal Dialog */}
+      <EditColumnDialog
+        stage={editingStage}
+        isOpen={!!editingStage}
+        onClose={() => setEditingStage(null)}
+        onColumnUpdated={(updated) => {
+          setStages((prev) =>
+            prev.map((s) => (s.id === updated.id ? updated : s))
+          )
+        }}
+      />
+
+      {/* Delete Column Modal Dialog */}
+      <DeleteColumnDialog
+        stage={deletingStage}
+        isOpen={!!deletingStage}
+        onClose={() => setDeletingStage(null)}
+        activeLeadsCount={
+          deletingStage ? leadsByStage(deletingStage).length : 0
+        }
+        availableFallbackStages={stages.filter(
+          (s) => s.id !== deletingStage?.id
+        )}
+        onColumnDeleted={(deletedStageId, fallbackStageId) => {
+          if (fallbackStageId) {
+            const fallbackStage = stages.find((s) => s.id === fallbackStageId)
+            setLeads((prev) =>
+              prev.map((l) =>
+                l.stage_id === deletedStageId
+                  ? {
+                      ...l,
+                      stage_id: fallbackStageId,
+                      stage: (fallbackStage?.key as any) ?? null,
+                    }
+                  : l
+              )
+            )
+          }
+          setStages((prev) => prev.filter((s) => s.id !== deletedStageId))
         }}
       />
     </div>

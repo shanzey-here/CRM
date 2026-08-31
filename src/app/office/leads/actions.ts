@@ -9,8 +9,12 @@ import {
   followUpFormSchema,
   confirmBookingFormSchema,
   createCustomStageSchema,
+  updateCustomStageSchema,
+  deleteCustomStageSchema,
   type PipelineStageDef,
   type CreateCustomStageInput,
+  type UpdateCustomStageInput,
+  type DeleteCustomStageInput,
 } from '@/modules/leads/schemas'
 import { createActivity } from '@/modules/activities/server/repository'
 import { createTask } from '@/modules/tasks/server/repository'
@@ -729,4 +733,210 @@ export async function reorderPipelineStagesAction(
 
   return { success: true }
 }
+
+// ============================================================================
+// UPDATE / RENAME PIPELINE STAGE (Epic H)
+// ============================================================================
+export type UpdatePipelineStageResult =
+  | { success: true; data: PipelineStageDef }
+  | { success: false; error: string }
+
+export async function updatePipelineStageAction(
+  rawInput: unknown
+): Promise<UpdatePipelineStageResult> {
+  // 1. Auth check
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { success: false, error: 'Unauthorized' }
+  }
+
+  const tenantId = user.app_metadata?.tenant_id as string | undefined
+  if (!tenantId) {
+    return { success: false, error: 'No tenant context' }
+  }
+
+  // 2. Role check — tenant_admin and dispatcher only
+  const role = user.app_metadata?.tenant_role ?? user.app_metadata?.role
+  if (role !== 'tenant_admin' && role !== 'dispatcher') {
+    return { success: false, error: 'Insufficient permissions' }
+  }
+
+  // 3. Validate input schema
+  const parsed = updateCustomStageSchema.safeParse(rawInput)
+  if (!parsed.success) {
+    const errorMsg = parsed.error.issues[0]?.message ?? 'Invalid stage details'
+    return { success: false, error: errorMsg }
+  }
+
+  const { stageId, name, color } = parsed.data
+
+  // 4. Verify stage belongs to this tenant
+  const { data: existingStage, error: fetchErr } = await supabase
+    .from('pipeline_stages')
+    .select('id, key, name, color, position, is_system, is_hidden_by_default')
+    .eq('id', stageId)
+    .eq('tenant_id', tenantId)
+    .single()
+
+  if (fetchErr || !existingStage) {
+    return { success: false, error: 'Stage not found in this workspace' }
+  }
+
+  // 5. Check name uniqueness against other stages for this tenant
+  const { data: duplicateStage } = await supabase
+    .from('pipeline_stages')
+    .select('id')
+    .eq('tenant_id', tenantId)
+    .ilike('name', name)
+    .neq('id', stageId)
+    .maybeSingle()
+
+  if (duplicateStage) {
+    return { success: false, error: `A pipeline stage named "${name}" already exists.` }
+  }
+
+  // 6. Update stage
+  const { data: updatedStage, error: updateErr } = await supabase
+    .from('pipeline_stages')
+    .update({
+      name,
+      color: color || existingStage.color || '#64748b',
+    })
+    .eq('id', stageId)
+    .eq('tenant_id', tenantId)
+    .select('id, key, name, color, position, is_system, is_hidden_by_default')
+    .single()
+
+  if (updateErr || !updatedStage) {
+    if (updateErr?.code === '23505') {
+      return { success: false, error: `A pipeline stage named "${name}" already exists.` }
+    }
+    return { success: false, error: updateErr?.message ?? 'Failed to update stage' }
+  }
+
+  revalidatePath('/office/leads')
+  return { success: true, data: updatedStage as PipelineStageDef }
+}
+
+// ============================================================================
+// DELETE PIPELINE STAGE (Epic H)
+// ============================================================================
+export type DeletePipelineStageResult =
+  | { success: true; movedLeadsCount: number }
+  | { success: false; error: string; activeLeadCount?: number }
+
+export async function deletePipelineStageAction(
+  rawInput: unknown
+): Promise<DeletePipelineStageResult> {
+  // 1. Auth check
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { success: false, error: 'Unauthorized' }
+  }
+
+  const tenantId = user.app_metadata?.tenant_id as string | undefined
+  if (!tenantId) {
+    return { success: false, error: 'No tenant context' }
+  }
+
+  // 2. Role check — tenant_admin and dispatcher only
+  const role = user.app_metadata?.tenant_role ?? user.app_metadata?.role
+  if (role !== 'tenant_admin' && role !== 'dispatcher') {
+    return { success: false, error: 'Insufficient permissions' }
+  }
+
+  // 3. Validate input schema
+  const parsed = deleteCustomStageSchema.safeParse(rawInput)
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0]?.message ?? 'Invalid input' }
+  }
+
+  const { stageId, fallbackStageId } = parsed.data
+
+  // 4. Verify stage belongs to this tenant and is NOT a system stage
+  const { data: stageToDelete, error: stageErr } = await supabase
+    .from('pipeline_stages')
+    .select('id, name, is_system')
+    .eq('id', stageId)
+    .eq('tenant_id', tenantId)
+    .single()
+
+  if (stageErr || !stageToDelete) {
+    return { success: false, error: 'Stage not found in this workspace' }
+  }
+
+  if (stageToDelete.is_system) {
+    return { success: false, error: 'System pipeline stages cannot be deleted.' }
+  }
+
+  // 5. Count active leads currently referencing this stage
+  const { count: leadCount, error: countErr } = await supabase
+    .from('leads')
+    .select('*', { count: 'exact', head: true })
+    .eq('tenant_id', tenantId)
+    .eq('stage_id', stageId)
+    .eq('is_archived', false)
+
+  if (countErr) {
+    return { success: false, error: 'Failed to check leads in this stage' }
+  }
+
+  const activeLeads = leadCount ?? 0
+
+  // 6. Handle leads in stage
+  if (activeLeads > 0) {
+    if (!fallbackStageId || fallbackStageId === stageId) {
+      return {
+        success: false,
+        error: `Cannot delete stage "${stageToDelete.name}" because it currently contains ${activeLeads} active lead(s). Please choose a fallback stage to move them to.`,
+        activeLeadCount: activeLeads,
+      }
+    }
+
+    // Verify fallback stage exists and belongs to this tenant
+    const { data: fallbackStage, error: fallbackErr } = await supabase
+      .from('pipeline_stages')
+      .select('id, key')
+      .eq('id', fallbackStageId)
+      .eq('tenant_id', tenantId)
+      .single()
+
+    if (fallbackErr || !fallbackStage) {
+      return { success: false, error: 'Selected fallback stage not found' }
+    }
+
+    // Move all leads in this stage to the fallback stage
+    const { error: moveError } = await supabase
+      .from('leads')
+      .update({
+        stage_id: fallbackStage.id,
+        stage: (fallbackStage.key as any) ?? null,
+      })
+      .eq('stage_id', stageId)
+      .eq('tenant_id', tenantId)
+
+    if (moveError) {
+      return { success: false, error: `Failed to move leads: ${moveError.message}` }
+    }
+  }
+
+  // 7. Delete the empty stage
+  const { error: deleteErr } = await supabase
+    .from('pipeline_stages')
+    .delete()
+    .eq('id', stageId)
+    .eq('tenant_id', tenantId)
+
+  if (deleteErr) {
+    return { success: false, error: deleteErr.message || 'Failed to delete stage' }
+  }
+
+  revalidatePath('/office/leads')
+  return { success: true, movedLeadsCount: activeLeads }
+}
+
 

@@ -164,6 +164,29 @@ export const createCustomStageSchema = z.object({
 
 export type CreateCustomStageInput = z.infer<typeof createCustomStageSchema>
 
+export const updateCustomStageSchema = z.object({
+  stageId: z.string().uuid('Invalid stage ID'),
+  name: z
+    .string()
+    .trim()
+    .min(1, 'Stage name is required')
+    .max(50, 'Stage name must be 50 characters or less'),
+  color: z
+    .string()
+    .regex(/^#[0-9a-fA-F]{6}$/, 'Must be a valid 6-character hex color code (e.g. #3B82F6)')
+    .optional()
+    .default('#64748b'),
+})
+
+export type UpdateCustomStageInput = z.infer<typeof updateCustomStageSchema>
+
+export const deleteCustomStageSchema = z.object({
+  stageId: z.string().uuid('Invalid stage ID'),
+  fallbackStageId: z.string().uuid('Invalid fallback stage ID').optional(),
+})
+
+export type DeleteCustomStageInput = z.infer<typeof deleteCustomStageSchema>
+
 export interface PipelineStageDef {
   id: string
   key: string | null
