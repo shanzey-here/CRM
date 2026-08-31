@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import {
   DndContext,
@@ -13,40 +13,26 @@ import {
   pointerWithin,
 } from '@dnd-kit/core'
 import { useState, useTransition, useCallback } from 'react'
+import { Plus } from 'lucide-react'
 import { KanbanColumn } from './kanban-column'
 import { LeadCard } from './lead-card'
-import { updateLeadStage, type KanbanStage } from '../actions'
-import { KANBAN_STAGES } from '../constants'
+import { AddColumnDialog } from './add-column-dialog'
+import { updateLeadStage } from '../actions'
 import type { LeadWithContact } from '@/modules/leads/server/repository'
+import type { PipelineStageDef } from '@/modules/leads/schemas'
 
 interface KanbanBoardProps {
+  initialStages: PipelineStageDef[]
   initialLeads: LeadWithContact[]
 }
 
-// Every LeadCard is also its own droppable (useSortable registers a droppable
-// keyed by the card's id, alongside each column's useDroppable keyed by stage
-// id). closestCorners alone can resolve to a card's rect instead of its
-// parent column's, so handleDragEnd's over.id ends up being a lead UUID
-// rather than a valid stage — silently rejected, card snaps back. Try
-// pointerWithin first and prefer a real column id when one is among the
-// results; only fall back to closestCorners if the pointer isn't within any
-// registered droppable at all.
-const STAGE_IDS = KANBAN_STAGES.map((s) => s.id) as string[]
-
-const columnAwareCollisionDetection: CollisionDetection = (args) => {
-  const pointerCollisions = pointerWithin(args)
-  if (pointerCollisions.length > 0) {
-    const columnCollision = pointerCollisions.find((c) => STAGE_IDS.includes(c.id as string))
-    return columnCollision ? [columnCollision] : [pointerCollisions[0]]
-  }
-  return closestCorners(args)
-}
-
-export function KanbanBoard({ initialLeads }: KanbanBoardProps) {
-  // Local optimistic state — mutated instantly on drag, rolled back on failure
+export function KanbanBoard({ initialStages, initialLeads }: KanbanBoardProps) {
+  // Local state for dynamic stages and leads
+  const [stages, setStages] = useState<PipelineStageDef[]>(initialStages)
   const [leads, setLeads] = useState<LeadWithContact[]>(initialLeads)
   const [activeId, setActiveId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
 
   const sensors = useSensors(
@@ -58,8 +44,27 @@ export function KanbanBoard({ initialLeads }: KanbanBoardProps) {
     })
   )
 
+  const stageIds = stages.map((s) => s.id)
+
+  const columnAwareCollisionDetection: CollisionDetection = useCallback(
+    (args) => {
+      const pointerCollisions = pointerWithin(args)
+      if (pointerCollisions.length > 0) {
+        const columnCollision = pointerCollisions.find((c) =>
+          stageIds.includes(c.id as string)
+        )
+        return columnCollision ? [columnCollision] : [pointerCollisions[0]]
+      }
+      return closestCorners(args)
+    },
+    [stageIds]
+  )
+
   const leadsByStage = useCallback(
-    (stage: KanbanStage) => leads.filter((l) => l.stage === stage),
+    (stage: PipelineStageDef) =>
+      leads.filter(
+        (l) => l.stage_id === stage.id || (stage.key && l.stage === stage.key)
+      ),
     [leads]
   )
 
@@ -77,24 +82,41 @@ export function KanbanBoard({ initialLeads }: KanbanBoardProps) {
     if (!over) return
 
     const leadId = active.id as string
-    const newStage = over.id as KanbanStage
+    const targetStageId = over.id as string
 
     const currentLead = leads.find((l) => l.id === leadId)
-    if (!currentLead || currentLead.stage === newStage) return
+    if (!currentLead) return
 
-    // Validate new stage is a recognised kanban stage before optimistic update
-    const validStages = KANBAN_STAGES.map((s) => s.id)
-    if (!validStages.includes(newStage)) return
+    const targetStage = stages.find(
+      (s) => s.id === targetStageId || (s.key && s.key === targetStageId)
+    )
+    if (!targetStage) return
+
+    // Don't transition if already in this stage
+    if (
+      currentLead.stage_id === targetStage.id ||
+      (targetStage.key && currentLead.stage === targetStage.key)
+    ) {
+      return
+    }
 
     // Optimistic update — move the card immediately in local state
     const previousLeads = leads
     setLeads((prev) =>
-      prev.map((l) => (l.id === leadId ? { ...l, stage: newStage } : l))
+      prev.map((l) =>
+        l.id === leadId
+          ? {
+              ...l,
+              stage_id: targetStage.id,
+              stage: (targetStage.key as any) ?? null,
+            }
+          : l
+      )
     )
 
     // Server Action — if it fails, roll back to previousLeads and show error
     startTransition(async () => {
-      const result = await updateLeadStage(leadId, newStage)
+      const result = await updateLeadStage(leadId, targetStage.id)
       if (!result.success) {
         // ROLLBACK: restore the card to where it was before the drag
         setLeads(previousLeads)
@@ -109,7 +131,7 @@ export function KanbanBoard({ initialLeads }: KanbanBoardProps) {
       {error && (
         <div
           role="alert"
-          className="flex items-center justify-between gap-3 px-4 py-3 text-sm bg-red-50 border border-red-200 text-red-700 rounded-lg"
+          className="mx-6 flex items-center justify-between gap-3 px-4 py-3 text-sm bg-red-50 border border-red-200 text-red-700 rounded-lg"
         >
           <span>⚠ {error}</span>
           <button
@@ -129,25 +151,52 @@ export function KanbanBoard({ initialLeads }: KanbanBoardProps) {
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <div className="flex gap-4 overflow-x-auto pb-4 pl-6 flex-1 after:content-[''] after:w-6 after:shrink-0">
-          {KANBAN_STAGES.map((stage, index) => (
+        <div className="flex gap-4 overflow-x-auto pb-4 pl-6 pr-6 flex-1 items-start">
+          {stages.map((stage, index) => (
             <KanbanColumn
               key={stage.id}
-              stage={stage}
-              leads={leadsByStage(stage.id as KanbanStage)}
+              stage={{
+                id: stage.id,
+                key: stage.key,
+                label: stage.name,
+                color: stage.color || '#64748b',
+              }}
+              leads={leadsByStage(stage)}
               isPending={isPending}
               index={index}
             />
           ))}
+
+          {/* "+ Add column" Trigger Card */}
+          <div className="shrink-0 w-72 flex flex-col">
+            <button
+              type="button"
+              onClick={() => setIsAddModalOpen(true)}
+              className="w-full flex items-center justify-center gap-2 p-4 text-sm font-semibold text-slate-600 bg-white/70 hover:bg-white border-2 border-dashed border-slate-300 hover:border-slate-400 rounded-xl transition-all h-24 shadow-sm hover:shadow group"
+              data-testid="add-column-button"
+            >
+              <span className="w-7 h-7 rounded-full bg-slate-100 group-hover:bg-blue-50 group-hover:text-blue-600 flex items-center justify-center transition-colors">
+                <Plus className="w-4 h-4" />
+              </span>
+              <span>Add column</span>
+            </button>
+          </div>
         </div>
 
         {/* DragOverlay renders a floating ghost card while dragging */}
         <DragOverlay>
-          {activeLead ? (
-            <LeadCard lead={activeLead} isDragOverlay />
-          ) : null}
+          {activeLead ? <LeadCard lead={activeLead} isDragOverlay /> : null}
         </DragOverlay>
       </DndContext>
+
+      {/* Add Column Modal Dialog */}
+      <AddColumnDialog
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onColumnCreated={(newStage) => {
+          setStages((prev) => [...prev, newStage])
+        }}
+      />
     </div>
   )
 }

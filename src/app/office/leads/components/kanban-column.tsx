@@ -5,10 +5,9 @@ import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { motion, useReducedMotion } from 'framer-motion'
 import { LeadCard } from './lead-card'
 import type { LeadWithContact } from '@/modules/leads/server/repository'
-import type { KanbanStage } from '../actions'
-
-interface ColumnDef {
-  id: KanbanStage
+export interface ColumnDef {
+  id: string
+  key?: string | null
   label: string
   color: string
 }
@@ -21,9 +20,10 @@ interface KanbanColumnProps {
 }
 
 export function KanbanColumn({ stage, leads, isPending, index }: KanbanColumnProps) {
-  // The column itself is a drop target — its id matches the stage value
+  // The column itself is a drop target — its id matches the stage id
   const { setNodeRef, isOver } = useDroppable({ id: stage.id })
   const shouldReduceMotion = useReducedMotion()
+  const stageColor = stage.color || '#64748b'
 
   const motionProps = shouldReduceMotion ? {} : {
     initial: { opacity: 0, y: 15 },
@@ -41,7 +41,7 @@ export function KanbanColumn({ stage, leads, isPending, index }: KanbanColumnPro
       className="flex flex-col shrink-0 w-72 rounded-xl overflow-hidden bg-slate-50 border border-slate-200 shadow-sm ring-0"
       style={{
         boxShadow: isOver
-          ? `0 0 0 2px ${stage.color}50, 0 4px 20px ${stage.color}20`
+          ? `0 0 0 2px ${stageColor}50, 0 4px 20px ${stageColor}20`
           : undefined,
         transition: 'box-shadow 150ms ease',
       }}
@@ -49,7 +49,7 @@ export function KanbanColumn({ stage, leads, isPending, index }: KanbanColumnPro
       {/* Column Header */}
       <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-slate-200">
         <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: stage.color }} />
+          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: stageColor }} />
           <span className="font-semibold text-slate-900 text-sm">{stage.label}</span>
         </div>
         <span className="flex items-center justify-center px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-xs font-semibold">
@@ -62,7 +62,7 @@ export function KanbanColumn({ stage, leads, isPending, index }: KanbanColumnPro
         ref={setNodeRef}
         className="flex flex-col gap-2 p-2 flex-1 min-h-32 overflow-y-auto bg-slate-100/80 rounded-b-xl"
         style={{
-          backgroundColor: isOver ? `${stage.color}08` : undefined,
+          backgroundColor: isOver ? `${stageColor}08` : undefined,
           transition: 'background-color 150ms ease',
         }}
       >

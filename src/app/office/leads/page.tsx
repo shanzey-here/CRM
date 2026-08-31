@@ -24,24 +24,20 @@ export default async function LeadsPage() {
   if (!tenantId) redirect('/login?error=no_tenant_context')
 
   // The board's "active" columns are the tenant's pipeline_stages that are NOT
-  // hidden-by-default (today: exactly the 5 non-hidden built-ins — same set the
-  // old hardcoded KANBAN_STAGES list held, now sourced from the real table).
+  // hidden-by-default (5 built-ins + any custom stages created by this tenant).
   // `completed` / `archived` stay off the board via is_hidden_by_default, as
   // before.
   const { data: activeStageRows } = await supabase
     .from('pipeline_stages')
-    .select('key')
+    .select('id, key, name, color, position, is_system, is_hidden_by_default')
     .eq('tenant_id', tenantId)
     .eq('is_hidden_by_default', false)
     .order('position', { ascending: true })
 
-  const activeStages = (activeStageRows ?? [])
-    .map((s) => s.key)
-    .filter((k): k is string => !!k)
+  const stages = activeStageRows ?? []
+  const activeStageIds = stages.map((s) => s.id)
 
-  // We fetch each active stage — Supabase doesn't support IN operator on
-  // .eq() so we use a raw filter with the `in` method. `stage` stays in sync
-  // with `stage_id` via the leads_sync_stage_columns trigger.
+  // We fetch each active stage's leads using stage_id (authoritative FK).
   const { data: leads, error } = await supabase
     .from('leads')
     .select(`
@@ -70,7 +66,7 @@ export default async function LeadsPage() {
     `)
     .eq('tenant_id', tenantId)
     .eq('is_archived', false)
-    .in('stage', activeStages)
+    .in('stage_id', activeStageIds)
     .order('created_at', { ascending: false })
 
   if (error) {
@@ -108,7 +104,7 @@ export default async function LeadsPage() {
             </p>
           </div>
         ) : (
-          <KanbanBoard initialLeads={leads ?? []} />
+          <KanbanBoard initialStages={stages} initialLeads={leads ?? []} />
         )}
       </div>
     </div>

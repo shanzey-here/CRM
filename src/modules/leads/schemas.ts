@@ -145,3 +145,31 @@ export const updateLeadDetailsSchema = z.object({
 })
 
 export type UpdateLeadDetailsInput = z.infer<typeof updateLeadDetailsSchema>
+
+// ============================================================================
+// PIPELINE STAGES & CUSTOM COLUMNS (Epic H)
+// ============================================================================
+export const createCustomStageSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(1, 'Stage name is required')
+    .max(50, 'Stage name must be 50 characters or less'),
+  color: z
+    .string()
+    .regex(/^#[0-9a-fA-F]{6}$/, 'Must be a valid 6-character hex color code (e.g. #3B82F6)')
+    .optional()
+    .default('#64748b'),
+})
+
+export type CreateCustomStageInput = z.infer<typeof createCustomStageSchema>
+
+export interface PipelineStageDef {
+  id: string
+  key: string | null
+  name: string
+  color: string | null
+  position: number
+  is_system: boolean
+  is_hidden_by_default: boolean
+}
