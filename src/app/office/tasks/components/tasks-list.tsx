@@ -17,10 +17,12 @@ export function TasksList({ tasks, tenantStaff }: TasksListProps) {
   const [isPending, startTransition] = useTransition()
   const [loadingId, setLoadingId] = useState<string | null>(null)
 
-  const handleComplete = (taskId: string) => {
-    setLoadingId(taskId)
+  // The checkbox is a real toggle: completed <-> pending, driven by the task's
+  // actual current status.
+  const handleToggle = (task: Task) => {
+    setLoadingId(task.id)
     startTransition(async () => {
-      await updateTaskStatusAction(taskId, 'completed')
+      await updateTaskStatusAction(task.id, task.status === 'completed' ? 'pending' : 'completed')
       setLoadingId(null)
     })
   }
@@ -49,12 +51,22 @@ export function TasksList({ tasks, tenantStaff }: TasksListProps) {
     <ul className="divide-y divide-slate-100">
       {tasks.map((task) => {
         const assignee = tenantStaff.find(s => s.id === task.assigned_to)
+        const isCompleted = task.status === 'completed'
+        const toggleLabel = isCompleted ? 'Mark as incomplete' : 'Mark as complete'
         return (
           <li key={task.id} className="p-4 hover:bg-slate-50 transition-colors flex items-start gap-4">
             <button
-              onClick={() => handleComplete(task.id)}
+              type="button"
+              onClick={() => handleToggle(task)}
               disabled={isPending && loadingId === task.id}
-              className="mt-1 shrink-0 text-slate-300 hover:text-emerald-500 transition-colors disabled:opacity-50"
+              title={toggleLabel}
+              aria-label={toggleLabel}
+              aria-pressed={isCompleted}
+              className={`mt-1 shrink-0 transition-colors disabled:opacity-50 ${
+                isCompleted
+                  ? 'text-emerald-500 hover:text-emerald-600'
+                  : 'text-slate-300 hover:text-emerald-500'
+              }`}
             >
               <CheckCircle2 className="h-6 w-6" />
             </button>
