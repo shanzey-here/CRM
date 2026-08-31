@@ -9,15 +9,21 @@ import {
   type DragEndEvent,
   type DragStartEvent,
   type CollisionDetection,
+  closestCenter,
   closestCorners,
   pointerWithin,
 } from '@dnd-kit/core'
+import {
+  SortableContext,
+  horizontalListSortingStrategy,
+  arrayMove,
+} from '@dnd-kit/sortable'
 import { useState, useTransition, useCallback } from 'react'
 import { Plus } from 'lucide-react'
 import { KanbanColumn } from './kanban-column'
 import { LeadCard } from './lead-card'
 import { AddColumnDialog } from './add-column-dialog'
-import { updateLeadStage } from '../actions'
+import { updateLeadStage, reorderPipelineStagesAction } from '../actions'
 import type { LeadWithContact } from '@/modules/leads/server/repository'
 import type { PipelineStageDef } from '@/modules/leads/schemas'
 
@@ -30,7 +36,8 @@ export function KanbanBoard({ initialStages, initialLeads }: KanbanBoardProps) {
   // Local state for dynamic stages and leads
   const [stages, setStages] = useState<PipelineStageDef[]>(initialStages)
   const [leads, setLeads] = useState<LeadWithContact[]>(initialLeads)
-  const [activeId, setActiveId] = useState<string | null>(null)
+  const [activeColumn, setActiveColumn] = useState<PipelineStageDef | null>(null)
+  const [activeLead, setActiveLead] = useState<LeadWithContact | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
@@ -38,7 +45,7 @@ export function KanbanBoard({ initialStages, initialLeads }: KanbanBoardProps) {
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        // Require 8px movement before dragging — prevents accidental drags on clicks
+        // Require 8px movement before dragging — prevents accidental clicks
         distance: 8,
       },
     })
@@ -46,8 +53,20 @@ export function KanbanBoard({ initialStages, initialLeads }: KanbanBoardProps) {
 
   const stageIds = stages.map((s) => s.id)
 
-  const columnAwareCollisionDetection: CollisionDetection = useCallback(
+  const customCollisionDetection: CollisionDetection = useCallback(
     (args) => {
+      // Column dragging: strictly detect nearest column center
+      if (args.active.data.current?.type === 'Column') {
+        const columnContainers = args.droppableContainers.filter((c) =>
+          stageIds.includes(c.id as string)
+        )
+        return closestCenter({
+          ...args,
+          droppableContainers: columnContainers,
+        })
+      }
+
+      // Card dragging: prefer pointerWithin for drop targets
       const pointerCollisions = pointerWithin(args)
       if (pointerCollisions.length > 0) {
         const columnCollision = pointerCollisions.find((c) =>
@@ -68,21 +87,76 @@ export function KanbanBoard({ initialStages, initialLeads }: KanbanBoardProps) {
     [leads]
   )
 
-  const activeLead = activeId ? leads.find((l) => l.id === activeId) : null
-
   function handleDragStart(event: DragStartEvent) {
-    setActiveId(event.active.id as string)
     setError(null)
+    const activeData = event.active.data.current
+
+    if (activeData?.type === 'Column') {
+      const col = stages.find((s) => s.id === event.active.id) ?? activeData.stage
+      setActiveColumn(col)
+      setActiveLead(null)
+    } else {
+      const lead = leads.find((l) => l.id === event.active.id)
+      setActiveLead(lead ?? null)
+      setActiveColumn(null)
+    }
   }
 
   function handleDragEnd(event: DragEndEvent) {
-    setActiveId(null)
     const { active, over } = event
+    setActiveColumn(null)
+    setActiveLead(null)
 
     if (!over) return
 
+    // ──────────────────────────────────────────────────────────────────────────
+    // 1. COLUMN DRAG & DROP REORDERING
+    // ──────────────────────────────────────────────────────────────────────────
+    if (active.data.current?.type === 'Column') {
+      const activeStageId = active.id as string
+      const overStageId = over.id as string
+
+      if (activeStageId === overStageId) return
+
+      const oldIndex = stages.findIndex((s) => s.id === activeStageId)
+      const newIndex = stages.findIndex((s) => s.id === overStageId)
+
+      if (oldIndex === -1 || newIndex === -1 || oldIndex === newIndex) return
+
+      const previousStages = stages
+      const newStages = arrayMove(stages, oldIndex, newIndex)
+      setStages(newStages)
+
+      startTransition(async () => {
+        const orderedIds = newStages.map((s) => s.id)
+        const result = await reorderPipelineStagesAction(orderedIds)
+        if (!result.success) {
+          // ROLLBACK: restore previous stage order
+          setStages(previousStages)
+          setError(result.error || 'Failed to reorder columns. Changes reverted.')
+        }
+      })
+      return
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // 2. LEAD CARD DRAG & DROP STAGE TRANSITION
+    // ──────────────────────────────────────────────────────────────────────────
     const leadId = active.id as string
-    const targetStageId = over.id as string
+    let targetStageId: string | null = null
+
+    // Determine target stage from dropped container
+    if (over.data.current?.type === 'Column' || stageIds.includes(over.id as string)) {
+      targetStageId = over.id as string
+    } else if (over.data.current?.type === 'Card') {
+      const overLead = leads.find((l) => l.id === over.id)
+      targetStageId = overLead?.stage_id ?? null
+    } else {
+      const matchedStage = stages.find((s) => s.id === over.id || s.key === over.id)
+      targetStageId = matchedStage?.id ?? null
+    }
+
+    if (!targetStageId) return
 
     const currentLead = leads.find((l) => l.id === leadId)
     if (!currentLead) return
@@ -147,25 +221,27 @@ export function KanbanBoard({ initialStages, initialLeads }: KanbanBoardProps) {
       <DndContext
         id="kanban-board-dnd-context"
         sensors={sensors}
-        collisionDetection={columnAwareCollisionDetection}
+        collisionDetection={customCollisionDetection}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
         <div className="flex gap-4 overflow-x-auto pb-4 pl-6 pr-6 flex-1 items-start">
-          {stages.map((stage, index) => (
-            <KanbanColumn
-              key={stage.id}
-              stage={{
-                id: stage.id,
-                key: stage.key,
-                label: stage.name,
-                color: stage.color || '#64748b',
-              }}
-              leads={leadsByStage(stage)}
-              isPending={isPending}
-              index={index}
-            />
-          ))}
+          <SortableContext items={stageIds} strategy={horizontalListSortingStrategy}>
+            {stages.map((stage, index) => (
+              <KanbanColumn
+                key={stage.id}
+                stage={{
+                  id: stage.id,
+                  key: stage.key,
+                  label: stage.name,
+                  color: stage.color || '#64748b',
+                }}
+                leads={leadsByStage(stage)}
+                isPending={isPending}
+                index={index}
+              />
+            ))}
+          </SortableContext>
 
           {/* "+ Add column" Trigger Card */}
           <div className="shrink-0 w-72 flex flex-col">
@@ -183,9 +259,24 @@ export function KanbanBoard({ initialStages, initialLeads }: KanbanBoardProps) {
           </div>
         </div>
 
-        {/* DragOverlay renders a floating ghost card while dragging */}
+        {/* DragOverlay renders a floating ghost for either column or card */}
         <DragOverlay>
-          {activeLead ? <LeadCard lead={activeLead} isDragOverlay /> : null}
+          {activeColumn ? (
+            <KanbanColumn
+              stage={{
+                id: activeColumn.id,
+                key: activeColumn.key,
+                label: activeColumn.name,
+                color: activeColumn.color || '#64748b',
+              }}
+              leads={leadsByStage(activeColumn)}
+              isPending={isPending}
+              index={0}
+              isDragOverlay
+            />
+          ) : activeLead ? (
+            <LeadCard lead={activeLead} isDragOverlay />
+          ) : null}
         </DragOverlay>
       </DndContext>
 

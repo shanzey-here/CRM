@@ -653,3 +653,80 @@ export async function createCustomColumnAction(
 
   return { success: true, data: newStage as PipelineStageDef }
 }
+
+// ============================================================================
+// REORDER PIPELINE STAGE COLUMNS (Epic H)
+// ============================================================================
+export type ReorderPipelineStagesResult =
+  | { success: true }
+  | { success: false; error: string }
+
+export async function reorderPipelineStagesAction(
+  orderedStageIds: unknown
+): Promise<ReorderPipelineStagesResult> {
+  // 1. Auth check
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { success: false, error: 'Unauthorized' }
+  }
+
+  const tenantId = user.app_metadata?.tenant_id as string | undefined
+  if (!tenantId) {
+    return { success: false, error: 'No tenant context' }
+  }
+
+  // 2. Role check — tenant_admin and dispatcher only
+  const role = user.app_metadata?.tenant_role ?? user.app_metadata?.role
+  if (role !== 'tenant_admin' && role !== 'dispatcher') {
+    return { success: false, error: 'Insufficient permissions' }
+  }
+
+  // 3. Validate input schema
+  const schema = z.array(z.string().uuid()).min(1, 'At least one stage ID is required')
+  const parseResult = schema.safeParse(orderedStageIds)
+  if (!parseResult.success) {
+    return { success: false, error: 'Invalid stage IDs format' }
+  }
+
+  const stageIds = parseResult.data
+
+  // 4. Verify all stages belong to this tenant (strict tenant isolation)
+  const { data: ownedStages, error: fetchError } = await supabase
+    .from('pipeline_stages')
+    .select('id')
+    .eq('tenant_id', tenantId)
+    .in('id', stageIds)
+
+  if (fetchError || !ownedStages || ownedStages.length !== stageIds.length) {
+    return {
+      success: false,
+      error: 'One or more stages were not found in this workspace',
+    }
+  }
+
+  // 5. Update positions sequentially (1, 2, 3...)
+  const updatePromises = stageIds.map((stageId, index) =>
+    supabase
+      .from('pipeline_stages')
+      .update({ position: index + 1 })
+      .eq('id', stageId)
+      .eq('tenant_id', tenantId)
+  )
+
+  const results = await Promise.all(updatePromises)
+  const failedResult = results.find((r) => r.error)
+  if (failedResult?.error) {
+    return {
+      success: false,
+      error: failedResult.error.message || 'Failed to update stage order',
+    }
+  }
+
+  // 6. Invalidate leads page cache
+  revalidatePath('/office/leads')
+
+  return { success: true }
+}
+
