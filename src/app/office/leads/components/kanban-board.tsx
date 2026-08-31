@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import {
   DndContext,
@@ -25,6 +25,7 @@ import { LeadCard } from './lead-card'
 import { AddColumnDialog } from './add-column-dialog'
 import { EditColumnDialog } from './edit-column-dialog'
 import { DeleteColumnDialog } from './delete-column-dialog'
+import { LeadQuickActionModals } from './lead-quick-action-modals'
 import { updateLeadStage, reorderPipelineStagesAction } from '../actions'
 import type { LeadWithContact } from '@/modules/leads/server/repository'
 import type { PipelineStageDef } from '@/modules/leads/schemas'
@@ -40,6 +41,7 @@ export function KanbanBoard({ initialStages, initialLeads }: KanbanBoardProps) {
   const [leads, setLeads] = useState<LeadWithContact[]>(initialLeads)
   const [activeColumn, setActiveColumn] = useState<PipelineStageDef | null>(null)
   const [activeLead, setActiveLead] = useState<LeadWithContact | null>(null)
+  const [confirmingLead, setConfirmingLead] = useState<LeadWithContact | null>(null)
   const [editingStage, setEditingStage] = useState<PipelineStageDef | null>(null)
   const [deletingStage, setDeletingStage] = useState<PipelineStageDef | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -178,6 +180,16 @@ export function KanbanBoard({ initialStages, initialLeads }: KanbanBoardProps) {
       return
     }
 
+    // Auto-launch Confirm Booking modal if dragging into confirmed_booking stage
+    if (
+      targetStage.key === 'confirmed_booking' ||
+      targetStage.label === 'Confirmed Booking' ||
+      targetStage.name === 'Confirmed Booking'
+    ) {
+      setConfirmingLead(currentLead)
+      return
+    }
+
     // Optimistic update — move the card immediately in local state
     const previousLeads = leads
     setLeads((prev) =>
@@ -229,7 +241,10 @@ export function KanbanBoard({ initialStages, initialLeads }: KanbanBoardProps) {
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <div className="flex gap-4 overflow-x-auto pb-4 pl-6 pr-6 flex-1 items-start">
+        <div
+          className="flex gap-4 overflow-x-auto pb-4 pl-6 pr-6 flex-1 items-start"
+          data-testid="kanban-columns-container"
+        >
           <SortableContext items={stageIds} strategy={horizontalListSortingStrategy}>
             {stages.map((stage, index) => (
               <KanbanColumn
@@ -344,6 +359,15 @@ export function KanbanBoard({ initialStages, initialLeads }: KanbanBoardProps) {
           setStages((prev) => prev.filter((s) => s.id !== deletedStageId))
         }}
       />
+
+      {/* Auto-launch Confirm Booking Dialog on drag-to-confirmed-booking */}
+      {confirmingLead && (
+        <LeadQuickActionModals
+          lead={confirmingLead}
+          activeAction="confirm_booking"
+          onClose={() => setConfirmingLead(null)}
+        />
+      )}
     </div>
   )
 }
