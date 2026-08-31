@@ -1,11 +1,18 @@
-﻿'use client'
+'use client'
 
 import { useDroppable } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { motion, useReducedMotion } from 'framer-motion'
-import { GripVertical } from 'lucide-react'
+import { GripVertical, MoreHorizontal, Edit2, Trash2 } from 'lucide-react'
 import { LeadCard } from './lead-card'
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu'
 import type { LeadWithContact } from '@/modules/leads/server/repository'
 
 export interface ColumnDef {
@@ -13,6 +20,7 @@ export interface ColumnDef {
   key?: string | null
   label: string
   color: string
+  is_system?: boolean
 }
 
 interface KanbanColumnProps {
@@ -21,6 +29,8 @@ interface KanbanColumnProps {
   isPending: boolean
   index: number
   isDragOverlay?: boolean
+  onEditColumn?: (stage: ColumnDef) => void
+  onDeleteColumn?: (stage: ColumnDef) => void
 }
 
 export function KanbanColumn({
@@ -29,6 +39,8 @@ export function KanbanColumn({
   isPending,
   index,
   isDragOverlay = false,
+  onEditColumn,
+  onDeleteColumn,
 }: KanbanColumnProps) {
   // Sortable hook for column horizontal reordering
   const {
@@ -97,13 +109,56 @@ export function KanbanColumn({
             className="w-2.5 h-2.5 rounded-full shrink-0"
             style={{ backgroundColor: stageColor }}
           />
-          <span className="font-semibold text-slate-900 text-sm tracking-tight truncate max-w-[150px]">
+          <span className="font-semibold text-slate-900 text-sm tracking-tight truncate max-w-[130px]">
             {stage.label}
           </span>
         </div>
-        <span className="flex items-center justify-center px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-xs font-semibold shrink-0">
-          {leads.length}
-        </span>
+
+        <div className="flex items-center gap-1.5 shrink-0">
+          <span className="flex items-center justify-center px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-xs font-semibold shrink-0">
+            {leads.length}
+          </span>
+
+          {!isDragOverlay && (onEditColumn || onDeleteColumn) && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className="p-1 rounded text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors focus:outline-none cursor-pointer"
+                  aria-label={`Options for ${stage.label}`}
+                  data-testid={`column-menu-trigger-${stage.id}`}
+                >
+                  <MoreHorizontal className="w-4 h-4" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-44">
+                {onEditColumn && (
+                  <DropdownMenuItem
+                    onClick={() => onEditColumn(stage)}
+                    className="cursor-pointer gap-2 text-xs"
+                    data-testid={`column-menu-edit-${stage.id}`}
+                  >
+                    <Edit2 className="w-3.5 h-3.5" />
+                    <span>Rename / Edit</span>
+                  </DropdownMenuItem>
+                )}
+                {onDeleteColumn && !stage.is_system && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={() => onDeleteColumn(stage)}
+                      className="cursor-pointer gap-2 text-xs text-red-600 focus:text-red-700 focus:bg-red-50"
+                      data-testid={`column-menu-delete-${stage.id}`}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Delete Column</span>
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
       </div>
 
       {/* Drop zone — droppable node ref for cards */}
