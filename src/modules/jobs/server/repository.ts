@@ -83,6 +83,139 @@ export async function getJobsByTenant(
   return { success: true, jobs: data }
 }
 
+export interface ConfirmedBookingItem {
+  id: string
+  status: string
+  move_date: string | null
+  customer_notes: string | null
+  internal_notes: string | null
+  created_at: string
+  updated_at: string | null
+  contact: {
+    id: string
+    first_name: string
+    last_name: string
+    email: string | null
+    phone: string | null
+    company_name: string | null
+  } | null
+  origin_address: {
+    line_1: string | null
+    city: string | null
+    postcode: string | null
+  } | null
+  destination_address: {
+    line_1: string | null
+    city: string | null
+    postcode: string | null
+  } | null
+  quote: {
+    id: string
+    total_price: number
+    lead_id: string | null
+    lead: {
+      id: string
+      stage: string
+      source: string | null
+    } | null
+  } | null
+}
+
+export async function getConfirmedBookingsByTenant(
+  supabase: SupabaseClient<Database>,
+  tenantId: string,
+  options?: {
+    statusFilter?: string
+    timeframe?: 'upcoming' | 'past' | 'all'
+    search?: string
+  }
+) {
+  let query = supabase
+    .from('jobs')
+    .select(`
+      id,
+      status,
+      move_date,
+      customer_notes,
+      internal_notes,
+      created_at,
+      updated_at,
+      contact:contacts(id, first_name, last_name, email, phone, company_name),
+      origin_address:addresses!jobs_origin_address_fk(line_1, city, postcode),
+      destination_address:addresses!jobs_destination_address_fk(line_1, city, postcode),
+      quote:quotes(
+        id,
+        total_price,
+        lead_id,
+        lead:leads(id, stage, source)
+      )
+    `)
+    .eq('tenant_id', tenantId)
+
+  // Filter by status if specified (defaults to non-cancelled)
+  if (options?.statusFilter && options.statusFilter !== 'all') {
+    query = query.eq('status', options.statusFilter as any)
+  } else {
+    query = query.neq('status', 'cancelled')
+  }
+
+  const todayStr = new Date().toISOString().split('T')[0]
+  if (options?.timeframe === 'upcoming') {
+    query = query.or(`move_date.gte.${todayStr},move_date.is.null`)
+  } else if (options?.timeframe === 'past') {
+    query = query.lt('move_date', todayStr)
+  }
+
+  query = query.order('move_date', { ascending: true, nullsFirst: false })
+
+  const { data, error } = await query
+
+  if (error) {
+    return { success: false, error: error.message, bookings: [] }
+  }
+
+  return { success: true, bookings: (data as unknown as ConfirmedBookingItem[]) ?? [] }
+}
+
+export async function getUnlinkedConfirmedLeads(
+  supabase: SupabaseClient<Database>,
+  tenantId: string
+) {
+  // Query leads at stage = 'confirmed_booking'
+  const { data: leads, error } = await supabase
+    .from('leads')
+    .select(`
+      id,
+      stage,
+      preferred_move_date,
+      created_at,
+      contact:contacts(first_name, last_name, email, phone)
+    `)
+    .eq('tenant_id', tenantId)
+    .eq('stage', 'confirmed_booking')
+    .eq('is_archived', false)
+
+  if (error || !leads) {
+    return { success: true, count: 0, leads: [] }
+  }
+
+  // Check which leads don't have a linked job via quotes
+  const { data: jobsWithQuotes } = await supabase
+    .from('jobs')
+    .select('quote:quotes(lead_id)')
+    .eq('tenant_id', tenantId)
+
+  const linkedLeadIds = new Set(
+    (jobsWithQuotes ?? [])
+      .map((j) => (j.quote as any)?.lead_id)
+      .filter(Boolean)
+  )
+
+  const unlinked = leads.filter((l) => !linkedLeadIds.has(l.id))
+
+  return { success: true, count: unlinked.length, leads: unlinked }
+}
+
 export async function getJobDetails(
   supabase: SupabaseClient<Database>,
   tenantId: string,
