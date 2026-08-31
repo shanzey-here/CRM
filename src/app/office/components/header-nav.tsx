@@ -9,6 +9,7 @@ import {
   Users, 
   Building2, 
   Calendar, 
+  CalendarCheck,
   CheckSquare, 
   Truck, 
   Mail, 
@@ -25,10 +26,16 @@ export function SidebarNav({ role }: { role?: string }) {
   const links = [
     { name: 'Dashboard', href: '/office', icon: LayoutDashboard, exact: true },
     { name: 'Leads', href: '/office/leads', icon: Users },
+    { name: 'Bookings', href: '/office/jobs/confirmed', icon: CalendarCheck },
     { name: 'Clients', href: '/office/clients', icon: Building2 },
     { name: 'Scheduling', href: '/office/scheduling', icon: Calendar },
     { name: 'Tasks', href: '/office/tasks', icon: CheckSquare },
-    { name: 'Jobs', href: '/office/jobs', icon: Truck },
+    { 
+      name: 'Jobs', 
+      href: '/office/jobs', 
+      icon: Truck, 
+      isActiveCustom: (path: string) => path === '/office/jobs' || (path.startsWith('/office/jobs/') && !path.startsWith('/office/jobs/confirmed'))
+    },
     { name: 'Email', href: '/office/email', icon: Mail },
     { name: 'Social', href: '/office/social', icon: Share2 },
     { name: 'Storage', href: '/office/storage', icon: Archive },
@@ -40,7 +47,9 @@ export function SidebarNav({ role }: { role?: string }) {
   return (
     <nav className="flex flex-col space-y-1 w-full">
       {links.map((link) => {
-        const isActive = link.exact 
+        const isActive = link.isActiveCustom
+          ? link.isActiveCustom(pathname)
+          : link.exact 
           ? pathname === link.href 
           : pathname.startsWith(link.href)
         

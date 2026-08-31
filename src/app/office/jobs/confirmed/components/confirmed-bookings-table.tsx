@@ -41,8 +41,10 @@ export function ConfirmedBookingsTable({
     initialBookings.forEach((b) => {
       if (b.status === 'completed') completed++
       if (b.status === 'scheduled') scheduled++
-      if (b.move_date && (isFuture(new Date(b.move_date)) || format(new Date(b.move_date), 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd'))) {
-        upcoming++
+      if (b.status !== 'completed' && b.status !== 'cancelled') {
+        if (!b.move_date || isFuture(new Date(b.move_date)) || format(new Date(b.move_date), 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd')) {
+          upcoming++
+        }
       }
     })
 
@@ -59,7 +61,8 @@ export function ConfirmedBookingsTable({
     return initialBookings.filter((job) => {
       // 1. Timeframe filter
       if (timeframe === 'upcoming') {
-        if (!job.move_date) return true // TBD moves are considered upcoming
+        if (job.status === 'completed' || job.status === 'cancelled') return false
+        if (!job.move_date) return true // TBD scheduled moves are considered upcoming
         const moveDate = new Date(job.move_date)
         const isUpcomingDate =
           isFuture(moveDate) ||
@@ -88,10 +91,10 @@ export function ConfirmedBookingsTable({
         const customerName = `${job.contact?.first_name || ''} ${job.contact?.last_name || ''}`.toLowerCase()
         const customerEmail = (job.contact?.email || '').toLowerCase()
         const customerPhone = (job.contact?.phone || '').toLowerCase()
-        const jobNumber = (job.job_number || '').toLowerCase()
+        const jobNumber = `JOB-${job.id.slice(0, 8).toUpperCase()}`.toLowerCase()
         const originCity = (job.origin_address?.city || '').toLowerCase()
         const destCity = (job.destination_address?.city || '').toLowerCase()
-        const quoteNum = (job.quote?.quote_number || '').toLowerCase()
+        const quoteNum = job.quote ? `Q-${job.quote.id.slice(0, 8).toUpperCase()}`.toLowerCase() : ''
 
         return (
           customerName.includes(q) ||
@@ -197,7 +200,7 @@ export function ConfirmedBookingsTable({
           <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
           <div className="flex-1">
             <p className="text-sm font-semibold text-amber-900">
-              Pipeline Notice: {unlinkedLeadsCount} lead{unlinkedLeadsCount > 1 ? 's' : ''} in &quot;Confirmed Booking&quot; pipeline stage without a scheduled operational job.
+              Pipeline Notice: {unlinkedLeadsCount} {unlinkedLeadsCount === 1 ? 'lead' : 'leads'} in &quot;Confirmed Booking&quot; pipeline stage without a scheduled operational job.
             </p>
             <p className="text-xs text-amber-700 mt-0.5">
               These leads were moved across pipeline columns in the sales funnel, but have not had a job record generated yet.
