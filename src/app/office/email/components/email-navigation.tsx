@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Inbox, Sparkles, Send, Settings, Tag, ShieldCheck } from 'lucide-react'
+import { Inbox, Sparkles, Send, SendHorizontal, FilePen, Star, Settings, Tag, ShieldCheck } from 'lucide-react'
 
 type EmailNavigationProps = {
   pendingReviewCount?: number
@@ -32,6 +32,24 @@ export function EmailNavigation({ pendingReviewCount = 0, mailboxCount }: EmailN
       label: 'Auto-Sent Log',
       icon: Send,
       isActive: pathname.startsWith('/office/email/auto-sent-log'),
+    },
+    {
+      href: '/office/email/sent',
+      label: 'Sent',
+      icon: SendHorizontal,
+      isActive: pathname.startsWith('/office/email/sent'),
+    },
+    {
+      href: '/office/email/drafts',
+      label: 'Drafts',
+      icon: FilePen,
+      isActive: pathname.startsWith('/office/email/drafts'),
+    },
+    {
+      href: '/office/email/important',
+      label: 'Important',
+      icon: Star,
+      isActive: pathname.startsWith('/office/email/important'),
     },
   ]
 

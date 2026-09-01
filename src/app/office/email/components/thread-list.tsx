@@ -124,6 +124,7 @@ export function ThreadList({
   threadLabels = {},
   threadSnippets = {},
   activeLabelIds = [],
+  basePath = '/office/email',
 }: {
   threads: Thread[]
   mailboxes: Mailbox[]
@@ -132,6 +133,10 @@ export function ThreadList({
   threadLabels?: Record<string, { id: string; name: string; color_hex: string }[]>
   threadSnippets?: Record<string, SnippetInfo>
   activeLabelIds?: string[]
+  // Which page the search / mailbox / label filter controls navigate to.
+  // Defaults to the Inbox (unchanged); the Sent / Drafts / Important folder
+  // tabs pass their own route so filtering stays on the current tab.
+  basePath?: string
 }) {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -141,7 +146,7 @@ export function ThreadList({
     const params = new URLSearchParams(searchParams.toString())
     if (mailboxId) params.set('mailbox', mailboxId)
     else params.delete('mailbox')
-    router.push(`/office/email?${params.toString()}`)
+    router.push(`${basePath}?${params.toString()}`)
   }
 
   function toggleLabelFilter(labelId: string) {
@@ -151,12 +156,12 @@ export function ThreadList({
       : [...activeLabelIds, labelId]
     if (next.length > 0) params.set('labels', next.join(','))
     else params.delete('labels')
-    router.push(`/office/email?${params.toString()}`)
+    router.push(`${basePath}?${params.toString()}`)
   }
 
   function clearAllFilters() {
     setSearchQuery('')
-    router.push('/office/email')
+    router.push(basePath)
   }
 
   // Filter threads client-side by search query
