@@ -184,7 +184,8 @@ export function TemplateEditor({ template, brand, brands }: Props) {
                   type="button"
                   onClick={() => append(defaultBlockFor(type))}
                   className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-emerald-50 text-emerald-700 rounded hover:bg-emerald-100 transition-colors"
-                  title={`Add ${BLOCK_LABELS[type]}`}
+                  title={`Add ${BLOCK_LABELS[type]} block`}
+                  aria-label={`Add ${BLOCK_LABELS[type]} block`}
                 >
                   <Plus size={12} />
                   {BLOCK_LABELS[type]}
@@ -283,7 +284,13 @@ function BlockRow({
           <GripVertical size={16} />
         </span>
         <span className="font-medium text-sm text-slate-900 flex-1">{BLOCK_LABELS[block.type]}</span>
-        <button type="button" onClick={onRemove} className="text-red-600 hover:bg-red-50 rounded p-1">
+        <button
+          type="button"
+          onClick={onRemove}
+          className="text-red-600 hover:bg-red-50 rounded p-1"
+          title={`Remove ${BLOCK_LABELS[block.type]} block`}
+          aria-label={`Remove ${BLOCK_LABELS[block.type]} block`}
+        >
           <X size={14} />
         </button>
       </div>

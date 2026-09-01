@@ -121,6 +121,8 @@ export function ThreadLabels({
                       key={label.id}
                       onClick={() => handleAdd(label.id)}
                       className="w-full flex items-center px-2.5 py-1.5 hover:bg-slate-50 rounded-lg transition-colors text-left"
+                      title={`Apply label: ${label.name}`}
+                      aria-label={`Apply label: ${label.name}`}
                     >
                       <LabelChip name={label.name} colorHex={label.color_hex} variant="subtle" size="sm" />
                     </button>

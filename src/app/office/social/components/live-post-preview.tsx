@@ -41,6 +41,8 @@ export function LivePostPreview({
                 key={plat}
                 type="button"
                 onClick={() => setSelectedPlatform(plat)}
+                title={`Preview on ${plat}`}
+                aria-label={`Preview on ${plat}`}
                 className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md transition-all ${
                   isSelected
                     ? `${colors.activeBg} ${colors.activeText} shadow-xs`

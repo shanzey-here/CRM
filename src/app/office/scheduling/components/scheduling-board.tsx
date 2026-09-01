@@ -108,12 +108,28 @@ export function SchedulingBoard({ date, vehicles, crew, jobs }: { date: string, 
       <header className="flex flex-none items-center justify-between border-b px-6 py-4">
         <h1 className="text-2xl font-semibold text-slate-900">Dispatch Calendar</h1>
         <div className="flex items-center gap-4">
-          <Button variant="outline" size="icon" onClick={() => navigateDay(-1)}><ChevronLeft className="h-4 w-4" /></Button>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => navigateDay(-1)}
+            title="Previous day"
+            aria-label="Previous day"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
           <div className="flex items-center gap-2 font-medium text-lg min-w-[160px] justify-center">
             <CalendarIcon className="h-5 w-5 text-slate-500" />
             {format(parseISO(date), 'MMM do, yyyy')}
           </div>
-          <Button variant="outline" size="icon" onClick={() => navigateDay(1)}><ChevronRight className="h-4 w-4" /></Button>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => navigateDay(1)}
+            title="Next day"
+            aria-label="Next day"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
         </div>
       </header>
 

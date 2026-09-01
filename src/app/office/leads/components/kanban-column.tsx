@@ -123,6 +123,7 @@ export function KanbanColumn({
             <DropdownMenu>
               <DropdownMenuTrigger
                 className="p-1 rounded text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors focus:outline-none cursor-pointer"
+                title={`Options for ${stage.label}`}
                 aria-label={`Options for ${stage.label}`}
                 data-testid={`column-menu-trigger-${stage.id}`}
               >

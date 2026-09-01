@@ -90,6 +90,8 @@ export default async function QuoteWorkspacePage({ params }: { params: Promise<{
           <Link
             href={`/office/leads/${quote.lead_id}`}
             className="p-2 -ml-2 rounded-full hover:bg-slate-100 text-slate-500 transition-colors"
+            title="Back to lead"
+            aria-label="Back to lead"
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>

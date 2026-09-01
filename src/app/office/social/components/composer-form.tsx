@@ -164,6 +164,8 @@ export function ComposerForm({ accounts, companyName = 'Gomove Removals Ltd', lo
                       key={account.id}
                       type="button"
                       onClick={() => toggleAccount(account.id)}
+                      title={`${isSelected ? 'Deselect' : 'Select'} ${account.display_name} (${account.platform})`}
+                      aria-label={`${isSelected ? 'Deselect' : 'Select'} ${account.display_name} (${account.platform})`}
                       className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium border transition-all cursor-pointer ${
                         isSelected
                           ? `${colors.bg} ${colors.text} ${colors.border} ring-2 ring-emerald-500/20 shadow-xs`

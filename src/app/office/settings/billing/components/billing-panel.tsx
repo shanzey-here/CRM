@@ -181,6 +181,8 @@ export function BillingPanel({
                       key={price.id}
                       onClick={() => handleCheckout(price.stripe_price_id)}
                       disabled={isPending}
+                      title={`Subscribe to ${plan.name} (${formatMoney(price.unit_amount, price.currency)}/${price.interval})`}
+                      aria-label={`Subscribe to ${plan.name} (${formatMoney(price.unit_amount, price.currency)}/${price.interval})`}
                       className="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 disabled:opacity-50 transition-colors"
                     >
                       {loadingAction === price.stripe_price_id && <Loader2 className="h-3.5 w-3.5 animate-spin" />}

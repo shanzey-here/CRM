@@ -56,6 +56,8 @@ export function ThemePicker({ currentTheme }: { currentTheme: UiTheme }) {
             type="button"
             onClick={() => selectTheme(t.value)}
             disabled={isPending}
+            title={`Select ${t.label} theme`}
+            aria-label={`Select ${t.label} theme`}
             className={`relative text-left rounded-lg border p-3 transition-colors disabled:opacity-60 ${
               isSelected ? 'border-primary ring-1 ring-primary' : 'border-border hover:border-primary/40'
             }`}

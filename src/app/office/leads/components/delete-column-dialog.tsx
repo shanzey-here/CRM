@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState, useTransition } from 'react'
 import { AlertTriangle, Trash2, X, Loader2, ShieldAlert } from 'lucide-react'
@@ -89,6 +89,7 @@ export function DeleteColumnDialog({
             type="button"
             onClick={handleClose}
             className="text-slate-400 hover:text-slate-600 rounded-lg p-1 transition-colors"
+            title="Close dialog"
             aria-label="Close dialog"
           >
             <X className="w-5 h-5" />

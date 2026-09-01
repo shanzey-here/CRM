@@ -138,6 +138,8 @@ export function StaffList({ staff }: Props) {
                     onClick={() => setExpandedId(expandedId === member.id ? null : member.id)}
                     disabled={isPending}
                     className="inline-flex items-center gap-1 text-sm text-emerald-600 hover:text-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    title={expandedId === member.id ? "Collapse staff actions" : "Expand staff actions"}
+                    aria-label={expandedId === member.id ? "Collapse staff actions" : "Expand staff actions"}
                   >
                     <ChevronDown size={16} />
                   </button>

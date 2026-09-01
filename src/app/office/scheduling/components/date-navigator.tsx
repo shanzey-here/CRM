@@ -77,10 +77,24 @@ export function DateNavigator({ currentDate, range }: { currentDate: string, ran
           Today
         </Button>
         <div className="flex items-center space-x-1">
-          <Button variant="outline" size="icon" className="h-8 w-8" onClick={handlePrev}>
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-8 w-8"
+            onClick={handlePrev}
+            title="Previous period"
+            aria-label="Previous period"
+          >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="icon" className="h-8 w-8" onClick={handleNext}>
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-8 w-8"
+            onClick={handleNext}
+            title="Next period"
+            aria-label="Next period"
+          >
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
