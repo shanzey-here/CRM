@@ -101,12 +101,14 @@ export function BrandForm({ brand }: { brand?: Brand }) {
         setError(null)
         const formData = new FormData()
         Object.entries(data).forEach(([key, value]) => formData.append(key, value || ''))
-        if (isEdit) {
-          await updateBrandAction(brand!.id, formData)
+        const res = isEdit
+          ? await updateBrandAction(brand!.id, formData)
+          : await createBrandAction(formData)
+        if (res?.error) {
+          setError(res.error)
         } else {
-          await createBrandAction(formData)
+          setOpen(false)
         }
-        setOpen(false)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to save brand')
       }
@@ -129,7 +131,7 @@ export function BrandForm({ brand }: { brand?: Brand }) {
           <DialogTitle>{isEdit ? `Edit ${brand!.name}` : 'Add a New Brand'}</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-2">
+        <form noValidate onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-2">
           <div className="space-y-2">
             <Label htmlFor="name">Brand Name</Label>
             <Input id="name" {...register('name')} placeholder="e.g. Advantage Removals" />
@@ -189,6 +191,9 @@ export function BrandForm({ brand }: { brand?: Brand }) {
             <div className="space-y-2">
               <Label htmlFor="address_postcode">Postcode</Label>
               <Input id="address_postcode" {...register('address_postcode')} />
+              {errors.address_postcode && (
+                <p className="text-xs text-red-500">{errors.address_postcode.message}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="address_country">Country</Label>

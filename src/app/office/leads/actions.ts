@@ -21,6 +21,7 @@ import { createTask } from '@/modules/tasks/server/repository'
 import { createAddress } from '@/modules/clients/server/repository'
 import { createManualJobAction } from '@/app/office/jobs/actions'
 import { retryStageAdvance } from '@/modules/leads/server/stage-retry'
+import { validateUkPostcode } from '@/lib/postcode-validation'
 import { z } from 'zod'
 
 // ============================================================================
@@ -371,10 +372,16 @@ export async function confirmBookingAction(
     if (!f.origin_city || !f.origin_postcode) {
       return { success: false, error: 'A pickup city and postcode are required (the lead has no address on file).' }
     }
+    const originValid = await validateUkPostcode(f.origin_postcode)
+    if (!originValid.valid) {
+      return { success: false, error: `Pickup postcode: ${originValid.error}` }
+    }
+    const originPostcode = originValid.normalized || f.origin_postcode
+
     const { data: addr, error } = await createAddress(supabase, tenantId, {
       line_1: '-',
       city: f.origin_city,
-      postcode: f.origin_postcode,
+      postcode: originPostcode,
       country: 'GB',
     })
     if (error || !addr) {
@@ -388,10 +395,16 @@ export async function confirmBookingAction(
     if (!f.destination_city || !f.destination_postcode) {
       return { success: false, error: 'A delivery city and postcode are required (the lead has no address on file).' }
     }
+    const destValid = await validateUkPostcode(f.destination_postcode)
+    if (!destValid.valid) {
+      return { success: false, error: `Delivery postcode: ${destValid.error}` }
+    }
+    const destPostcode = destValid.normalized || f.destination_postcode
+
     const { data: addr, error } = await createAddress(supabase, tenantId, {
       line_1: '-',
       city: f.destination_city,
-      postcode: f.destination_postcode,
+      postcode: destPostcode,
       country: 'GB',
     })
     if (error || !addr) {

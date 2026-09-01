@@ -92,7 +92,7 @@ export function CreateClientForm() {
           <DialogTitle>Create New Client</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 pt-4">
+        <form noValidate onSubmit={handleSubmit(onSubmit)} className="space-y-6 pt-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="first_name">First Name *</Label>
@@ -178,16 +178,18 @@ export function CreateClientForm() {
             <div className="space-y-2">
               <Label>Pickup Location (Optional)</Label>
               <div className="flex gap-2">
-                <Input placeholder="City" {...register('origin_city')} />
-                <Input placeholder="Postcode" className="w-28" {...register('origin_postcode')} />
+                <Input placeholder="City" id="origin_city" {...register('origin_city')} />
+                <Input placeholder="Postcode" id="origin_postcode" className="w-28" {...register('origin_postcode')} />
               </div>
+              {errors.origin_postcode && <p className="text-xs text-red-500">{errors.origin_postcode.message}</p>}
             </div>
             <div className="space-y-2">
               <Label>Delivery Location (Optional)</Label>
               <div className="flex gap-2">
-                <Input placeholder="City" {...register('destination_city')} />
-                <Input placeholder="Postcode" className="w-28" {...register('destination_postcode')} />
+                <Input placeholder="City" id="destination_city" {...register('destination_city')} />
+                <Input placeholder="Postcode" id="destination_postcode" className="w-28" {...register('destination_postcode')} />
               </div>
+              {errors.destination_postcode && <p className="text-xs text-red-500">{errors.destination_postcode.message}</p>}
             </div>
           </div>
 

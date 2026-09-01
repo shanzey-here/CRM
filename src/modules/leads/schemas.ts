@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { isValidUkPostcodeFormat } from '@/lib/postcode-validation'
 
 // ============================================================================
 // LEADS
@@ -98,9 +99,19 @@ export const confirmBookingFormSchema = z.object({
   // z.number() rejects (shows the message) rather than silently coercing to 0.
   agreed_price: z.number({ message: 'Enter the agreed price' }).min(0, 'Price must be zero or more'),
   origin_city: z.string().trim(),
-  origin_postcode: z.string().trim(),
+  origin_postcode: z
+    .string()
+    .trim()
+    .refine((val) => !val || isValidUkPostcodeFormat(val), {
+      message: 'Not a valid UK postcode format',
+    }),
   destination_city: z.string().trim(),
-  destination_postcode: z.string().trim(),
+  destination_postcode: z
+    .string()
+    .trim()
+    .refine((val) => !val || isValidUkPostcodeFormat(val), {
+      message: 'Not a valid UK postcode format',
+    }),
 })
 
 export type ConfirmBookingFormInput = z.infer<typeof confirmBookingFormSchema>

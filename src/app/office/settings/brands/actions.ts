@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { brandFormSchema } from '@/modules/settings/brands/schemas'
 import { createBrand, updateBrand } from '@/modules/settings/brands/server/repository'
+import { validateUkPostcode } from '@/lib/postcode-validation'
 
 async function requireTenantAdminOrDispatcher() {
   const supabase = await createClient()
@@ -40,36 +41,54 @@ function formDataToBrandInput(formData: FormData) {
   }
 }
 
-export async function createBrandAction(formData: FormData) {
+export async function createBrandAction(formData: FormData): Promise<{ success?: boolean; error?: string }> {
   const guard = await requireTenantAdminOrDispatcher()
-  if ('error' in guard) throw new Error(guard.error)
+  if ('error' in guard) return { error: guard.error }
 
   const parsed = brandFormSchema.safeParse(formDataToBrandInput(formData))
   if (!parsed.success) {
-    throw new Error(`Validation error: ${parsed.error.message}`)
+    return { error: `Validation error: ${parsed.error.message}` }
+  }
+
+  if (parsed.data.address_postcode && parsed.data.address_postcode.trim() !== '') {
+    const validRes = await validateUkPostcode(parsed.data.address_postcode)
+    if (!validRes.valid) {
+      return { error: validRes.error || 'Invalid postcode' }
+    }
+    parsed.data.address_postcode = validRes.normalized || parsed.data.address_postcode
   }
 
   const { error } = await createBrand(guard.supabase, guard.tenantId, parsed.data)
   if (error) {
-    throw new Error(`Database error: ${error.message}`)
+    return { error: `Database error: ${error.message}` }
   }
 
   revalidatePath('/office/settings/brands')
+  return { success: true }
 }
 
-export async function updateBrandAction(brandId: string, formData: FormData) {
+export async function updateBrandAction(brandId: string, formData: FormData): Promise<{ success?: boolean; error?: string }> {
   const guard = await requireTenantAdminOrDispatcher()
-  if ('error' in guard) throw new Error(guard.error)
+  if ('error' in guard) return { error: guard.error }
 
   const parsed = brandFormSchema.safeParse(formDataToBrandInput(formData))
   if (!parsed.success) {
-    throw new Error(`Validation error: ${parsed.error.message}`)
+    return { error: `Validation error: ${parsed.error.message}` }
+  }
+
+  if (parsed.data.address_postcode && parsed.data.address_postcode.trim() !== '') {
+    const validRes = await validateUkPostcode(parsed.data.address_postcode)
+    if (!validRes.valid) {
+      return { error: validRes.error || 'Invalid postcode' }
+    }
+    parsed.data.address_postcode = validRes.normalized || parsed.data.address_postcode
   }
 
   const { error } = await updateBrand(guard.supabase, guard.tenantId, brandId, parsed.data)
   if (error) {
-    throw new Error(`Database error: ${error.message}`)
+    return { error: `Database error: ${error.message}` }
   }
 
   revalidatePath('/office/settings/brands')
+  return { success: true }
 }

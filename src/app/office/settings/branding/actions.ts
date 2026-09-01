@@ -6,6 +6,7 @@ import { primaryColorSchema } from '@/modules/settings/branding/schemas'
 import { updateTenantSettings } from '@/modules/settings/branding/server/repository'
 import { brandFormSchema } from '@/modules/settings/brands/schemas'
 import { updateBrand, getDefaultBrandId } from '@/modules/settings/brands/server/repository'
+import { validateUkPostcode } from '@/lib/postcode-validation'
 
 // "Branding" is a real edit surface for the tenant's DEFAULT BRAND
 // specifically — not a second, independent data source. Editing here and
@@ -58,6 +59,14 @@ export async function updateBrandingAction(formData: FormData) {
   const parsedBrand = brandFormSchema.safeParse(brandInput)
   if (!parsedBrand.success) {
     throw new Error(`Invalid input: ${JSON.stringify(parsedBrand.error.flatten())}`)
+  }
+
+  if (parsedBrand.data.address_postcode && parsedBrand.data.address_postcode.trim() !== '') {
+    const validRes = await validateUkPostcode(parsedBrand.data.address_postcode)
+    if (!validRes.valid) {
+      throw new Error(`Postcode error: ${validRes.error}`)
+    }
+    parsedBrand.data.address_postcode = validRes.normalized || parsedBrand.data.address_postcode
   }
 
   // Preserve any bank_details already set on the brand (via the Brands

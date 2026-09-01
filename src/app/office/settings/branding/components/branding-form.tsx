@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { useState, useTransition } from 'react'
 import { updateBrandingAction } from '../actions'
 import { uploadLogoFile } from '@/lib/upload-logo'
+import { optionalUkPostcodeSchema } from '@/lib/postcode-validation'
 
 // Identity fields (from the default brand) + primary_color (from
 // tenant_settings) — the two real data sources this form now writes to,
@@ -17,7 +18,7 @@ const brandingFormSchema = z.object({
   address_line_2: z.string().nullable().optional(),
   address_city: z.string().nullable().optional(),
   address_county: z.string().nullable().optional(),
-  address_postcode: z.string().nullable().optional(),
+  address_postcode: optionalUkPostcodeSchema,
   address_country: z.string().default('GB'),
   vat_number: z.string().nullable().optional(),
   phone: z.string().nullable().optional(),
@@ -142,7 +143,7 @@ export function BrandingForm({ brand, primaryColor: initialPrimaryColor }: Props
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       {/* Form */}
-      <form onSubmit={handleSubmit(onSubmit)} className="lg:col-span-2 space-y-6">
+      <form noValidate onSubmit={handleSubmit(onSubmit)} className="lg:col-span-2 space-y-6">
         {error && (
           <div className="p-4 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
             {error}
@@ -227,6 +228,9 @@ export function BrandingForm({ brand, primaryColor: initialPrimaryColor }: Props
             className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
           />
         </div>
+        {errors.address_postcode && (
+          <p className="text-xs text-red-500 mt-1">{errors.address_postcode.message}</p>
+        )}
 
         {/* Contact Fields */}
         <div className="grid grid-cols-2 gap-4">
