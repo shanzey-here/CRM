@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState, useTransition } from 'react'
 import { useForm } from 'react-hook-form'
@@ -98,6 +98,7 @@ export function AddColumnDialog({ isOpen, onClose, onColumnCreated }: AddColumnD
             type="button"
             onClick={handleClose}
             className="text-slate-400 hover:text-slate-600 rounded-lg p-1 transition-colors"
+            title="Close dialog"
             aria-label="Close dialog"
           >
             <X className="w-5 h-5" />
@@ -152,7 +153,8 @@ export function AddColumnDialog({ isOpen, onClose, onColumnCreated }: AddColumnD
                   <button
                     key={preset.value}
                     type="button"
-                    title={preset.label}
+                    title={`Select color ${preset.label}`}
+                    aria-label={`Select color ${preset.label}`}
                     onClick={() => setValue('color', preset.value, { shouldValidate: true })}
                     className={`w-7 h-7 rounded-full transition-transform flex items-center justify-center ${
                       isSelected ? 'ring-2 ring-offset-2 ring-blue-600 scale-110' : 'hover:scale-105'

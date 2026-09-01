@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState, useTransition, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
@@ -108,6 +108,7 @@ export function EditColumnDialog({ stage, isOpen, onClose, onColumnUpdated }: Ed
             type="button"
             onClick={handleClose}
             className="text-slate-400 hover:text-slate-600 rounded-lg p-1 transition-colors"
+            title="Close dialog"
             aria-label="Close dialog"
           >
             <X className="w-5 h-5" />
@@ -164,7 +165,8 @@ export function EditColumnDialog({ stage, isOpen, onClose, onColumnUpdated }: Ed
                   <button
                     key={preset.value}
                     type="button"
-                    title={preset.label}
+                    title={`Select color ${preset.label}`}
+                    aria-label={`Select color ${preset.label}`}
                     onClick={() => setValue('color', preset.value, { shouldValidate: true })}
                     className={`w-7 h-7 rounded-full transition-transform flex items-center justify-center ${
                       isSelected ? 'ring-2 ring-offset-2 ring-blue-600 scale-110' : 'hover:scale-105'

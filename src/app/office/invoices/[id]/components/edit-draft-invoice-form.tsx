@@ -127,6 +127,8 @@ export function EditDraftInvoiceForm({ invoiceId, notes, lineItems }: EditDraftI
                     size="icon"
                     onClick={() => remove(index)}
                     disabled={fields.length === 1}
+                    title="Remove line item"
+                    aria-label="Remove line item"
                   >
                     <Trash2 className="h-4 w-4 text-slate-400" />
                   </Button>

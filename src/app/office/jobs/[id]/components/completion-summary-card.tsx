@@ -80,7 +80,14 @@ export function CompletionSummaryCard({ jobId, jobStatus, summary, generatedAt }
             Auto-generated {generatedAt ? fmt(generatedAt) : ''} — frozen at the moment of completion
           </CardDescription>
         </div>
-        <Button onClick={handleRegenerate} disabled={isRegenerating} size="sm" variant="outline">
+        <Button
+          onClick={handleRegenerate}
+          disabled={isRegenerating}
+          size="sm"
+          variant="outline"
+          title="Regenerate completion summary"
+          aria-label="Regenerate completion summary"
+        >
           {isRegenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
         </Button>
       </CardHeader>

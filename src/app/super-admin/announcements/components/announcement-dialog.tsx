@@ -117,7 +117,12 @@ export function AnnouncementDialog({ tenants, plans, existing, trigger }: Props)
               <h2 className="text-lg font-semibold text-slate-900">
                 {existing ? 'Edit Announcement' : 'New Announcement'}
               </h2>
-              <button onClick={close} className="text-slate-400 hover:text-slate-900 transition-colors">
+              <button
+                onClick={close}
+                className="text-slate-400 hover:text-slate-900 transition-colors"
+                title="Close dialog"
+                aria-label="Close dialog"
+              >
                 <X size={20} />
               </button>
             </div>

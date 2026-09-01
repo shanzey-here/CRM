@@ -78,7 +78,11 @@ export function LabelList({ labels }: { labels: Label[] }) {
                     existingLabels={labels}
                     editing={label}
                     trigger={
-                      <button className="p-1.5 text-slate-400 hover:text-[var(--color-primary)] transition-colors" title="Edit">
+                      <button
+                        className="p-1.5 text-slate-400 hover:text-[var(--color-primary)] transition-colors"
+                        title={`Edit label: ${label.name}`}
+                        aria-label={`Edit label: ${label.name}`}
+                      >
                         <Pencil size={16} />
                       </button>
                     }
@@ -88,7 +92,8 @@ export function LabelList({ labels }: { labels: Label[] }) {
                       onClick={() => handleDelete(label)}
                       disabled={isPending && pendingId === label.id}
                       className="p-1.5 text-slate-400 hover:text-red-600 transition-colors disabled:opacity-50"
-                      title="Delete"
+                      title={`Delete label: ${label.name}`}
+                      aria-label={`Delete label: ${label.name}`}
                     >
                       <Trash2 size={16} />
                     </button>

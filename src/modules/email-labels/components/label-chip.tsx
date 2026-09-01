@@ -66,6 +66,7 @@ export function LabelChip({
             onRemove()
           }}
           className="shrink-0 ml-0.5 opacity-60 hover:opacity-100 transition-opacity focus:outline-none"
+          title={`Remove ${name} label`}
           aria-label={`Remove ${name} label`}
         >
           <X size={size === 'sm' ? 11 : 13} />

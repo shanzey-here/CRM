@@ -225,6 +225,8 @@ export function ThreadList({
               <button
                 onClick={() => setSearchQuery('')}
                 className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5"
+                title="Clear search"
+                aria-label="Clear search"
               >
                 <X size={14} />
               </button>
@@ -248,6 +250,8 @@ export function ThreadList({
                 <button
                   key={m.id}
                   onClick={() => setMailboxFilter(m.id)}
+                  title={`Filter by mailbox: ${m.brands?.name || m.mailbox_address}`}
+                  aria-label={`Filter by mailbox: ${m.brands?.name || m.mailbox_address}`}
                   className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-all whitespace-nowrap flex items-center gap-1.5 ${
                     activeMailboxId === m.id
                       ? 'bg-slate-900 text-white border-slate-900 shadow-xs'
@@ -278,6 +282,8 @@ export function ThreadList({
                         ? 'ring-2 ring-emerald-500/80 ring-offset-1 scale-105'
                         : 'opacity-85 hover:opacity-100'
                     }`}
+                    title={`Filter by label: ${label.name}`}
+                    aria-label={`Filter by label: ${label.name}`}
                   >
                     <LabelChip
                       name={label.name}

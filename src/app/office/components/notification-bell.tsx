@@ -288,6 +288,8 @@ export function NotificationBell({ userId }: { userId: string }) {
               <button
                 onClick={() => dismissToast(alert.id)}
                 className="ml-4 text-slate-400 hover:text-slate-600 transition-colors"
+                title="Dismiss notification"
+                aria-label="Dismiss notification"
               >
                 <X size={16} />
               </button>

@@ -129,6 +129,8 @@ export function AssociateThread({
         <button
           onClick={() => setIsOpen(false)}
           className="text-slate-400 hover:text-slate-600 p-1 rounded-md"
+          title="Close associate panel"
+          aria-label="Close associate panel"
         >
           <X size={14} />
         </button>
@@ -169,6 +171,8 @@ export function AssociateThread({
               <button
                 key={c.id}
                 onClick={() => handleLinkContact(c.id)}
+                title={`Link thread to contact: ${c.first_name} ${c.last_name || ''}`}
+                aria-label={`Link thread to contact: ${c.first_name} ${c.last_name || ''}`}
                 className="w-full text-left px-2.5 py-1.5 hover:bg-slate-50 rounded-lg transition-colors group flex items-center justify-between"
               >
                 <div className="min-w-0">
@@ -185,6 +189,8 @@ export function AssociateThread({
               <button
                 key={l.id}
                 onClick={() => handleLinkLead(l.id)}
+                title={`Link thread to lead: ${l.contacts?.first_name || ''} ${l.contacts?.last_name || ''}`}
+                aria-label={`Link thread to lead: ${l.contacts?.first_name || ''} ${l.contacts?.last_name || ''}`}
                 className="w-full text-left px-2.5 py-1.5 hover:bg-slate-50 rounded-lg transition-colors group flex items-center justify-between"
               >
                 <div className="min-w-0">

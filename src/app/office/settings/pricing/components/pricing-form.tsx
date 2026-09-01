@@ -251,6 +251,8 @@ export function PricingForm({ settings }: Props) {
                   type="button"
                   onClick={() => remove(index)}
                   className="px-2 py-1 text-red-600 hover:bg-red-50 rounded transition-colors"
+                  title="Remove surcharge"
+                  aria-label="Remove surcharge"
                 >
                   <X size={16} />
                 </button>

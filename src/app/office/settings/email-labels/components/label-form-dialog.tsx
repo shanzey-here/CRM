@@ -75,7 +75,12 @@ export function LabelFormDialog({ existingLabels, editing, trigger }: Props) {
           <div className="bg-white border border-slate-200 rounded-xl shadow-2xl w-full max-w-sm overflow-hidden">
             <div className="flex items-center justify-between p-4 border-b border-slate-200">
               <h2 className="text-lg font-semibold text-slate-900">{editing ? 'Edit Label' : 'New Label'}</h2>
-              <button onClick={close} className="text-slate-400 hover:text-slate-900 transition-colors">
+              <button
+                onClick={close}
+                className="text-slate-400 hover:text-slate-900 transition-colors"
+                title="Close dialog"
+                aria-label="Close dialog"
+              >
                 <X size={20} />
               </button>
             </div>

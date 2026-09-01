@@ -40,7 +40,12 @@ export default async function WorkflowLogsPage({ params }: { params: Promise<{ i
     <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
       <div className="mb-8 flex items-center space-x-4">
         <Link href="/office/workflows">
-          <Button variant="outline" size="icon">
+          <Button
+            variant="outline"
+            size="icon"
+            title="Back to workflows"
+            aria-label="Back to workflows"
+          >
             <ArrowLeft className="h-4 w-4" />
           </Button>
         </Link>

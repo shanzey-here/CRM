@@ -220,6 +220,8 @@ export function ManualJobForm({ contacts, tenantStaff, vehicles, brands, initial
               className="text-red-500 hover:text-red-700 hover:bg-red-50 px-2"
               onClick={() => remove(index)}
               disabled={isPending || fields.length === 1}
+              title="Remove line item"
+              aria-label="Remove line item"
             >
               <Trash2 className="w-4 h-4" />
             </Button>

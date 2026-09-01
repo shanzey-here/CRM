@@ -51,6 +51,7 @@ export function OnboardingReminderBanner() {
           disabled={isDismissing}
           className="text-blue-500 hover:text-blue-700 transition-colors p-1"
           title="Dismiss permanently"
+          aria-label="Dismiss permanently"
         >
           <X size={16} className={isDismissing ? "opacity-50" : ""} />
         </button>

@@ -113,7 +113,11 @@ export function AnnouncementList({ announcements, tenants, plans }: Props) {
                       plans={plans}
                       existing={a}
                       trigger={
-                        <button className="p-1.5 text-slate-400 hover:text-[var(--color-primary)] transition-colors" title="Edit">
+                        <button
+                          className="p-1.5 text-slate-400 hover:text-[var(--color-primary)] transition-colors"
+                          title={`Edit announcement: ${a.title}`}
+                          aria-label={`Edit announcement: ${a.title}`}
+                        >
                           <Pencil size={16} />
                         </button>
                       }
@@ -123,7 +127,8 @@ export function AnnouncementList({ announcements, tenants, plans }: Props) {
                         onClick={() => handleCloseNow(a.id)}
                         disabled={isPending && pendingId === a.id}
                         className="p-1.5 text-slate-400 hover:text-amber-600 transition-colors disabled:opacity-50"
-                        title="Close now"
+                        title={`Close announcement now: ${a.title}`}
+                        aria-label={`Close announcement now: ${a.title}`}
                       >
                         <XCircle size={16} />
                       </button>
@@ -132,7 +137,8 @@ export function AnnouncementList({ announcements, tenants, plans }: Props) {
                       onClick={() => handleDelete(a.id)}
                       disabled={isPending && pendingId === a.id}
                       className="p-1.5 text-slate-400 hover:text-red-600 transition-colors disabled:opacity-50"
-                      title="Delete"
+                      title={`Delete announcement: ${a.title}`}
+                      aria-label={`Delete announcement: ${a.title}`}
                     >
                       <Trash2 size={16} />
                     </button>

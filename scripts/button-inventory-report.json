@@ -1,0 +1,3536 @@
+{
+  "total": 319,
+  "counts": {
+    "iconOnly": 41,
+    "textLabeled": 115,
+    "iconAndText": 134,
+    "ambiguous": 29,
+    "iconOnlyWithTitle": 0,
+    "iconOnlyMissing": 41
+  },
+  "iconOnlyRecords": [
+    {
+      "file": "src/app/customer/invoices/page.tsx",
+      "line": 41,
+      "snippet": "<Link key={inv.id} href={`/customer/invoices/${inv.id}`} className=\"flex justify-between items-center p-4 bg-white border border-slate-200 r",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/clients/[id]/page.tsx",
+      "line": 353,
+      "snippet": "<Link href={`/office/jobs/${job.id}`} className=\"flex items-center justify-between gap-3 text-sm p-3 rounded-lg border border-slate-200 bg-w",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/components/header-nav.tsx",
+      "line": 60,
+      "snippet": "<Link key={link.name} href={link.href} className={cn( \"flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors\", ",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/components/onboarding-reminder-banner.tsx",
+      "line": 49,
+      "snippet": "<button onClick={handleDismiss} disabled={isDismissing} className=\"text-blue-500 hover:text-blue-700 transition-colors p-1\" title=\"Dismiss p",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Dismiss permanently",
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/email/components/thread-list.tsx",
+      "line": 339,
+      "snippet": "<Link key={thread.id} href={`/office/email/${thread.id}`} className=\"group flex flex-col sm:flex-row sm:items-center justify-between gap-3 s",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/email/[threadId]/components/associate-thread.tsx",
+      "line": 223,
+      "snippet": "<button type=\"submit\" disabled={isPending} className=\"w-full py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-semibold hover:bg-emer",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/email/[threadId]/components/reply-composer.tsx",
+      "line": 92,
+      "snippet": "<button onClick={handleSend} disabled={isPending || !body.trim()} className=\"inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-wh",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/email/[threadId]/components/thread-labels.tsx",
+      "line": 166,
+      "snippet": "<button type=\"submit\" disabled={isPending} className=\"flex-1 py-1 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white round",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/invoices/[id]/page.tsx",
+      "line": 57,
+      "snippet": "<Button variant=\"outline\" nativeButton={false} render={<Link href={`/customer/invoices/${invoice.id}`} target=\"_blank\" />",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/invoices/[id]/page.tsx",
+      "line": 64,
+      "snippet": "<Button className=\"bg-emerald-600 hover:bg-emerald-700\" nativeButton={false} render={<Link href={`/print/invoices/${invoice.id}`} target=\"_b",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/jobs/[id]/components/completion-summary-card.tsx",
+      "line": 83,
+      "snippet": "<Button onClick={handleRegenerate} disabled={isRegenerating} size=\"sm\" variant=\"outline\"> {isRegenerating ? <Loader2 className=\"h-4 w-4 anim",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/leads/components/add-column-dialog.tsx",
+      "line": 97,
+      "snippet": "<button type=\"button\" onClick={handleClose} className=\"text-slate-400 hover:text-slate-600 rounded-lg p-1 transition-colors\" aria-label=\"Clo",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Close dialog",
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/leads/components/add-column-dialog.tsx",
+      "line": 195,
+      "snippet": "<button type=\"submit\" disabled={isPending} className=\"flex items-center gap-2 px-5 py-2 text-sm font-semibold text-white bg-blue-600 hover:b",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/leads/components/confirm-booking-form.tsx",
+      "line": 239,
+      "snippet": "<Button type=\"submit\" size=\"sm\" className=\"bg-indigo-600 hover:bg-indigo-700 text-white font-medium gap-1.5 shadow-sm\" disabled={isPending} ",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/leads/components/delete-column-dialog.tsx",
+      "line": 88,
+      "snippet": "<button type=\"button\" onClick={handleClose} className=\"text-slate-400 hover:text-slate-600 rounded-lg p-1 transition-colors\" aria-label=\"Clo",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Close dialog",
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/leads/components/edit-column-dialog.tsx",
+      "line": 107,
+      "snippet": "<button type=\"button\" onClick={handleClose} className=\"text-slate-400 hover:text-slate-600 rounded-lg p-1 transition-colors\" aria-label=\"Clo",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Close dialog",
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/leads/components/edit-column-dialog.tsx",
+      "line": 207,
+      "snippet": "<button type=\"submit\" disabled={isPending} className=\"flex items-center gap-2 px-5 py-2 text-sm font-semibold text-white bg-blue-600 hover:b",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/leads/components/follow-up-form.tsx",
+      "line": 144,
+      "snippet": "<Button type=\"submit\" size=\"sm\" className=\"bg-amber-600 hover:bg-amber-700 text-white font-medium gap-1.5 shadow-sm\" disabled={isPending} > ",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/leads/components/kanban-column.tsx",
+      "line": 124,
+      "snippet": "<DropdownMenuTrigger className=\"p-1 rounded text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors focus:outline-none curs",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Options for ${stage.label}",
+      "componentType": "DropdownMenuTrigger"
+    },
+    {
+      "file": "src/app/office/leads/components/schedule-survey-form.tsx",
+      "line": 356,
+      "snippet": "<Button type=\"submit\" size=\"sm\" className=\"bg-emerald-600 hover:bg-emerald-700 text-white font-medium gap-1.5 shadow-sm\" disabled={isPending",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/page.tsx",
+      "line": 71,
+      "snippet": "<Link key={job.id} href={`/office/jobs/${job.id}`} className=\"block p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white da",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/quotes/[id]/components/send-quote-button.tsx",
+      "line": 119,
+      "snippet": "<Button onClick={handleSend} disabled={isPending || !hasPricing || !leadId} className=\"bg-blue-600 hover:bg-blue-700 text-white gap-1.5\" > {",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/quotes/[id]/components/volume-calculator.tsx",
+      "line": 269,
+      "snippet": "<Button className=\"w-full\" onClick={handleSave} disabled={isPending || !isDraft} > {isPending ? 'Saving...' : 'Save Inventory'} {!isPending ",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/quotes/[id]/page.tsx",
+      "line": 90,
+      "snippet": "<Link href={`/office/leads/${quote.lead_id}`} className=\"p-2 -ml-2 rounded-full hover:bg-slate-100 text-slate-500 transition-colors\" > <Arro",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/scheduling/components/date-navigator.tsx",
+      "line": 80,
+      "snippet": "<Button variant=\"outline\" size=\"icon\" className=\"h-8 w-8\" onClick={handlePrev}> <ChevronLeft className=\"h-4 w-",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/scheduling/components/date-navigator.tsx",
+      "line": 83,
+      "snippet": "<Button variant=\"outline\" size=\"icon\" className=\"h-8 w-8\" onClick={handleNext}> <ChevronRight className=\"h-4 w-",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/settings/brands/components/brand-form.tsx",
+      "line": 229,
+      "snippet": "<Button type=\"submit\" disabled={isPending}> {isPending && <Loader2 className=\"mr-2 h-4 w-4 animate-spin\" />} {isEdit ? 'Save Changes' : 'Cre",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/settings/email-labels/components/label-form-dialog.tsx",
+      "line": 78,
+      "snippet": "<button onClick={close} className=\"text-slate-400 hover:text-slate-900 transition-colors\"> <X siz",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/settings/email-labels/components/label-form-dialog.tsx",
+      "line": 114,
+      "snippet": "<button type=\"submit\" disabled={isPending} className=\"bg-[var(--color-primary)] hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-mediu",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/settings/email-labels/components/label-list.tsx",
+      "line": 81,
+      "snippet": "<button className=\"p-1.5 text-slate-400 hover:text-[var(--color-primary)] transition-colors\" title=\"Edit\"> <Pe",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Edit",
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/settings/invoice-template/components/template-editor.tsx",
+      "line": 286,
+      "snippet": "<button type=\"button\" onClick={onRemove} className=\"text-red-600 hover:bg-red-50 rounded p-1\"> <X size={14}",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/settings/staff/components/invite-staff-form.tsx",
+      "line": 80,
+      "snippet": "<button onClick={handleCopyPassword} className=\"p-1.5 text-emerald-600 hover:bg-emerald-100 rounded transition-colors\" title=\"Copy to clipbo",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Copy to clipboard",
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/storage/page.tsx",
+      "line": 104,
+      "snippet": "<Link key={status} href={`/office/storage?status=${status}`} className={`text-xs px-3 py-1.5 rounded-full font-medium ${statusFilter === sta",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/workflows/[id]/logs/page.tsx",
+      "line": 43,
+      "snippet": "<Button variant=\"outline\" size=\"icon\"> <ArrowLeft className=\"h-4 w-",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/workflows/[id]/WorkflowBuilderForm.tsx",
+      "line": 536,
+      "snippet": "<Button type=\"submit\" disabled={isSaving}> {isSaving ? 'Saving...' : ( <> <Save className=\"h-4 w-4 mr-2\" /> Save Workflow </> ",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/super-admin/announcements/components/announcement-dialog.tsx",
+      "line": 120,
+      "snippet": "<button onClick={close} className=\"text-slate-400 hover:text-slate-900 transition-colors\"> <X siz",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/super-admin/announcements/components/announcement-dialog.tsx",
+      "line": 234,
+      "snippet": "<button type=\"submit\" disabled={isPending} className=\"bg-[var(--color-primary)] hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-mediu",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/super-admin/announcements/components/announcement-list.tsx",
+      "line": 116,
+      "snippet": "<button className=\"p-1.5 text-slate-400 hover:text-[var(--color-primary)] transition-colors\" title=\"Edit\"> <",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Edit",
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/super-admin/components/create-tenant-dialog.tsx",
+      "line": 63,
+      "snippet": "<button onClick={resetState} className=\"text-slate-400 hover:text-slate-900 transition-colors\" > <X siz",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/components/ui/dialog.tsx",
+      "line": 66,
+      "snippet": "<Button variant=\"ghost\" className=\"absolute top-2 right-2\" size=\"icon-sm\" />",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/components/ui/dialog.tsx",
+      "line": 112,
+      "snippet": "<Button variant=\"outline\" />",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    }
+  ],
+  "ambiguousRecords": [
+    {
+      "file": "src/app/embed/lead-capture/[widgetKey]/components/capture-form.tsx",
+      "line": 160,
+      "snippet": "<Button type=\"submit\" className=\"w-full h-11 text-base font-semibold\" disabled={isSubmitting}> {isSubmitting ? 'Sending Request...' : 'Reque",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/login/components/login-form.tsx",
+      "line": 65,
+      "snippet": "<Button className=\"w-full font-semibold\" type=\"submit\" disabled={loading}> {loading ? 'Signing in...' : 'Sign",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/clients/components/create-client-form.tsx",
+      "line": 218,
+      "snippet": "<Button type=\"submit\" disabled={isSubmitting} className=\"bg-emerald-600 hover:bg-emerald-700 text-white\"> {isSubmitting ? 'Saving...' : 'Sav",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/components/create-task-form.tsx",
+      "line": 125,
+      "snippet": "<Button type=\"submit\" disabled={isPending || !isValid}> {isPending ? 'Creating...' : 'Create Tas",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/components/timeline-view.tsx",
+      "line": 74,
+      "snippet": "<Button size=\"sm\" onClick={handleAddNote} disabled={!noteContent.trim() || isPending} > {isPending ? 'Saving...' : 'A",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/fleet/components/create-vehicle-form.tsx",
+      "line": 92,
+      "snippet": "<button type=\"submit\" disabled={loading} className=\"px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium disabled:",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/fleet/[id]/components/document-upload-form.tsx",
+      "line": 128,
+      "snippet": "<button type=\"submit\" disabled={loading} className=\"px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium disabled:",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/fleet/[id]/components/edit-vehicle-form.tsx",
+      "line": 114,
+      "snippet": "<button type=\"submit\" disabled={loading} className=\"px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium disabled:",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/fleet/[id]/components/maintenance-log-form.tsx",
+      "line": 110,
+      "snippet": "<button type=\"submit\" disabled={loading} className=\"px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium disabled:",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/jobs/components/manual-job-form.tsx",
+      "line": 274,
+      "snippet": "<Button type=\"submit\" disabled={isPending || !isValid}> {isPending ? 'Creating...' : 'Create Jo",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/leads/components/delete-column-dialog.tsx",
+      "line": 177,
+      "snippet": "<button type=\"button\" onClick={handleClose} disabled={isPending} className=\"px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-80",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/quotes/[id]/components/route-summary.tsx",
+      "line": 162,
+      "snippet": "<Button size=\"sm\" onClick={handleSave} disabled={isPending}> {isPending ? 'Saving...' : 'S",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/settings/branding/components/branding-form.tsx",
+      "line": 308,
+      "snippet": "<button type=\"submit\" disabled={isPending} className=\"w-full px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/settings/inventory/components/create-inventory-form.tsx",
+      "line": 110,
+      "snippet": "<button type=\"submit\" disabled={isPending} className=\"inline-flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/settings/inventory/components/edit-inventory-form.tsx",
+      "line": 119,
+      "snippet": "<button type=\"submit\" disabled={isPending} className=\"inline-flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/settings/invoice-template/components/template-editor.tsx",
+      "line": 216,
+      "snippet": "<button type=\"submit\" disabled={isPending} className=\"w-full px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/settings/layout.tsx",
+      "line": 50,
+      "snippet": "<Link href={item.href} className={cn( isActive ? 'bg-blue-50 dark:bg-blue-950 text-[var(--color-primary)]' : 'text-foreground/80 hover:bg-mu",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/settings/pricing/components/pricing-form.tsx",
+      "line": 264,
+      "snippet": "<button type=\"submit\" disabled={isPending} className=\"w-full px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/settings/staff/components/invite-staff-form.tsx",
+      "line": 136,
+      "snippet": "<button type=\"submit\" disabled={isPending} className=\"w-full px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium text-sm hover:bg-eme",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/settings/web-widget/components/web-widget-settings-client.tsx",
+      "line": 74,
+      "snippet": "<Button size=\"sm\" variant=\"secondary\" onClick={handleCopy} className=\"bg-white/10 hover:bg-white/20 text-white border-none\" > {copied ? 'Cop",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/settings/web-widget/components/web-widget-settings-client.tsx",
+      "line": 92,
+      "snippet": "<Button variant=\"destructive\" onClick={handleRegenerate} disabled={isRegenerating} > {isRegenerating ? 'Regenerating...' : 'Regenerate Ke",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/storage/crates/new/components/crate-form.tsx",
+      "line": 71,
+      "snippet": "<button type=\"submit\" disabled={isPending} className=\"w-full px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/storage/units/components/create-unit-form.tsx",
+      "line": 76,
+      "snippet": "<button type=\"submit\" disabled={isPending} className=\"px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-70",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/proposal/[token]/components/acceptance-flow.tsx",
+      "line": 101,
+      "snippet": "<button type=\"submit\" disabled={isSubmitting} style={{ width: '100%', backgroundColor: isSubmitting ? '#9ca3af' : primaryColor, color: 'whit",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/proposal/[token]/components/acceptance-flow.tsx",
+      "line": 174,
+      "snippet": "<button type=\"submit\" disabled={isProcessing || !stripe || !elements} style={{ width: '100%', backgroundColor: isProcessing ? '#9ca3af' : pr",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/signup/components/signup-form.tsx",
+      "line": 130,
+      "snippet": "<Button className=\"w-full font-semibold\" type=\"submit\" disabled={loading}> {loading ? 'Creating account...' : 'Create acco",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/super-admin/components/super-admin-nav.tsx",
+      "line": 21,
+      "snippet": "<Link key={item.href} href={item.href} className={cn( 'px-3 py-1.5 rounded-md text-sm font-medium transition-colors', isActive ? 'bg-blue-50",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/super-admin/components/tenant-actions.tsx",
+      "line": 45,
+      "snippet": "<button type=\"submit\" disabled={loading} className=\"text-emerald-600 hover:text-emerald-700 text-sm font-medium transition-colors\" > {loadin",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/super-admin/components/tenant-actions.tsx",
+      "line": 103,
+      "snippet": "<button type=\"submit\" disabled={loading} className=\"px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded transition-",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    }
+  ],
+  "allRecords": [
+    {
+      "file": "src/app/crew/components/crew-jobs-list.tsx",
+      "line": 113,
+      "snippet": "<button onClick={() => syncData()} disabled={isSyncing} className=\"flex items-center space-x-1 text-sm text-blue-600 hover:text-blue-700 dis",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/crew/components/crew-jobs-list.tsx",
+      "line": 136,
+      "snippet": "<Link key={job.id} href={`/crew/jobs/${job.id}`} className=\"block bg-white p-5 rounded-lg shadow-sm hover:shadow-md transition-shadow border",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/crew/components/storage-tester.tsx",
+      "line": 59,
+      "snippet": "<button onClick={handleSave} className=\"bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded font-medium transition-colors\" > Save",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/crew/jobs/[id]/components/job-signoff.tsx",
+      "line": 97,
+      "snippet": "<button onClick={handleSubmit} className=\"w-full mt-4 bg-blue-600 text-white font-bold py-3 px-4 rounded-md hover:bg-blue-700 transition-col",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/crew/jobs/[id]/components/photo-capture.tsx",
+      "line": 65,
+      "snippet": "<button onClick={() => fileInputRef.current?.click()} disabled={isCapturing} className=\"w-full flex items-center justify-center space-x-2 bg",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/crew/jobs/[id]/page.tsx",
+      "line": 99,
+      "snippet": "<button onClick={() => { syncData(); syncPhotos(); }} disabled={isSyncing || isPhotoSyncing} className=\"flex items-center space-x-1 text-sm ",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/crew/page.tsx",
+      "line": 22,
+      "snippet": "<button type=\"submit\" className=\"px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 rounded-md hover:bg-slate-200 transition-colors\">",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/customer/invoices/page.tsx",
+      "line": 41,
+      "snippet": "<Link key={inv.id} href={`/customer/invoices/${inv.id}`} className=\"flex justify-between items-center p-4 bg-white border border-slate-200 r",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/customer/invoices/[id]/page.tsx",
+      "line": 49,
+      "snippet": "<Link href=\"/customer/invoices\" className=\"inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-900 mb-6\"> <ArrowLeft clas",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/customer/page.tsx",
+      "line": 45,
+      "snippet": "<button type=\"submit\" className=\"px-4 py-2 bg-slate-900 text-white rounded-md hover:bg-slate-800\"> Sig",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/embed/lead-capture/[widgetKey]/components/capture-form.tsx",
+      "line": 160,
+      "snippet": "<Button type=\"submit\" className=\"w-full h-11 text-base font-semibold\" disabled={isSubmitting}> {isSubmitting ? 'Sending Request...' : 'Reque",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/login/components/login-form.tsx",
+      "line": 65,
+      "snippet": "<Button className=\"w-full font-semibold\" type=\"submit\" disabled={loading}> {loading ? 'Signing in...' : 'Sign",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/clients/components/contacts-client.tsx",
+      "line": 254,
+      "snippet": "<Button variant=\"outline\" size=\"sm\" onClick={() => applyFilters(undefined, undefined, currentPage - 1)} disabled={currentPage <= 1 || isPend",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/clients/components/contacts-client.tsx",
+      "line": 266,
+      "snippet": "<Button variant=\"outline\" size=\"sm\" onClick={() => applyFilters(undefined, undefined, currentPage + 1)} disabled={currentPage >= totalPages ",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/clients/components/create-client-form.tsx",
+      "line": 215,
+      "snippet": "<Button type=\"button\" variant=\"outline\" onClick={() => setOpen(false)} disabled={isSubmitting}> Cancel ",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/clients/components/create-client-form.tsx",
+      "line": 218,
+      "snippet": "<Button type=\"submit\" disabled={isSubmitting} className=\"bg-emerald-600 hover:bg-emerald-700 text-white\"> {isSubmitting ? 'Saving...' : 'Sav",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/clients/[id]/components/create-lead-form.tsx",
+      "line": 177,
+      "snippet": "<Button type=\"button\" variant=\"outline\" onClick={() => setOpen(false)} disabled={isSubmitting}> Cancel ",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/clients/[id]/components/create-lead-form.tsx",
+      "line": 180,
+      "snippet": "<Button type=\"submit\" disabled={isSubmitting}> {isSubmitting && <Loader2 className=\"mr-2 h-4 w-4 animate-spin\" />} Crea",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/clients/[id]/components/edit-contact-form.tsx",
+      "line": 164,
+      "snippet": "<Button type=\"button\" variant=\"outline\" onClick={() => setOpen(false)} disabled={isSubmitting}> Cancel ",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/clients/[id]/components/edit-contact-form.tsx",
+      "line": 167,
+      "snippet": "<Button type=\"submit\" disabled={isSubmitting}> {isSubmitting && <Loader2 className=\"mr-2 h-4 w-4 animate-spin\" />} Save ",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/clients/[id]/components/negotiated-rate-card.tsx",
+      "line": 104,
+      "snippet": "<Button type=\"button\" variant=\"outline\" onClick={() => setOpen(false)} disabled={isSubmitting}> Cancel ",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/clients/[id]/components/negotiated-rate-card.tsx",
+      "line": 107,
+      "snippet": "<Button type=\"submit\" disabled={isSubmitting}> {isSubmitting && <Loader2 className=\"mr-2 h-4 w-4 animate-spin\" />} ",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/clients/[id]/components/negotiated-rate-card.tsx",
+      "line": 136,
+      "snippet": "<Button variant=\"outline\" size=\"sm\" onClick={onDeactivate} disabled={isSubmitting}> {isSubmitting && <Loader2 className=\"mr-2 h-4 w-4 animat",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/clients/[id]/page.tsx",
+      "line": 353,
+      "snippet": "<Link href={`/office/jobs/${job.id}`} className=\"flex items-center justify-between gap-3 text-sm p-3 rounded-lg border border-slate-200 bg-w",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/components/announcement-banner-stack.tsx",
+      "line": 132,
+      "snippet": "<button onClick={() => handleDismiss(a.id)} disabled={isPending && dismissingId === a.id} className=\"shrink-0 opacity-70 hover:opacity-100 t",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/components/create-task-form.tsx",
+      "line": 125,
+      "snippet": "<Button type=\"submit\" disabled={isPending || !isValid}> {isPending ? 'Creating...' : 'Create Tas",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/components/header-nav.tsx",
+      "line": 60,
+      "snippet": "<Link key={link.name} href={link.href} className={cn( \"flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors\", ",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/components/notification-bell.tsx",
+      "line": 205,
+      "snippet": "<button onClick={() => setIsOpen(!isOpen)} className=\"relative p-2 text-slate-500 hover:text-slate-700 focus:outline-none focus:ring-2 focus",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/components/notification-bell.tsx",
+      "line": 222,
+      "snippet": "<button onClick={handleMarkAllRead} className=\"text-xs font-medium text-emerald-600 hover:text-emerald-700 flex items-center gap-1\" > <Check",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/components/notification-bell.tsx",
+      "line": 241,
+      "snippet": "<button onClick={() => handleNotificationClick(notif)} className={`w-full text-left px-4 py-3 hover:bg-slate-50 transition-colors flex flex-",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/components/notification-bell.tsx",
+      "line": 288,
+      "snippet": "<button onClick={() => dismissToast(alert.id)} className=\"ml-4 text-slate-400 hover:text-slate-600 transition-colors\" > <X size={16} /> ",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/components/onboarding-reminder-banner.tsx",
+      "line": 43,
+      "snippet": "<Link href=\"/office/onboarding\" className=\"text-xs font-medium bg-[var(--color-primary)] hover:bg-blue-700 text-white px-3 py-1.5 rounded-md",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/components/onboarding-reminder-banner.tsx",
+      "line": 49,
+      "snippet": "<button onClick={handleDismiss} disabled={isDismissing} className=\"text-blue-500 hover:text-blue-700 transition-colors p-1\" title=\"Dismiss p",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Dismiss permanently",
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/components/timeline-view.tsx",
+      "line": 60,
+      "snippet": "<TabsTrigger value=\"note\">Add Note</TabsTrigger>",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "TabsTrigger"
+    },
+    {
+      "file": "src/app/office/components/timeline-view.tsx",
+      "line": 61,
+      "snippet": "<TabsTrigger value=\"task\">Create Task</TabsTrigger>",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "TabsTrigger"
+    },
+    {
+      "file": "src/app/office/components/timeline-view.tsx",
+      "line": 74,
+      "snippet": "<Button size=\"sm\" onClick={handleAddNote} disabled={!noteContent.trim() || isPending} > {isPending ? 'Saving...' : 'A",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/email/auto-sent-log/page.tsx",
+      "line": 107,
+      "snippet": "<Link href=\"/office/email\" className=\"inline-flex items-center gap-1.5 px-4 py-2 bg-slate-900 text-white rounded-lg text-xs font-semibold ho",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/email/auto-sent-log/page.tsx",
+      "line": 114,
+      "snippet": "<Link href=\"/office/settings/ai-assistant\" className=\"inline-flex items-center gap-1.5 px-4 py-2 bg-slate-50 text-slate-700 border border-sl",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/email/auto-sent-log/page.tsx",
+      "line": 175,
+      "snippet": "<Link href={`/office/email/${item.thread_id}`} className=\"inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 hover:text-e",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/email/auto-sent-log/page.tsx",
+      "line": 197,
+      "snippet": "<Link href={`/office/email/auto-sent-log?page=${Math.max(1, page - 1)}`} className={`text-xs font-semibold px-3 py-1.5 rounded-lg border tra",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/email/auto-sent-log/page.tsx",
+      "line": 208,
+      "snippet": "<Link href={`/office/email/auto-sent-log?page=${Math.min(totalPages, page + 1)}`} className={`text-xs font-semibold px-3 py-1.5 rounded-lg b",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/email/components/email-navigation.tsx",
+      "line": 69,
+      "snippet": "<Link href=\"/office/settings/ai-assistant\" className=\"inline-flex items-center gap-1.5 px-3 py-1.5 font-medium text-slate-600 bg-slate-50 ho",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/email/components/email-navigation.tsx",
+      "line": 76,
+      "snippet": "<Link href=\"/office/settings/email-labels\" className=\"inline-flex items-center gap-1.5 px-3 py-1.5 font-medium text-slate-600 bg-slate-50 ho",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/email/components/email-navigation.tsx",
+      "line": 83,
+      "snippet": "<Link href=\"/office/settings/mailboxes\" className=\"inline-flex items-center gap-1.5 px-3 py-1.5 font-medium text-slate-600 bg-slate-50 hover",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/email/components/email-navigation.tsx",
+      "line": 98,
+      "snippet": "<Link key={tab.href} href={tab.href} className={`inline-flex items-center gap-2 px-3 sm:px-4 py-2.5 text-xs sm:text-sm font-medium border-b-",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/email/components/thread-list.tsx",
+      "line": 197,
+      "snippet": "<Link href=\"/office/settings/mailboxes\" className=\"inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/email/components/thread-list.tsx",
+      "line": 225,
+      "snippet": "<button onClick={() => setSearchQuery('')} className=\"absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5\"",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/email/components/thread-list.tsx",
+      "line": 237,
+      "snippet": "<button onClick={() => setMailboxFilter(null)} className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-all whitespace-nowra",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/email/components/thread-list.tsx",
+      "line": 248,
+      "snippet": "<button key={m.id} onClick={() => setMailboxFilter(m.id)} className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-all white",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/email/components/thread-list.tsx",
+      "line": 273,
+      "snippet": "<button key={label.id} onClick={() => toggleLabelFilter(label.id)} className={`transition-all rounded-full ${ isActive ? 'ring-2 ring-emeral",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/email/components/thread-list.tsx",
+      "line": 294,
+      "snippet": "<button onClick={clearAllFilters} className=\"text-xs font-medium text-slate-500 hover:text-red-600 transition-colors ml-auto underline-offse",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/email/components/thread-list.tsx",
+      "line": 320,
+      "snippet": "<button onClick={clearAllFilters} className=\"mt-4 inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-emerald-700 bg-emerald",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/email/components/thread-list.tsx",
+      "line": 339,
+      "snippet": "<Link key={thread.id} href={`/office/email/${thread.id}`} className=\"group flex flex-col sm:flex-row sm:items-center justify-between gap-3 s",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/email/drafts/page.tsx",
+      "line": 62,
+      "snippet": "<Link href=\"/office/email/review-queue\" className=\"font-semibold underline underline-offset-2 hover:text-amber-900\"> Approve or edit them in",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/email/review-queue/components/label-suggestion-queue-item.tsx",
+      "line": 35,
+      "snippet": "<button onClick={handleApprove} disabled={isPending} className=\"flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-[var(--color-prim",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/email/review-queue/components/label-suggestion-queue-item.tsx",
+      "line": 43,
+      "snippet": "<button onClick={handleReject} disabled={isPending} className=\"flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-slate-600 hover:",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/email/review-queue/components/queue-item.tsx",
+      "line": 79,
+      "snippet": "<button onClick={handleDiscard} disabled={isPending} className=\"inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-30",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/email/review-queue/components/queue-item.tsx",
+      "line": 87,
+      "snippet": "<button onClick={handleApprove} disabled={isPending || !body.trim()} className=\"inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 ",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/email/review-queue/page.tsx",
+      "line": 117,
+      "snippet": "<Link href=\"/office/email\" className=\"inline-flex items-center gap-1.5 px-4 py-2 bg-slate-900 text-white rounded-lg text-xs font-semibold ho",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/email/review-queue/page.tsx",
+      "line": 124,
+      "snippet": "<Link href=\"/office/settings/ai-assistant\" className=\"inline-flex items-center gap-1.5 px-4 py-2 bg-slate-50 text-slate-700 border border-sl",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/email/review-queue/page.tsx",
+      "line": 184,
+      "snippet": "<Link href={`/office/email/${item.thread_id}`} className=\"inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 hover:text-e",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/email/review-queue/page.tsx",
+      "line": 235,
+      "snippet": "<Link href={`/office/email/${item.thread_id}`} className=\"inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 hover:text-e",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/email/review-queue/page.tsx",
+      "line": 255,
+      "snippet": "<Link href={`/office/email/review-queue?page=${Math.max(1, page - 1)}`} className={`text-xs font-semibold px-3 py-1.5 rounded-lg border tran",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/email/review-queue/page.tsx",
+      "line": 266,
+      "snippet": "<Link href={`/office/email/review-queue?page=${Math.min(totalPages, page + 1)}`} className={`text-xs font-semibold px-3 py-1.5 rounded-lg bo",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/email/[threadId]/components/ai-draft-review.tsx",
+      "line": 65,
+      "snippet": "<button onClick={handleDiscard} disabled={isPending} className=\"inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-30",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/email/[threadId]/components/ai-draft-review.tsx",
+      "line": 73,
+      "snippet": "<button onClick={handleApprove} disabled={isPending || !body.trim()} className=\"inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 ",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/email/[threadId]/components/associate-thread.tsx",
+      "line": 85,
+      "snippet": "<button onClick={() => setIsOpen(true)} className=\"text-xs font-medium text-slate-500 hover:text-slate-800 hover:underline transition-colors",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/email/[threadId]/components/associate-thread.tsx",
+      "line": 97,
+      "snippet": "<button onClick={() => setIsOpen(true)} className=\"inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-dashed border-sla",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/email/[threadId]/components/associate-thread.tsx",
+      "line": 111,
+      "snippet": "<button onClick={() => setMode('search')} className={`text-xs font-semibold px-2.5 py-1 rounded-md transition-colors ${ mode === 'search' ? ",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/email/[threadId]/components/associate-thread.tsx",
+      "line": 119,
+      "snippet": "<button onClick={() => setMode('create')} className={`text-xs font-semibold px-2.5 py-1 rounded-md transition-colors ${ mode === 'create' ? ",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/email/[threadId]/components/associate-thread.tsx",
+      "line": 129,
+      "snippet": "<button onClick={() => setIsOpen(false)} className=\"text-slate-400 hover:text-slate-600 p-1 rounded-md\" > <X size={14} /> ",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/email/[threadId]/components/associate-thread.tsx",
+      "line": 169,
+      "snippet": "<button key={c.id} onClick={() => handleLinkContact(c.id)} className=\"w-full text-left px-2.5 py-1.5 hover:bg-slate-50 rounded-lg transition",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/email/[threadId]/components/associate-thread.tsx",
+      "line": 185,
+      "snippet": "<button key={l.id} onClick={() => handleLinkLead(l.id)} className=\"w-full text-left px-2.5 py-1.5 hover:bg-slate-50 rounded-lg transition-co",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/email/[threadId]/components/associate-thread.tsx",
+      "line": 223,
+      "snippet": "<button type=\"submit\" disabled={isPending} className=\"w-full py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-semibold hover:bg-emer",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/email/[threadId]/components/reply-composer.tsx",
+      "line": 92,
+      "snippet": "<button onClick={handleSend} disabled={isPending || !body.trim()} className=\"inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-wh",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/email/[threadId]/components/thread-labels.tsx",
+      "line": 87,
+      "snippet": "<button type=\"button\" onClick={() => setIsOpen((v) => !v)} disabled={isPending} className=\"inline-flex items-center gap-1 px-2.5 py-1 text-x",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/email/[threadId]/components/thread-labels.tsx",
+      "line": 120,
+      "snippet": "<button key={label.id} onClick={() => handleAdd(label.id)} className=\"w-full flex items-center px-2.5 py-1.5 hover:bg-slate-50 rounded-lg tr",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/email/[threadId]/components/thread-labels.tsx",
+      "line": 130,
+      "snippet": "<button onClick={() => setShowCreateForm(true)} className=\"w-full text-left px-3 py-2 text-xs font-semibold text-emerald-700 hover:bg-emeral",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/email/[threadId]/components/thread-labels.tsx",
+      "line": 159,
+      "snippet": "<button type=\"button\" onClick={() => setShowCreateForm(false)} className=\"flex-1 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100 ",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/email/[threadId]/components/thread-labels.tsx",
+      "line": 166,
+      "snippet": "<button type=\"submit\" disabled={isPending} className=\"flex-1 py-1 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white round",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/email/[threadId]/page.tsx",
+      "line": 77,
+      "snippet": "<Link href=\"/office/email\" className=\"inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 transition-",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/fleet/components/create-vehicle-form.tsx",
+      "line": 29,
+      "snippet": "<button onClick={() => setOpen(true)} className=\"px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium\" > Add Vehic",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/fleet/components/create-vehicle-form.tsx",
+      "line": 85,
+      "snippet": "<button type=\"button\" onClick={() => setOpen(false)} className=\"px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-50 text",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/fleet/components/create-vehicle-form.tsx",
+      "line": 92,
+      "snippet": "<button type=\"submit\" disabled={loading} className=\"px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium disabled:",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/fleet/[id]/components/document-upload-form.tsx",
+      "line": 71,
+      "snippet": "<button onClick={() => setOpen(true)} className=\"px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium\" > Upload Do",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/fleet/[id]/components/document-upload-form.tsx",
+      "line": 121,
+      "snippet": "<button type=\"button\" onClick={() => setOpen(false)} className=\"px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-50 text",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/fleet/[id]/components/document-upload-form.tsx",
+      "line": 128,
+      "snippet": "<button type=\"submit\" disabled={loading} className=\"px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium disabled:",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/fleet/[id]/components/edit-vehicle-form.tsx",
+      "line": 40,
+      "snippet": "<button onClick={() => setOpen(true)} className=\"px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-50 text-sm font-medium",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/fleet/[id]/components/edit-vehicle-form.tsx",
+      "line": 107,
+      "snippet": "<button type=\"button\" onClick={() => setOpen(false)} className=\"px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-50 text",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/fleet/[id]/components/edit-vehicle-form.tsx",
+      "line": 114,
+      "snippet": "<button type=\"submit\" disabled={loading} className=\"px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium disabled:",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/fleet/[id]/components/maintenance-log-form.tsx",
+      "line": 31,
+      "snippet": "<button onClick={() => setOpen(true)} className=\"px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium\" > Log Maint",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/fleet/[id]/components/maintenance-log-form.tsx",
+      "line": 103,
+      "snippet": "<button type=\"button\" onClick={() => setOpen(false)} className=\"px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-50 text",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/fleet/[id]/components/maintenance-log-form.tsx",
+      "line": 110,
+      "snippet": "<button type=\"submit\" disabled={loading} className=\"px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium disabled:",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/invoices/[id]/components/edit-draft-invoice-form.tsx",
+      "line": 124,
+      "snippet": "<Button type=\"button\" variant=\"ghost\" size=\"icon\" onClick={() => remove(index)} disabled={fields.length === 1} > <Trash2 className=\"h-4 w-4 ",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/invoices/[id]/components/edit-draft-invoice-form.tsx",
+      "line": 137,
+      "snippet": "<Button type=\"button\" variant=\"outline\" size=\"sm\" onClick={() => append({ description: '', quantity: 1, unit_price: 0, sort_order: fields.le",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/invoices/[id]/components/edit-draft-invoice-form.tsx",
+      "line": 170,
+      "snippet": "<Button type=\"button\" variant=\"outline\" onClick={() => setOpen(false)} disabled={isSubmitting}> Cancel ",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/invoices/[id]/components/edit-draft-invoice-form.tsx",
+      "line": 173,
+      "snippet": "<Button type=\"submit\" disabled={isSubmitting}> {isSubmitting && <Loader2 className=\"mr-2 h-4 w-4 animate-spin\" />} Save ",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/invoices/[id]/page.tsx",
+      "line": 57,
+      "snippet": "<Button variant=\"outline\" nativeButton={false} render={<Link href={`/customer/invoices/${invoice.id}`} target=\"_blank\" />",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/invoices/[id]/page.tsx",
+      "line": 64,
+      "snippet": "<Button className=\"bg-emerald-600 hover:bg-emerald-700\" nativeButton={false} render={<Link href={`/print/invoices/${invoice.id}`} target=\"_b",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/jobs/components/manual-job-form.tsx",
+      "line": 170,
+      "snippet": "<Button type=\"button\" variant=\"outline\" size=\"sm\" onClick={() => append({ description: '', quantity: 1, unit_price: 0 })} disabled={isPendin",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/jobs/components/manual-job-form.tsx",
+      "line": 217,
+      "snippet": "<Button type=\"button\" variant=\"ghost\" className=\"text-red-500 hover:text-red-700 hover:bg-red-50 px-2\" onClick={() => remove(index)} disable",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/jobs/components/manual-job-form.tsx",
+      "line": 274,
+      "snippet": "<Button type=\"submit\" disabled={isPending || !isValid}> {isPending ? 'Creating...' : 'Create Jo",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/jobs/confirmed/components/confirmed-bookings-table.tsx",
+      "line": 209,
+      "snippet": "<Link href=\"/office/leads\" className=\"inline-flex items-center gap-1 text-xs font-semibold text-amber-800 hover:text-amber-950 bg-amber-100 ",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/jobs/confirmed/components/confirmed-bookings-table.tsx",
+      "line": 223,
+      "snippet": "<button type=\"button\" onClick={() => setTimeframe('all')} className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${ timeframe",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/jobs/confirmed/components/confirmed-bookings-table.tsx",
+      "line": 235,
+      "snippet": "<button type=\"button\" onClick={() => setTimeframe('upcoming')} className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${ time",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/jobs/confirmed/components/confirmed-bookings-table.tsx",
+      "line": 247,
+      "snippet": "<button type=\"button\" onClick={() => setTimeframe('this_month')} className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${ ti",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/jobs/confirmed/components/confirmed-bookings-table.tsx",
+      "line": 259,
+      "snippet": "<button type=\"button\" onClick={() => setTimeframe('past')} className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${ timefram",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/jobs/confirmed/components/confirmed-bookings-table.tsx",
+      "line": 415,
+      "snippet": "<Link href={`/office/jobs/${job.id}`} className=\"inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-800 tran",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/jobs/confirmed/page.tsx",
+      "line": 62,
+      "snippet": "<Link href=\"/office/jobs/new\" className=\"inline-flex items-center justify-center gap-1.5 rounded-lg text-xs font-semibold bg-blue-600 text-w",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/jobs/confirmed/page.tsx",
+      "line": 75,
+      "snippet": "<Link href=\"/office/jobs\" className=\"pb-3 text-slate-500 hover:text-slate-800 transition-colors flex items-center gap-2\" > <Truck className=",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/jobs/confirmed/page.tsx",
+      "line": 82,
+      "snippet": "<Link href=\"/office/jobs/confirmed\" className=\"pb-3 border-b-2 border-blue-600 text-blue-600 font-semibold flex items-center gap-2\" > <Check",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/jobs/page.tsx",
+      "line": 30,
+      "snippet": "<Link href=\"/office/jobs/new\" className=\"inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visi",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/jobs/page.tsx",
+      "line": 40,
+      "snippet": "<Link href=\"/office/jobs\" className=\"pb-3 border-b-2 border-blue-600 text-blue-600 font-semibold flex items-center gap-2\" > <span>All Jobs</",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/jobs/page.tsx",
+      "line": 46,
+      "snippet": "<Link href=\"/office/jobs/confirmed\" className=\"pb-3 text-slate-500 hover:text-slate-800 transition-colors flex items-center gap-2\" > <span>C",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/jobs/[id]/components/completion-summary-card.tsx",
+      "line": 60,
+      "snippet": "<Button onClick={handleRegenerate} disabled={isRegenerating} size=\"sm\"> {isRegenerating && <Loader2 className=\"mr-2 h-4 w-4 animate-spin\" />",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/jobs/[id]/components/completion-summary-card.tsx",
+      "line": 83,
+      "snippet": "<Button onClick={handleRegenerate} disabled={isRegenerating} size=\"sm\" variant=\"outline\"> {isRegenerating ? <Loader2 className=\"h-4 w-4 anim",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/jobs/[id]/components/edit-actual-times-form.tsx",
+      "line": 108,
+      "snippet": "<Button type=\"button\" variant=\"outline\" onClick={() => setOpen(false)} disabled={isSubmitting}> Cancel ",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/jobs/[id]/components/edit-actual-times-form.tsx",
+      "line": 111,
+      "snippet": "<Button type=\"submit\" disabled={isSubmitting}> {isSubmitting && <Loader2 className=\"mr-2 h-4 w-4 animate-spin\" />} ",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/jobs/[id]/components/edit-job-form.tsx",
+      "line": 99,
+      "snippet": "<Button type=\"button\" variant=\"outline\" onClick={() => setOpen(false)} disabled={isSubmitting}> Cancel ",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/jobs/[id]/components/edit-job-form.tsx",
+      "line": 102,
+      "snippet": "<Button type=\"submit\" disabled={isSubmitting}> {isSubmitting && <Loader2 className=\"mr-2 h-4 w-4 animate-spin\" />} Save ",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/jobs/[id]/page.tsx",
+      "line": 78,
+      "snippet": "<Link href={`/print/jobs/${job.id}`} target=\"_blank\" rel=\"noopener noreferrer\" className=\"inline-flex items-center justify-center rounded-md",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/layout.tsx",
+      "line": 114,
+      "snippet": "<button type=\"submit\" className=\"text-xs font-medium text-muted-foreground hover:text-red-600 dark:hover:text-red-400 transition-colors\">Log",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/leads/components/add-column-dialog.tsx",
+      "line": 97,
+      "snippet": "<button type=\"button\" onClick={handleClose} className=\"text-slate-400 hover:text-slate-600 rounded-lg p-1 transition-colors\" aria-label=\"Clo",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Close dialog",
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/leads/components/add-column-dialog.tsx",
+      "line": 152,
+      "snippet": "<button key={preset.value} type=\"button\" title={preset.label} onClick={() => setValue('color', preset.value, { shouldValidate: true })} clas",
+      "category": "icon-and-text",
+      "hasTitle": true,
+      "titleValue": "preset.label",
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/leads/components/add-column-dialog.tsx",
+      "line": 187,
+      "snippet": "<button type=\"button\" onClick={handleClose} disabled={isPending} className=\"px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-80",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/leads/components/add-column-dialog.tsx",
+      "line": 195,
+      "snippet": "<button type=\"submit\" disabled={isPending} className=\"flex items-center gap-2 px-5 py-2 text-sm font-semibold text-white bg-blue-600 hover:b",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/leads/components/confirm-booking-form.tsx",
+      "line": 107,
+      "snippet": "<Button type=\"button\" size=\"sm\" onClick={onSuccess} className=\"bg-slate-900 text-white\"> ",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/leads/components/confirm-booking-form.tsx",
+      "line": 236,
+      "snippet": "<Button type=\"button\" variant=\"outline\" size=\"sm\" onClick={onCancel} disabled={isPending}> Can",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/leads/components/confirm-booking-form.tsx",
+      "line": 239,
+      "snippet": "<Button type=\"submit\" size=\"sm\" className=\"bg-indigo-600 hover:bg-indigo-700 text-white font-medium gap-1.5 shadow-sm\" disabled={isPending} ",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/leads/components/delete-column-dialog.tsx",
+      "line": 88,
+      "snippet": "<button type=\"button\" onClick={handleClose} className=\"text-slate-400 hover:text-slate-600 rounded-lg p-1 transition-colors\" aria-label=\"Clo",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Close dialog",
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/leads/components/delete-column-dialog.tsx",
+      "line": 177,
+      "snippet": "<button type=\"button\" onClick={handleClose} disabled={isPending} className=\"px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-80",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/leads/components/delete-column-dialog.tsx",
+      "line": 187,
+      "snippet": "<button type=\"button\" onClick={handleDelete} disabled={isPending || (activeLeadsCount > 0 && !fallbackStageId)} className=\"flex items-center",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/leads/components/edit-column-dialog.tsx",
+      "line": 107,
+      "snippet": "<button type=\"button\" onClick={handleClose} className=\"text-slate-400 hover:text-slate-600 rounded-lg p-1 transition-colors\" aria-label=\"Clo",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Close dialog",
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/leads/components/edit-column-dialog.tsx",
+      "line": 164,
+      "snippet": "<button key={preset.value} type=\"button\" title={preset.label} onClick={() => setValue('color', preset.value, { shouldValidate: true })} clas",
+      "category": "icon-and-text",
+      "hasTitle": true,
+      "titleValue": "preset.label",
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/leads/components/edit-column-dialog.tsx",
+      "line": 199,
+      "snippet": "<button type=\"button\" onClick={handleClose} disabled={isPending} className=\"px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-80",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/leads/components/edit-column-dialog.tsx",
+      "line": 207,
+      "snippet": "<button type=\"submit\" disabled={isPending} className=\"flex items-center gap-2 px-5 py-2 text-sm font-semibold text-white bg-blue-600 hover:b",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/leads/components/follow-up-form.tsx",
+      "line": 141,
+      "snippet": "<Button type=\"button\" variant=\"outline\" size=\"sm\" onClick={onCancel} disabled={isPending}> Can",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/leads/components/follow-up-form.tsx",
+      "line": 144,
+      "snippet": "<Button type=\"submit\" size=\"sm\" className=\"bg-amber-600 hover:bg-amber-700 text-white font-medium gap-1.5 shadow-sm\" disabled={isPending} > ",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/leads/components/kanban-board.tsx",
+      "line": 227,
+      "snippet": "<button onClick={() => setError(null)} className=\"text-red-500 hover:text-red-700 font-medium shrink-0\" aria-label=\"Dismiss error\" > Dismiss",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/leads/components/kanban-board.tsx",
+      "line": 276,
+      "snippet": "<button type=\"button\" onClick={() => setIsAddModalOpen(true)} className=\"w-full flex items-center justify-center gap-2 p-4 text-sm font-semi",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/leads/components/kanban-column.tsx",
+      "line": 124,
+      "snippet": "<DropdownMenuTrigger className=\"p-1 rounded text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors focus:outline-none curs",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Options for ${stage.label}",
+      "componentType": "DropdownMenuTrigger"
+    },
+    {
+      "file": "src/app/office/leads/components/lead-card.tsx",
+      "line": 213,
+      "snippet": "<button type=\"button\" onClick={(e) => { e.stopPropagation() setActiveAction('schedule_survey') }} title=\"Schedule Survey (Epic D)\" aria-labe",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/leads/components/lead-card.tsx",
+      "line": 226,
+      "snippet": "<button type=\"button\" onClick={(e) => { e.stopPropagation() setActiveAction('send_quote') }} title=\"Send Quote (Epic E)\" aria-label=\"Send Qu",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/leads/components/lead-card.tsx",
+      "line": 239,
+      "snippet": "<button type=\"button\" onClick={(e) => { e.stopPropagation() setActiveAction('follow_up') }} title=\"Log Follow-Up (Epic F)\" aria-label=\"Log F",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/leads/components/lead-card.tsx",
+      "line": 252,
+      "snippet": "<button type=\"button\" onClick={(e) => { e.stopPropagation() setActiveAction('confirm_booking') }} title=\"Confirm Booking (Epic G)\" aria-labe",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/leads/components/lead-card.tsx",
+      "line": 268,
+      "snippet": "<DropdownMenuTrigger onClick={(e) => e.stopPropagation()} className=\"flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px] font-medium t",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "DropdownMenuTrigger"
+    },
+    {
+      "file": "src/app/office/leads/components/schedule-survey-form.tsx",
+      "line": 197,
+      "snippet": "<Button type=\"button\" size=\"sm\" onClick={onSuccess} className=\"bg-slate-900 text-white\"> ",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/leads/components/schedule-survey-form.tsx",
+      "line": 225,
+      "snippet": "<Button type=\"button\" variant=\"outline\" size=\"sm\" className=\"text-xs h-7 border-amber-300 bg-white hover:bg-amber-100/50\" onClick={handleOve",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/leads/components/schedule-survey-form.tsx",
+      "line": 240,
+      "snippet": "<Button type=\"button\" variant=\"ghost\" size=\"sm\" className=\"text-xs h-7 text-amber-900 hover:bg-amber-100/50\" onClick={() => setConflictWarni",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/leads/components/schedule-survey-form.tsx",
+      "line": 347,
+      "snippet": "<Button type=\"button\" variant=\"outline\" size=\"sm\" onClick={onCancel} disabled={isPending} > Can",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/leads/components/schedule-survey-form.tsx",
+      "line": 356,
+      "snippet": "<Button type=\"submit\" size=\"sm\" className=\"bg-emerald-600 hover:bg-emerald-700 text-white font-medium gap-1.5 shadow-sm\" disabled={isPending",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/leads/components/send-quote-form.tsx",
+      "line": 216,
+      "snippet": "<Button type=\"button\" variant=\"outline\" size=\"sm\" onClick={handleCreateQuote} disabled={isActionPending} className=\"h-7 text-xs gap-1 border",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/leads/components/send-quote-form.tsx",
+      "line": 243,
+      "snippet": "<Button type=\"button\" size=\"sm\" onClick={handleCreateQuote} disabled={isActionPending} className=\"mt-2 bg-blue-600 hover:bg-blue-700 text-wh",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/leads/components/send-quote-form.tsx",
+      "line": 294,
+      "snippet": "<Button type=\"button\" size=\"sm\" data-testid={`send-quote-btn-${q.id}`} disabled={isActionPending} onClick={() => handleSendQuote(q.id)} clas",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/leads/components/send-quote-form.tsx",
+      "line": 306,
+      "snippet": "<Button type=\"button\" variant=\"outline\" size=\"sm\" disabled={isActionPending} onClick={() => handleCopyLink(q.id)} className=\"text-xs h-7 gap",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/leads/components/send-quote-form.tsx",
+      "line": 328,
+      "snippet": "<Button type=\"button\" variant=\"outline\" size=\"sm\" disabled={isActionPending} onClick={() => { onSuccess() router.push(`/office/quotes/${q.id",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/leads/components/send-quote-form.tsx",
+      "line": 353,
+      "snippet": "<Button type=\"button\" variant=\"outline\" size=\"sm\" onClick={onCancel} disabled={isActionPending} className=\"text-xs h-8\" > Cl",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/leads/[id]/components/edit-lead-form.tsx",
+      "line": 190,
+      "snippet": "<Button type=\"button\" variant=\"outline\" onClick={() => setOpen(false)} disabled={isSubmitting}> Cancel ",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/leads/[id]/components/edit-lead-form.tsx",
+      "line": 193,
+      "snippet": "<Button type=\"submit\" disabled={isSubmitting}> {isSubmitting && <Loader2 className=\"mr-2 h-4 w-4 animate-spin\" />} Save ",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/leads/[id]/components/lead-quick-actions-bar.tsx",
+      "line": 48,
+      "snippet": "<button key={type} type=\"button\" onClick={() => setActiveAction(type)} title={label} aria-label={label} className={`flex items-center gap-1.",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/leads/[id]/components/quotes-list.tsx",
+      "line": 57,
+      "snippet": "<Button size=\"sm\" onClick={handleCreateQuote} disabled={isPending}> <Plus className=\"h-4 w-4 mr-1\" /> New Qu",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/leads/[id]/components/quotes-list.tsx",
+      "line": 70,
+      "snippet": "<Link key={q.id} href={`/office/quotes/${q.id}`} className=\"flex items-center justify-between p-4 hover:bg-slate-50 transition-colors\" > <di",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/onboarding/components/wizard-client.tsx",
+      "line": 170,
+      "snippet": "<button type=\"button\" onClick={handleSkip} disabled={isLoading} className=\"text-slate-400 hover:text-white transition-colors\"> S",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/onboarding/components/wizard-client.tsx",
+      "line": 173,
+      "snippet": "<button type=\"submit\" disabled={isLoading} className=\"bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md font-medium flex items-c",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/onboarding/components/wizard-client.tsx",
+      "line": 247,
+      "snippet": "<button type=\"button\" onClick={handleSkip} disabled={isLoading} className=\"text-slate-400 hover:text-white transition-colors\"> S",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/onboarding/components/wizard-client.tsx",
+      "line": 250,
+      "snippet": "<button type=\"submit\" disabled={isLoading} className=\"bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md font-medium flex items-c",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/onboarding/components/wizard-client.tsx",
+      "line": 295,
+      "snippet": "<button type=\"button\" onClick={handleSkip} disabled={isLoading} className=\"text-slate-400 hover:text-white transition-colors\"> Ski",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/onboarding/components/wizard-client.tsx",
+      "line": 298,
+      "snippet": "<button type=\"button\" onClick={handleInventorySubmit} disabled={isLoading} className=\"bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rou",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/page.tsx",
+      "line": 44,
+      "snippet": "<Link href=\"/office/jobs/confirmed\" className=\"inline-flex items-center gap-1.5 text-xs text-emerald-600 hover:text-emerald-700 font-medium ",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/page.tsx",
+      "line": 71,
+      "snippet": "<Link key={job.id} href={`/office/jobs/${job.id}`} className=\"block p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white da",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/page.tsx",
+      "line": 207,
+      "snippet": "<Link key={inv.id} href={`/office/invoices/${inv.id}`} className=\"flex justify-between items-center text-sm border-b border-border pb-2 last",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/page.tsx",
+      "line": 276,
+      "snippet": "<Link href=\"/office/jobs/confirmed\" className=\"text-xs text-emerald-600 hover:text-emerald-700 font-medium flex items-center gap-1\"> All Boo",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/quotes/[id]/components/route-summary.tsx",
+      "line": 158,
+      "snippet": "<Button variant=\"ghost\" size=\"sm\" onClick={() => setIsEditing(false)}> Cancel ",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/quotes/[id]/components/route-summary.tsx",
+      "line": 162,
+      "snippet": "<Button size=\"sm\" onClick={handleSave} disabled={isPending}> {isPending ? 'Saving...' : 'S",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/quotes/[id]/components/route-summary.tsx",
+      "line": 194,
+      "snippet": "<Button variant=\"ghost\" size=\"sm\" onClick={() => setIsEditing(true)}> Edit ",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/quotes/[id]/components/send-quote-button.tsx",
+      "line": 119,
+      "snippet": "<Button onClick={handleSend} disabled={isPending || !hasPricing || !leadId} className=\"bg-blue-600 hover:bg-blue-700 text-white gap-1.5\" > {",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/quotes/[id]/components/volume-calculator.tsx",
+      "line": 175,
+      "snippet": "<Button variant=\"outline\" size=\"icon\" className=\"h-7 w-7 rounded-full\" disabled={qty === 0 || !isDraft} onClick={() => updateQuantity(item, ",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/quotes/[id]/components/volume-calculator.tsx",
+      "line": 185,
+      "snippet": "<Button variant=\"outline\" size=\"icon\" className=\"h-7 w-7 rounded-full\" disabled={!isDraft} onClick={() => updateQuantity(item, 1)} > <Plus c",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/quotes/[id]/components/volume-calculator.tsx",
+      "line": 269,
+      "snippet": "<Button className=\"w-full\" onClick={handleSave} disabled={isPending || !isDraft} > {isPending ? 'Saving...' : 'Save Inventory'} {!isPending ",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/quotes/[id]/page.tsx",
+      "line": 90,
+      "snippet": "<Link href={`/office/leads/${quote.lead_id}`} className=\"p-2 -ml-2 rounded-full hover:bg-slate-100 text-slate-500 transition-colors\" > <Arro",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/scheduling/components/date-navigator.tsx",
+      "line": 57,
+      "snippet": "<button onClick={() => handleRangeChange('week')} className={`px-3 py-1.5 text-sm font-medium rounded-sm transition-colors ${ range === 'wee",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/scheduling/components/date-navigator.tsx",
+      "line": 65,
+      "snippet": "<button onClick={() => handleRangeChange('day')} className={`px-3 py-1.5 text-sm font-medium rounded-sm transition-colors ${ range === 'day'",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/scheduling/components/date-navigator.tsx",
+      "line": 76,
+      "snippet": "<Button variant=\"outline\" size=\"sm\" onClick={handleToday}> To",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/scheduling/components/date-navigator.tsx",
+      "line": 80,
+      "snippet": "<Button variant=\"outline\" size=\"icon\" className=\"h-8 w-8\" onClick={handlePrev}> <ChevronLeft className=\"h-4 w-",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/scheduling/components/date-navigator.tsx",
+      "line": 83,
+      "snippet": "<Button variant=\"outline\" size=\"icon\" className=\"h-8 w-8\" onClick={handleNext}> <ChevronRight className=\"h-4 w-",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/scheduling/components/scheduling-board.tsx",
+      "line": 111,
+      "snippet": "<Button variant=\"outline\" size=\"icon\" onClick={() => navigateDay(-1)}><ChevronLeft className=\"h-4 w-4\" /></Button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/scheduling/components/scheduling-board.tsx",
+      "line": 116,
+      "snippet": "<Button variant=\"outline\" size=\"icon\" onClick={() => navigateDay(1)}><ChevronRight className=\"h-4 w-4\" /></Button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/scheduling/components/unified-creation-modal.tsx",
+      "line": 128,
+      "snippet": "<Button size=\"sm\" variant=\"destructive\" onClick={() => handleCreateAppointment(true)} disabled={loading}> Save Anyway ",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/scheduling/components/unified-creation-modal.tsx",
+      "line": 131,
+      "snippet": "<Button size=\"sm\" variant=\"outline\" onClick={() => setConflictWarning(false)}> Cancel ",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/scheduling/components/unified-creation-modal.tsx",
+      "line": 144,
+      "snippet": "<Button onClick={() => handleCreateAppointment(false)} disabled={loading} className=\"w-full\"> Save Appointment ",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/scheduling/components/unified-detail-modal.tsx",
+      "line": 159,
+      "snippet": "<Button variant=\"outline\" onClick={onClose}>Close</Button>",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/scheduling/page.tsx",
+      "line": 92,
+      "snippet": "<TabsTrigger value=\"calendar\">Calendar</TabsTrigger>",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "TabsTrigger"
+    },
+    {
+      "file": "src/app/office/scheduling/page.tsx",
+      "line": 93,
+      "snippet": "<TabsTrigger value=\"list\">List</TabsTrigger>",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "TabsTrigger"
+    },
+    {
+      "file": "src/app/office/scheduling/page.tsx",
+      "line": 94,
+      "snippet": "<TabsTrigger value=\"dispatch\">Dispatch Board</TabsTrigger>",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "TabsTrigger"
+    },
+    {
+      "file": "src/app/office/settings/ai-assistant/components/mode-selector.tsx",
+      "line": 103,
+      "snippet": "<button onClick={handleSave} disabled={isPending || selected === currentMode} className=\"inline-flex items-center gap-2 px-4 py-2 bg-emerald",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/settings/appearance/components/theme-picker.tsx",
+      "line": 54,
+      "snippet": "<button key={t.value} type=\"button\" onClick={() => selectTheme(t.value)} disabled={isPending} className={`relative text-left rounded-lg bord",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/settings/billing/components/billing-panel.tsx",
+      "line": 158,
+      "snippet": "<button onClick={handlePortal} disabled={isPending} className=\"inline-flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg t",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/settings/billing/components/billing-panel.tsx",
+      "line": 180,
+      "snippet": "<button key={price.id} onClick={() => handleCheckout(price.stripe_price_id)} disabled={isPending} className=\"inline-flex items-center gap-2 ",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/settings/branding/components/branding-form.tsx",
+      "line": 308,
+      "snippet": "<button type=\"submit\" disabled={isPending} className=\"w-full px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/settings/brands/components/brand-form.tsx",
+      "line": 226,
+      "snippet": "<Button type=\"button\" variant=\"outline\" onClick={() => setOpen(false)} disabled={isPending}> Cancel ",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/settings/brands/components/brand-form.tsx",
+      "line": 229,
+      "snippet": "<Button type=\"submit\" disabled={isPending}> {isPending && <Loader2 className=\"mr-2 h-4 w-4 animate-spin\" />} {isEdit ? 'Save Changes' : 'Cre",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/settings/email-labels/components/label-form-dialog.tsx",
+      "line": 64,
+      "snippet": "<button onClick={() => setIsOpen(true)} className=\"flex items-center gap-2 bg-[var(--color-primary)] hover:bg-blue-700 text-white px-4 py-2 ",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/settings/email-labels/components/label-form-dialog.tsx",
+      "line": 78,
+      "snippet": "<button onClick={close} className=\"text-slate-400 hover:text-slate-900 transition-colors\"> <X siz",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/settings/email-labels/components/label-form-dialog.tsx",
+      "line": 111,
+      "snippet": "<button type=\"button\" onClick={close} className=\"px-4 py-2 text-slate-600 hover:text-slate-900 font-medium transition-colors text-sm\"> ",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/settings/email-labels/components/label-form-dialog.tsx",
+      "line": 114,
+      "snippet": "<button type=\"submit\" disabled={isPending} className=\"bg-[var(--color-primary)] hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-mediu",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/settings/email-labels/components/label-list.tsx",
+      "line": 81,
+      "snippet": "<button className=\"p-1.5 text-slate-400 hover:text-[var(--color-primary)] transition-colors\" title=\"Edit\"> <Pe",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Edit",
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/settings/email-labels/components/label-list.tsx",
+      "line": 87,
+      "snippet": "<button onClick={() => handleDelete(label)} disabled={isPending && pendingId === label.id} className=\"p-1.5 text-slate-400 hover:text-red-60",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/settings/inventory/components/create-inventory-form.tsx",
+      "line": 110,
+      "snippet": "<button type=\"submit\" disabled={isPending} className=\"inline-flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/settings/inventory/components/create-inventory-form.tsx",
+      "line": 117,
+      "snippet": "<button type=\"button\" onClick={onClose} className=\"mt-3 inline-flex w-full justify-center rounded-md border border-slate-300 bg-white px-4 p",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/settings/inventory/components/edit-inventory-form.tsx",
+      "line": 119,
+      "snippet": "<button type=\"submit\" disabled={isPending} className=\"inline-flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/settings/inventory/components/edit-inventory-form.tsx",
+      "line": 126,
+      "snippet": "<button type=\"button\" onClick={onClose} className=\"mt-3 inline-flex w-full justify-center rounded-md border border-slate-300 bg-white px-4 p",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/settings/inventory/components/inventory-list.tsx",
+      "line": 32,
+      "snippet": "<button type=\"button\" onClick={() => setIsCreateOpen(true)} className=\"block rounded-md bg-blue-600 px-3 py-2 text-center text-sm font-semib",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/settings/inventory/components/inventory-list.tsx",
+      "line": 70,
+      "snippet": "<button onClick={() => setEditingItem(item)} className=\"text-blue-600 hover:text-blue-900 mr-4\" > Edit<span className=\"sr-only\">, {item.name",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/settings/inventory/components/inventory-list.tsx",
+      "line": 76,
+      "snippet": "<button onClick={async () => { if (confirm(`Are you sure you want to delete ${item.name}?`)) { await deleteInventoryAction(item.id) } }} cla",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/settings/invoice-template/components/template-editor.tsx",
+      "line": 182,
+      "snippet": "<button key={type} type=\"button\" onClick={() => append(defaultBlockFor(type))} className=\"inline-flex items-center gap-1 px-2 py-1 text-xs b",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/settings/invoice-template/components/template-editor.tsx",
+      "line": 216,
+      "snippet": "<button type=\"submit\" disabled={isPending} className=\"w-full px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/settings/invoice-template/components/template-editor.tsx",
+      "line": 233,
+      "snippet": "<Link href={`/print/invoice-template-preview?brand=${brand.id}`} target=\"_blank\" className=\"inline-flex items-center gap-1.5 text-sm text-em",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/settings/invoice-template/components/template-editor.tsx",
+      "line": 286,
+      "snippet": "<button type=\"button\" onClick={onRemove} className=\"text-red-600 hover:bg-red-50 rounded p-1\"> <X size={14}",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/settings/layout.tsx",
+      "line": 50,
+      "snippet": "<Link href={item.href} className={cn( isActive ? 'bg-blue-50 dark:bg-blue-950 text-[var(--color-primary)]' : 'text-foreground/80 hover:bg-mu",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/settings/mailboxes/components/connect-imap-form.tsx",
+      "line": 101,
+      "snippet": "<button type=\"submit\" disabled={isPending} className=\"inline-flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-s",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/settings/mailboxes/components/mailbox-list.tsx",
+      "line": 78,
+      "snippet": "<button onClick={() => handleDisconnect(mailbox.id)} disabled={isPending && pendingId === mailbox.id} className=\"px-3 py-1.5 text-xs font-me",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/settings/pricing/components/pricing-form.tsx",
+      "line": 207,
+      "snippet": "<button type=\"button\" onClick={() => append({ key: '', label: '', amount: 0, type: 'fixed' })} className=\"inline-flex items-center gap-1 px-",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/settings/pricing/components/pricing-form.tsx",
+      "line": 250,
+      "snippet": "<button type=\"button\" onClick={() => remove(index)} className=\"px-2 py-1 text-red-600 hover:bg-red-50 rounded transition-colors\" > <X size={",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/settings/pricing/components/pricing-form.tsx",
+      "line": 264,
+      "snippet": "<button type=\"submit\" disabled={isPending} className=\"w-full px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/settings/staff/components/invite-staff-form.tsx",
+      "line": 80,
+      "snippet": "<button onClick={handleCopyPassword} className=\"p-1.5 text-emerald-600 hover:bg-emerald-100 rounded transition-colors\" title=\"Copy to clipbo",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Copy to clipboard",
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/settings/staff/components/invite-staff-form.tsx",
+      "line": 136,
+      "snippet": "<button type=\"submit\" disabled={isPending} className=\"w-full px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium text-sm hover:bg-eme",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/settings/staff/components/staff-list.tsx",
+      "line": 137,
+      "snippet": "<button onClick={() => setExpandedId(expandedId === member.id ? null : member.id)} disabled={isPending} className=\"inline-flex items-center ",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/settings/staff/components/staff-list.tsx",
+      "line": 147,
+      "snippet": "<button onClick={() => handleDeactivate(member.id)} disabled={isPending} className=\"block w-full text-left px-3 py-2 text-sm text-red-600 ho",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/settings/staff/components/staff-list.tsx",
+      "line": 156,
+      "snippet": "<button onClick={() => handleReactivate(member.id)} disabled={isPending} className=\"block w-full text-left px-3 py-2 text-sm text-emerald-60",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/settings/web-widget/components/web-widget-settings-client.tsx",
+      "line": 74,
+      "snippet": "<Button size=\"sm\" variant=\"secondary\" onClick={handleCopy} className=\"bg-white/10 hover:bg-white/20 text-white border-none\" > {copied ? 'Cop",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/settings/web-widget/components/web-widget-settings-client.tsx",
+      "line": 92,
+      "snippet": "<Button variant=\"destructive\" onClick={handleRegenerate} disabled={isRegenerating} > {isRegenerating ? 'Regenerating...' : 'Regenerate Ke",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/social/components/cancel-button.tsx",
+      "line": 23,
+      "snippet": "<button type=\"button\" onClick={(e) => { e.stopPropagation() setError(null) startTransition(async () => { const result = await cancelSchedule",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/social/components/composer-form.tsx",
+      "line": 147,
+      "snippet": "<button type=\"button\" onClick={selectAllAccounts} className=\"text-xs font-medium text-emerald-600 hover:text-emerald-700 transition-colors c",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/social/components/composer-form.tsx",
+      "line": 163,
+      "snippet": "<button key={account.id} type=\"button\" onClick={() => toggleAccount(account.id)} className={`inline-flex items-center gap-2 px-3 py-2 rounde",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/social/components/composer-form.tsx",
+      "line": 239,
+      "snippet": "<button type=\"button\" onClick={() => setValue('scheduleMode', 'now')} className={`flex items-center justify-center gap-2 py-2 px-3 rounded-m",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/social/components/composer-form.tsx",
+      "line": 252,
+      "snippet": "<button type=\"button\" onClick={() => setValue('scheduleMode', 'later')} className={`flex items-center justify-center gap-2 py-2 px-3 rounded",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/social/components/composer-form.tsx",
+      "line": 286,
+      "snippet": "<button type=\"button\" onClick={() => { setLiveText('') reset({ content: '', accountIds: accounts.length > 0 ? [accounts[0].id] : [], schedul",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/social/components/composer-form.tsx",
+      "line": 304,
+      "snippet": "<button type=\"submit\" disabled={isPending} className=\"inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-emerald-600 text-white ro",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/social/components/live-post-preview.tsx",
+      "line": 40,
+      "snippet": "<button key={plat} type=\"button\" onClick={() => setSelectedPlatform(plat)} className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-me",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/social/components/live-post-preview.tsx",
+      "line": 92,
+      "snippet": "<button type=\"button\" className=\"flex-1 py-1.5 flex items-center justify-center gap-1.5 hover:bg-slate-50 rounded font-medium text-slate-600",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/social/components/live-post-preview.tsx",
+      "line": 95,
+      "snippet": "<button type=\"button\" className=\"flex-1 py-1.5 flex items-center justify-center gap-1.5 hover:bg-slate-50 rounded font-medium text-slate-600",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/social/components/live-post-preview.tsx",
+      "line": 98,
+      "snippet": "<button type=\"button\" className=\"flex-1 py-1.5 flex items-center justify-center gap-1.5 hover:bg-slate-50 rounded font-medium text-slate-600",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/social/components/live-post-preview.tsx",
+      "line": 133,
+      "snippet": "<button type=\"button\" className=\"flex-1 py-1.5 flex items-center justify-center gap-1.5 hover:bg-slate-50 rounded font-medium text-slate-600",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/social/components/live-post-preview.tsx",
+      "line": 136,
+      "snippet": "<button type=\"button\" className=\"flex-1 py-1.5 flex items-center justify-center gap-1.5 hover:bg-slate-50 rounded font-medium text-slate-600",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/social/components/live-post-preview.tsx",
+      "line": 139,
+      "snippet": "<button type=\"button\" className=\"flex-1 py-1.5 flex items-center justify-center gap-1.5 hover:bg-slate-50 rounded font-medium text-slate-600",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/social/components/live-post-preview.tsx",
+      "line": 142,
+      "snippet": "<button type=\"button\" className=\"flex-1 py-1.5 flex items-center justify-center gap-1.5 hover:bg-slate-50 rounded font-medium text-slate-600",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/social/components/social-history-list.tsx",
+      "line": 60,
+      "snippet": "<button type=\"button\" onClick={() => setActiveTab('all')} className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-s",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/social/components/social-history-list.tsx",
+      "line": 80,
+      "snippet": "<button type=\"button\" onClick={() => setActiveTab('pending')} className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs fo",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/social/components/social-history-list.tsx",
+      "line": 100,
+      "snippet": "<button type=\"button\" onClick={() => setActiveTab('published')} className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs ",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/social/components/social-history-list.tsx",
+      "line": 121,
+      "snippet": "<button type=\"button\" onClick={() => setActiveTab('issues')} className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs fon",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/social/components/social-post-item.tsx",
+      "line": 182,
+      "snippet": "<button type=\"button\" onClick={() => setIsOpen(true)} className=\"text-xs font-semibold text-slate-600 hover:text-slate-900 group-hover:text-",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/social/page.tsx",
+      "line": 79,
+      "snippet": "<Link href=\"/office/settings/billing\" className=\"inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rou",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/social/page.tsx",
+      "line": 144,
+      "snippet": "<DropdownMenuTrigger className=\"inline-flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold ro",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "DropdownMenuTrigger"
+    },
+    {
+      "file": "src/app/office/storage/crates/new/components/crate-form.tsx",
+      "line": 71,
+      "snippet": "<button type=\"submit\" disabled={isPending} className=\"w-full px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/storage/crates/[id]/components/crate-associate-panel.tsx",
+      "line": 70,
+      "snippet": "<button onClick={unlinkContact} disabled={isPending} className=\"text-blue-400 hover:text-blue-700\"> ",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/storage/crates/[id]/components/crate-associate-panel.tsx",
+      "line": 83,
+      "snippet": "<button onClick={unlinkJob} disabled={isPending} className=\"text-blue-500 hover:text-blue-700\"> ",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/storage/crates/[id]/components/crate-associate-panel.tsx",
+      "line": 93,
+      "snippet": "<button onClick={() => setIsOpen(true)} className=\"text-xs text-emerald-600 hover:underline\"> + Link to a contact or job ",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/storage/crates/[id]/components/crate-associate-panel.tsx",
+      "line": 112,
+      "snippet": "<button key={c.id} onClick={() => linkContact(c.id)} className=\"w-full text-left px-2 py-1.5 text-sm hover:bg-slate-50 rounded flex items-ce",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/storage/crates/[id]/components/crate-associate-panel.tsx",
+      "line": 122,
+      "snippet": "<button key={j.id} onClick={() => linkJob(j.id)} className=\"w-full text-left px-2 py-1.5 text-sm hover:bg-slate-50 rounded flex items-center",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/storage/crates/[id]/components/crate-associate-panel.tsx",
+      "line": 134,
+      "snippet": "<button onClick={() => setIsOpen(false)} className=\"text-xs text-slate-500 hover:text-slate-800 mt-2\"> Close ",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/storage/crates/[id]/components/crate-status-control.tsx",
+      "line": 64,
+      "snippet": "<button onClick={() => setOverrideOpen(true)} className=\"text-xs text-slate-500 hover:text-slate-800 underline\"> Override status ",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/storage/crates/[id]/components/crate-status-control.tsx",
+      "line": 69,
+      "snippet": "<button onClick={() => setOverrideOpen(false)} className=\"text-xs text-slate-500 hover:text-slate-800\"> Cancel override ",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/storage/page.tsx",
+      "line": 88,
+      "snippet": "<Link href=\"/office/storage/crates/new\" className=\"inline-flex items-center rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-w",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/storage/page.tsx",
+      "line": 97,
+      "snippet": "<Link href=\"/office/storage\" className={`text-xs px-3 py-1.5 rounded-full font-medium ${!statusFilter && !billingIssuesFilter ? 'bg-slate-90",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/storage/page.tsx",
+      "line": 104,
+      "snippet": "<Link key={status} href={`/office/storage?status=${status}`} className={`text-xs px-3 py-1.5 rounded-full font-medium ${statusFilter === sta",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/storage/page.tsx",
+      "line": 112,
+      "snippet": "<Link href=\"/office/storage?billing_issues=1\" className={`text-xs px-3 py-1.5 rounded-full font-medium ${billingIssuesFilter ? 'border-2 bor",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/office/storage/units/components/create-unit-form.tsx",
+      "line": 76,
+      "snippet": "<button type=\"submit\" disabled={isPending} className=\"px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-70",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/storage/units/components/unit-row.tsx",
+      "line": 45,
+      "snippet": "<button onClick={(e) => { e.stopPropagation() setIsEditing(true) }} className=\"text-blue-600 hover:text-blue-900 relative z-10\" > Edit ",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/storage/units/components/unit-row.tsx",
+      "line": 72,
+      "snippet": "<button disabled={isPending} onClick={() => { setError(null) startTransition(async () => { const formData = new FormData() formData.append('",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/storage/units/components/unit-row.tsx",
+      "line": 94,
+      "snippet": "<button onClick={() => setIsEditing(false)} className=\"px-3 py-1.5 text-slate-600 text-xs font-medium hover:text-slate-900\"> Cancel ",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/tasks/components/tasks-list.tsx",
+      "line": 58,
+      "snippet": "<button type=\"button\" onClick={() => handleToggle(task)} disabled={isPending && loadingId === task.id} title={toggleLabel} aria-label={toggl",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/office/workflows/page.tsx",
+      "line": 43,
+      "snippet": "<Button> <Plus className=\"h-4 w-4 mr-2\" /> New W",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/workflows/[id]/logs/page.tsx",
+      "line": 43,
+      "snippet": "<Button variant=\"outline\" size=\"icon\"> <ArrowLeft className=\"h-4 w-",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/workflows/[id]/WorkflowBuilderForm.tsx",
+      "line": 187,
+      "snippet": "<Button type=\"button\" variant=\"outline\" size=\"sm\" onClick={() => appendCondition({ field: '', value: '' })}> <Plus className=\"h-4 w-4 mr-2\" ",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/workflows/[id]/WorkflowBuilderForm.tsx",
+      "line": 206,
+      "snippet": "<Button type=\"button\" variant=\"ghost\" size=\"icon\" onClick={() => removeCondition(index)} className=\"text-red-500 hover:text-red-700\"> <Trash",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/workflows/[id]/WorkflowBuilderForm.tsx",
+      "line": 224,
+      "snippet": "<Button type=\"button\" variant=\"outline\" onClick={() => appendAction({ action_type: 'create_task', action_config: { title: 'New Task' } })} >",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/workflows/[id]/WorkflowBuilderForm.tsx",
+      "line": 284,
+      "snippet": "<Button type=\"button\" variant=\"ghost\" size=\"icon\" disabled={index === 0} onClick={() => swapAction(index, index - 1)} > <ArrowUp className=\"",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/workflows/[id]/WorkflowBuilderForm.tsx",
+      "line": 293,
+      "snippet": "<Button type=\"button\" variant=\"ghost\" size=\"icon\" disabled={index === actionFields.length - 1} onClick={() => swapAction(index, index + 1)} ",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/workflows/[id]/WorkflowBuilderForm.tsx",
+      "line": 302,
+      "snippet": "<Button type=\"button\" variant=\"ghost\" size=\"icon\" className=\"text-red-500 hover:text-red-700 ml-2\" onClick={() => removeAction(index)} > <Tr",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/workflows/[id]/WorkflowBuilderForm.tsx",
+      "line": 528,
+      "snippet": "<Button type=\"button\" variant=\"outline\" onClick={() => router.push('/office/workflows')} disabled={isSaving} > Cancel ",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/office/workflows/[id]/WorkflowBuilderForm.tsx",
+      "line": 536,
+      "snippet": "<Button type=\"submit\" disabled={isSaving}> {isSaving ? 'Saving...' : ( <> <Save className=\"h-4 w-4 mr-2\" /> Save Workflow </> ",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/page.tsx",
+      "line": 49,
+      "snippet": "<button type=\"submit\" className=\"px-4 py-2 bg-slate-900 text-white rounded-md hover:bg-slate-800\"> Sig",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/print/invoice-template-preview/page.tsx",
+      "line": 60,
+      "snippet": "<button id=\"print-btn\" type=\"button\" className=\"inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors bg-",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/print/invoices/[id]/page.tsx",
+      "line": 43,
+      "snippet": "<button id=\"print-btn\" type=\"button\" className=\"inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors bg-",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/print/jobs/[id]/page.tsx",
+      "line": 43,
+      "snippet": "<button id=\"print-btn\" type=\"button\" className=\"inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors bg-",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/proposal/[token]/components/acceptance-flow.tsx",
+      "line": 101,
+      "snippet": "<button type=\"submit\" disabled={isSubmitting} style={{ width: '100%', backgroundColor: isSubmitting ? '#9ca3af' : primaryColor, color: 'whit",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/proposal/[token]/components/acceptance-flow.tsx",
+      "line": 174,
+      "snippet": "<button type=\"submit\" disabled={isProcessing || !stripe || !elements} style={{ width: '100%', backgroundColor: isProcessing ? '#9ca3af' : pr",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/signup/check-email/page.tsx",
+      "line": 41,
+      "snippet": "<Link href=\"/login\" className={cn(buttonVariants({ variant: 'outline' }), \"w-full\")}> Return",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/signup/components/signup-form.tsx",
+      "line": 130,
+      "snippet": "<Button className=\"w-full font-semibold\" type=\"submit\" disabled={loading}> {loading ? 'Creating account...' : 'Create acco",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/app/super-admin/analytics/components/analytics-tabs.tsx",
+      "line": 28,
+      "snippet": "<button key={t.key} onClick={() => setTab(t.key)} className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${ activeT",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/super-admin/analytics/components/growth-range-toggle.tsx",
+      "line": 20,
+      "snippet": "<button key={m} onClick={() => setMonths(m)} className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${ activeMonths === m ",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/super-admin/announcements/components/announcement-dialog.tsx",
+      "line": 104,
+      "snippet": "<button onClick={() => setIsOpen(true)} className=\"flex items-center gap-2 bg-[var(--color-primary)] hover:bg-blue-700 text-white px-4 py-2 ",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/super-admin/announcements/components/announcement-dialog.tsx",
+      "line": 120,
+      "snippet": "<button onClick={close} className=\"text-slate-400 hover:text-slate-900 transition-colors\"> <X siz",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/super-admin/announcements/components/announcement-dialog.tsx",
+      "line": 231,
+      "snippet": "<button type=\"button\" onClick={close} className=\"px-4 py-2 text-slate-600 hover:text-slate-900 font-medium transition-colors\"> ",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/super-admin/announcements/components/announcement-dialog.tsx",
+      "line": 234,
+      "snippet": "<button type=\"submit\" disabled={isPending} className=\"bg-[var(--color-primary)] hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-mediu",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/super-admin/announcements/components/announcement-list.tsx",
+      "line": 116,
+      "snippet": "<button className=\"p-1.5 text-slate-400 hover:text-[var(--color-primary)] transition-colors\" title=\"Edit\"> <",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Edit",
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/super-admin/announcements/components/announcement-list.tsx",
+      "line": 122,
+      "snippet": "<button onClick={() => handleCloseNow(a.id)} disabled={isPending && pendingId === a.id} className=\"p-1.5 text-slate-400 hover:text-amber-600",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/super-admin/announcements/components/announcement-list.tsx",
+      "line": 131,
+      "snippet": "<button onClick={() => handleDelete(a.id)} disabled={isPending && pendingId === a.id} className=\"p-1.5 text-slate-400 hover:text-red-600 tra",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/super-admin/components/create-tenant-dialog.tsx",
+      "line": 48,
+      "snippet": "<button onClick={() => setIsOpen(true)} className=\"flex items-center gap-2 bg-[var(--color-primary)] hover:bg-blue-700 text-white px-4 py-2 ",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/super-admin/components/create-tenant-dialog.tsx",
+      "line": 63,
+      "snippet": "<button onClick={resetState} className=\"text-slate-400 hover:text-slate-900 transition-colors\" > <X siz",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/super-admin/components/create-tenant-dialog.tsx",
+      "line": 86,
+      "snippet": "<button onClick={() => navigator.clipboard.writeText(successData.adminEmail)} className=\"opacity-0 group-hover:opacity-100 p-1 text-slate-40",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/super-admin/components/create-tenant-dialog.tsx",
+      "line": 99,
+      "snippet": "<button onClick={() => navigator.clipboard.writeText(successData.generatedPassword || '')} className=\"opacity-0 group-hover:opacity-100 p-1 ",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/super-admin/components/create-tenant-dialog.tsx",
+      "line": 111,
+      "snippet": "<button onClick={resetState} className=\"w-full bg-[var(--color-primary)] hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium trans",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/super-admin/components/create-tenant-dialog.tsx",
+      "line": 172,
+      "snippet": "<button type=\"button\" onClick={resetState} className=\"px-4 py-2 text-slate-600 hover:text-slate-900 font-medium transition-colors\" > ",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/super-admin/components/create-tenant-dialog.tsx",
+      "line": 179,
+      "snippet": "<button type=\"submit\" disabled={isLoading} className=\"bg-[var(--color-primary)] hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-mediu",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/super-admin/components/super-admin-nav.tsx",
+      "line": 21,
+      "snippet": "<Link key={item.href} href={item.href} className={cn( 'px-3 py-1.5 rounded-md text-sm font-medium transition-colors', isActive ? 'bg-blue-50",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/super-admin/components/sync-stripe-plans-button.tsx",
+      "line": 28,
+      "snippet": "<button onClick={handleClick} disabled={isLoading} className=\"flex items-center gap-2 bg-white border border-slate-300 hover:bg-slate-50 dis",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/super-admin/components/tenant-actions.tsx",
+      "line": 45,
+      "snippet": "<button type=\"submit\" disabled={loading} className=\"text-emerald-600 hover:text-emerald-700 text-sm font-medium transition-colors\" > {loadin",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/super-admin/components/tenant-actions.tsx",
+      "line": 58,
+      "snippet": "<button onClick={() => setIsOpen(true)} className=\"border-2 border-[var(--color-destructive)] text-[var(--color-destructive)] bg-transparent",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/super-admin/components/tenant-actions.tsx",
+      "line": 95,
+      "snippet": "<button type=\"button\" onClick={() => setIsOpen(false)} disabled={loading} className=\"px-4 py-2 text-sm font-medium text-slate-600 hover:text",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/super-admin/components/tenant-actions.tsx",
+      "line": 103,
+      "snippet": "<button type=\"submit\" disabled={loading} className=\"px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded transition-",
+      "category": "ambiguous",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/super-admin/layout.tsx",
+      "line": 31,
+      "snippet": "<button type=\"submit\" className=\"text-sm font-medium text-slate-500 hover:text-red-600 transition-colors\"> ",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/app/super-admin/page.tsx",
+      "line": 20,
+      "snippet": "<Link href=\"/super-admin/analytics\" className=\"flex items-center gap-2 border border-slate-300 text-slate-700 hover:bg-slate-50 px-4 py-2 ro",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/app/super-admin/page.tsx",
+      "line": 27,
+      "snippet": "<Link href=\"/super-admin/announcements\" className=\"flex items-center gap-2 border border-slate-300 text-slate-700 hover:bg-slate-50 px-4 py-",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Link"
+    },
+    {
+      "file": "src/components/ui/dialog.tsx",
+      "line": 66,
+      "snippet": "<Button variant=\"ghost\" className=\"absolute top-2 right-2\" size=\"icon-sm\" />",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/components/ui/dialog.tsx",
+      "line": 112,
+      "snippet": "<Button variant=\"outline\" />",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "Button"
+    },
+    {
+      "file": "src/components/ui/signature-capture.tsx",
+      "line": 53,
+      "snippet": "<button type=\"button\" onClick={() => sigCanvas.current?.clear()} className=\"bg-transparent border-none text-slate-500 text-xs mt-2 cursor-po",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/modules/analytics/components/growth-range-toggle.tsx",
+      "line": 20,
+      "snippet": "<button key={m} onClick={() => setMonths(m)} className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${ activeMonths === m ",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    },
+    {
+      "file": "src/modules/email-labels/components/label-chip.tsx",
+      "line": 61,
+      "snippet": "<button type=\"button\" onClick={(e) => { e.stopPropagation() e.preventDefault() onRemove() }} className=\"shrink-0 ml-0.5 opacity-60 hover:opa",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "componentType": "button"
+    }
+  ]
+}

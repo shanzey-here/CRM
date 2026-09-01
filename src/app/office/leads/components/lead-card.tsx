@@ -216,7 +216,7 @@ export function LeadCard({ lead, isDragOverlay = false, isPending = false }: Lea
                 e.stopPropagation()
                 setActiveAction('schedule_survey')
               }}
-              title="Schedule Survey (Epic D)"
+              title="Schedule Survey"
               aria-label="Schedule Survey"
               className="p-1 rounded-md text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors"
             >
@@ -229,7 +229,7 @@ export function LeadCard({ lead, isDragOverlay = false, isPending = false }: Lea
                 e.stopPropagation()
                 setActiveAction('send_quote')
               }}
-              title="Send Quote (Epic E)"
+              title="Send Quote"
               aria-label="Send Quote"
               className="p-1 rounded-md text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
             >
@@ -242,7 +242,7 @@ export function LeadCard({ lead, isDragOverlay = false, isPending = false }: Lea
                 e.stopPropagation()
                 setActiveAction('follow_up')
               }}
-              title="Log Follow-Up (Epic F)"
+              title="Log Follow-Up"
               aria-label="Log Follow-Up"
               className="p-1 rounded-md text-slate-400 hover:text-amber-600 hover:bg-amber-50 transition-colors"
             >
@@ -255,7 +255,7 @@ export function LeadCard({ lead, isDragOverlay = false, isPending = false }: Lea
                 e.stopPropagation()
                 setActiveAction('confirm_booking')
               }}
-              title="Confirm Booking (Epic G)"
+              title="Confirm Booking"
               aria-label="Confirm Booking"
               className="p-1 rounded-md text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
             >

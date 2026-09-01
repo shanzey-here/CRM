@@ -133,6 +133,7 @@ export function AnnouncementBannerStack({ initial, tenantId, planId, userId }: P
               onClick={() => handleDismiss(a.id)}
               disabled={isPending && dismissingId === a.id}
               className="shrink-0 opacity-70 hover:opacity-100 transition-opacity disabled:opacity-30"
+              title="Dismiss announcement"
               aria-label="Dismiss announcement"
             >
               <X size={16} />

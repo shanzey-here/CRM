@@ -203,7 +203,15 @@ export function WorkflowBuilderForm({ initialData, isAiEmailEnabled }: Props) {
                   <div className="flex-1">
                     <Input {...form.register(`trigger_conditions.${index}.value` as const)} placeholder="Value (e.g. website_form)" />
                   </div>
-                  <Button type="button" variant="ghost" size="icon" onClick={() => removeCondition(index)} className="text-red-500 hover:text-red-700">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => removeCondition(index)}
+                    className="text-red-500 hover:text-red-700"
+                    title="Remove condition"
+                    aria-label="Remove condition"
+                  >
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
@@ -287,6 +295,8 @@ export function WorkflowBuilderForm({ initialData, isAiEmailEnabled }: Props) {
                         size="icon"
                         disabled={index === 0}
                         onClick={() => swapAction(index, index - 1)}
+                        title="Move action up"
+                        aria-label="Move action up"
                       >
                         <ArrowUp className="h-4 w-4" />
                       </Button>
@@ -296,6 +306,8 @@ export function WorkflowBuilderForm({ initialData, isAiEmailEnabled }: Props) {
                         size="icon"
                         disabled={index === actionFields.length - 1}
                         onClick={() => swapAction(index, index + 1)}
+                        title="Move action down"
+                        aria-label="Move action down"
                       >
                         <ArrowDown className="h-4 w-4" />
                       </Button>
@@ -305,6 +317,8 @@ export function WorkflowBuilderForm({ initialData, isAiEmailEnabled }: Props) {
                         size="icon"
                         className="text-red-500 hover:text-red-700 ml-2"
                         onClick={() => removeAction(index)}
+                        title="Remove action"
+                        aria-label="Remove action"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>

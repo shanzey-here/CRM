@@ -178,6 +178,8 @@ export function VolumeCalculator({
                               className="h-7 w-7 rounded-full"
                               disabled={qty === 0 || !isDraft}
                               onClick={() => updateQuantity(item, -1)}
+                              title={`Decrease quantity of ${item.name}`}
+                              aria-label={`Decrease quantity of ${item.name}`}
                             >
                               <Minus className="h-3 w-3" />
                             </Button>
@@ -188,6 +190,8 @@ export function VolumeCalculator({
                               className="h-7 w-7 rounded-full"
                               disabled={!isDraft}
                               onClick={() => updateQuantity(item, 1)}
+                              title={`Increase quantity of ${item.name}`}
+                              aria-label={`Increase quantity of ${item.name}`}
                             >
                               <Plus className="h-3 w-3" />
                             </Button>

@@ -80,7 +80,8 @@ export function InviteStaffForm() {
             <button
               onClick={handleCopyPassword}
               className="p-1.5 text-emerald-600 hover:bg-emerald-100 rounded transition-colors"
-              title="Copy to clipboard"
+              title={copied ? "Copied!" : "Copy password to clipboard"}
+              aria-label={copied ? "Copied" : "Copy password to clipboard"}
             >
               {copied ? <Check size={16} /> : <Copy size={16} />}
             </button>

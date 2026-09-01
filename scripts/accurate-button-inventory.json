@@ -1,0 +1,5520 @@
+{
+  "total": 269,
+  "iconOnlyCount": 59,
+  "textLabeledCount": 120,
+  "iconAndTextCount": 90,
+  "compliantCount": 50,
+  "deficientCount": 9,
+  "iconOnly": [
+    {
+      "file": "src/app/office/components/announcement-banner-stack.tsx",
+      "line": 132,
+      "character": 13,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Dismiss announcement",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Dismiss announcement",
+      "icons": [
+        "X"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button onClick={() => handleDismiss(a.id)} disabled={isPending && dismissingId === a.id} className=\"shrink-0 opacity-70 hover:opacity-100 transition-opacity di",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/components/notification-bell.tsx",
+      "line": 288,
+      "character": 15,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Dismiss notification",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Dismiss notification",
+      "icons": [
+        "X"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button onClick={() => dismissToast(alert.id)} className=\"ml-4 text-slate-400 hover:text-slate-600 transition-colors\" title=\"Dismiss notification\" aria-label=\"D",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/components/onboarding-reminder-banner.tsx",
+      "line": 49,
+      "character": 9,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Dismiss permanently",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Dismiss permanently",
+      "icons": [
+        "X"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button onClick={handleDismiss} disabled={isDismissing} className=\"text-blue-500 hover:text-blue-700 transition-colors p-1\" title=\"Dismiss permanently\" aria-lab",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/email/components/thread-list.tsx",
+      "line": 225,
+      "character": 15,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Clear search",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Clear search",
+      "icons": [
+        "X"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button onClick={() => setSearchQuery('')} className=\"absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5\" title=\"Clear search",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/email/components/thread-list.tsx",
+      "line": 250,
+      "character": 17,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Building2"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button key={m.id} onClick={() => setMailboxFilter(m.id)} className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-all whitespace-nowrap flex it",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/email/components/thread-list.tsx",
+      "line": 275,
+      "character": 19,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "`Filter by label: ${label.name}`",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "`Filter by label: ${label.name}`",
+      "icons": [
+        "LabelChip"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button key={label.id} onClick={() => toggleLabelFilter(label.id)} className={`transition-all rounded-full ${ isActive ? 'ring-2 ring-emerald-500/80 ring-offset",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/email/[threadId]/components/associate-thread.tsx",
+      "line": 129,
+      "character": 9,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Close associate panel",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Close associate panel",
+      "icons": [
+        "X"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button onClick={() => setIsOpen(false)} className=\"text-slate-400 hover:text-slate-600 p-1 rounded-md\" title=\"Close associate panel\" aria-label=\"Close associat",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/email/[threadId]/components/associate-thread.tsx",
+      "line": 171,
+      "character": 15,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Check"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button key={c.id} onClick={() => handleLinkContact(c.id)} className=\"w-full text-left px-2.5 py-1.5 hover:bg-slate-50 rounded-lg transition-colors group flex i",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/email/[threadId]/components/thread-labels.tsx",
+      "line": 120,
+      "character": 21,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "`Apply label: ${label.name}`",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "`Apply label: ${label.name}`",
+      "icons": [
+        "LabelChip"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button key={label.id} onClick={() => handleAdd(label.id)} className=\"w-full flex items-center px-2.5 py-1.5 hover:bg-slate-50 rounded-lg transition-colors text",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/invoices/[id]/components/edit-draft-invoice-form.tsx",
+      "line": 124,
+      "character": 19,
+      "tagName": "Button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Remove line item",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Remove line item",
+      "icons": [
+        "Trash2"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<Button type=\"button\" variant=\"ghost\" size=\"icon\" onClick={() => remove(index)} disabled={fields.length === 1} title=\"Remove line item\" aria-label=\"Remove line ",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/jobs/components/manual-job-form.tsx",
+      "line": 217,
+      "character": 13,
+      "tagName": "Button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Remove line item",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Remove line item",
+      "icons": [
+        "Trash2"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<Button type=\"button\" variant=\"ghost\" className=\"text-red-500 hover:text-red-700 hover:bg-red-50 px-2\" onClick={() => remove(index)} disabled={isPending || fiel",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/jobs/[id]/components/completion-summary-card.tsx",
+      "line": 83,
+      "character": 9,
+      "tagName": "Button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Regenerate completion summary",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Regenerate completion summary",
+      "icons": [
+        "Loader2",
+        "RefreshCw"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<Button onClick={handleRegenerate} disabled={isRegenerating} size=\"sm\" variant=\"outline\" title=\"Regenerate completion summary\" aria-label=\"Regenerate completion",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/add-column-dialog.tsx",
+      "line": 97,
+      "character": 11,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Close dialog",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Close dialog",
+      "icons": [
+        "X"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button type=\"button\" onClick={handleClose} className=\"text-slate-400 hover:text-slate-600 rounded-lg p-1 transition-colors\" title=\"Close dialog\" aria-label=\"Cl",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/add-column-dialog.tsx",
+      "line": 153,
+      "character": 19,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "`Select color ${preset.label}`",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "`Select color ${preset.label}`",
+      "icons": [],
+      "visibleTexts": [],
+      "rawJsx": "<button key={preset.value} type=\"button\" title={`Select color ${preset.label}`} aria-label={`Select color ${preset.label}`} onClick={() => setValue('color', pre",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/delete-column-dialog.tsx",
+      "line": 88,
+      "character": 11,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Close dialog",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Close dialog",
+      "icons": [
+        "X"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button type=\"button\" onClick={handleClose} className=\"text-slate-400 hover:text-slate-600 rounded-lg p-1 transition-colors\" title=\"Close dialog\" aria-label=\"Cl",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/edit-column-dialog.tsx",
+      "line": 107,
+      "character": 11,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Close dialog",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Close dialog",
+      "icons": [
+        "X"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button type=\"button\" onClick={handleClose} className=\"text-slate-400 hover:text-slate-600 rounded-lg p-1 transition-colors\" title=\"Close dialog\" aria-label=\"Cl",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/edit-column-dialog.tsx",
+      "line": 165,
+      "character": 19,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "`Select color ${preset.label}`",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "`Select color ${preset.label}`",
+      "icons": [],
+      "visibleTexts": [],
+      "rawJsx": "<button key={preset.value} type=\"button\" title={`Select color ${preset.label}`} aria-label={`Select color ${preset.label}`} onClick={() => setValue('color', pre",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/kanban-column.tsx",
+      "line": 124,
+      "character": 15,
+      "tagName": "DropdownMenuTrigger",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "`Options for ${stage.label}`",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "`Options for ${stage.label}`",
+      "icons": [
+        "MoreHorizontal"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<DropdownMenuTrigger className=\"p-1 rounded text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors focus:outline-none cursor-pointer\" title={`",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/lead-card.tsx",
+      "line": 213,
+      "character": 13,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Schedule Survey",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Schedule Survey",
+      "icons": [
+        "CalendarClock"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button type=\"button\" onClick={(e) => { e.stopPropagation() setActiveAction('schedule_survey') }} title=\"Schedule Survey\" aria-label=\"Schedule Survey\" className",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/lead-card.tsx",
+      "line": 226,
+      "character": 13,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Send Quote",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Send Quote",
+      "icons": [
+        "FileText"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button type=\"button\" onClick={(e) => { e.stopPropagation() setActiveAction('send_quote') }} title=\"Send Quote\" aria-label=\"Send Quote\" className=\"p-1 rounded-m",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/lead-card.tsx",
+      "line": 239,
+      "character": 13,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Log Follow-Up",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Log Follow-Up",
+      "icons": [
+        "PhoneCall"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button type=\"button\" onClick={(e) => { e.stopPropagation() setActiveAction('follow_up') }} title=\"Log Follow-Up\" aria-label=\"Log Follow-Up\" className=\"p-1 roun",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/lead-card.tsx",
+      "line": 252,
+      "character": 13,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Confirm Booking",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Confirm Booking",
+      "icons": [
+        "CheckCircle2"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button type=\"button\" onClick={(e) => { e.stopPropagation() setActiveAction('confirm_booking') }} title=\"Confirm Booking\" aria-label=\"Confirm Booking\" className",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/[id]/components/lead-quick-actions-bar.tsx",
+      "line": 48,
+      "character": 11,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "label",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "label",
+      "icons": [
+        "Icon"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button key={type} type=\"button\" onClick={() => setActiveAction(type)} title={label} aria-label={label} className={`flex items-center gap-1.5 px-2 py-1 rounded-",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/quotes/[id]/components/volume-calculator.tsx",
+      "line": 175,
+      "character": 29,
+      "tagName": "Button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "`Decrease quantity of ${item.name}`",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "`Decrease quantity of ${item.name}`",
+      "icons": [
+        "Minus"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<Button variant=\"outline\" size=\"icon\" className=\"h-7 w-7 rounded-full\" disabled={qty === 0 || !isDraft} onClick={() => updateQuantity(item, -1)} title={`Decreas",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/quotes/[id]/components/volume-calculator.tsx",
+      "line": 187,
+      "character": 29,
+      "tagName": "Button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "`Increase quantity of ${item.name}`",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "`Increase quantity of ${item.name}`",
+      "icons": [
+        "Plus"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<Button variant=\"outline\" size=\"icon\" className=\"h-7 w-7 rounded-full\" disabled={!isDraft} onClick={() => updateQuantity(item, 1)} title={`Increase quantity of ",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/quotes/[id]/page.tsx",
+      "line": 90,
+      "character": 11,
+      "tagName": "Link",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Back to lead",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Back to lead",
+      "icons": [
+        "ArrowLeft"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<Link href={`/office/leads/${quote.lead_id}`} className=\"p-2 -ml-2 rounded-full hover:bg-slate-100 text-slate-500 transition-colors\" title=\"Back to lead\" aria-l",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/scheduling/components/date-navigator.tsx",
+      "line": 80,
+      "character": 11,
+      "tagName": "Button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Previous period",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Previous period",
+      "icons": [
+        "ChevronLeft"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<Button variant=\"outline\" size=\"icon\" className=\"h-8 w-8\" onClick={handlePrev} title=\"Previous period\" aria-label=\"Previous period\" > <ChevronLeft className=\"h-",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/scheduling/components/date-navigator.tsx",
+      "line": 90,
+      "character": 11,
+      "tagName": "Button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Next period",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Next period",
+      "icons": [
+        "ChevronRight"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<Button variant=\"outline\" size=\"icon\" className=\"h-8 w-8\" onClick={handleNext} title=\"Next period\" aria-label=\"Next period\" > <ChevronRight className=\"h-4 w-4\" ",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/scheduling/components/scheduling-board.tsx",
+      "line": 111,
+      "character": 11,
+      "tagName": "Button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Previous day",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Previous day",
+      "icons": [
+        "ChevronLeft"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<Button variant=\"outline\" size=\"icon\" onClick={() => navigateDay(-1)} title=\"Previous day\" aria-label=\"Previous day\" > <ChevronLeft className=\"h-4 w-4\" /> </But",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/scheduling/components/scheduling-board.tsx",
+      "line": 124,
+      "character": 11,
+      "tagName": "Button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Next day",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Next day",
+      "icons": [
+        "ChevronRight"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<Button variant=\"outline\" size=\"icon\" onClick={() => navigateDay(1)} title=\"Next day\" aria-label=\"Next day\" > <ChevronRight className=\"h-4 w-4\" /> </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/appearance/components/theme-picker.tsx",
+      "line": 54,
+      "character": 11,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2",
+        "Check",
+        "ThemePreview"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button key={t.value} type=\"button\" onClick={() => selectTheme(t.value)} disabled={isPending} className={`relative text-left rounded-lg border p-3 transition-co",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/billing/components/billing-panel.tsx",
+      "line": 180,
+      "character": 21,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button key={price.id} onClick={() => handleCheckout(price.stripe_price_id)} disabled={isPending} className=\"inline-flex items-center gap-2 px-3 py-1.5 bg-emera",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/email-labels/components/label-form-dialog.tsx",
+      "line": 78,
+      "character": 15,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Close dialog",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Close dialog",
+      "icons": [
+        "X"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button onClick={close} className=\"text-slate-400 hover:text-slate-900 transition-colors\" title=\"Close dialog\" aria-label=\"Close dialog\" > <X size={20} /> </but",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/email-labels/components/label-list.tsx",
+      "line": 81,
+      "character": 23,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "`Edit label: ${label.name}`",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "`Edit label: ${label.name}`",
+      "icons": [
+        "Pencil"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button className=\"p-1.5 text-slate-400 hover:text-[var(--color-primary)] transition-colors\" title={`Edit label: ${label.name}`} aria-label={`Edit label: ${labe",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/email-labels/components/label-list.tsx",
+      "line": 91,
+      "character": 21,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "`Delete label: ${label.name}`",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "`Delete label: ${label.name}`",
+      "icons": [
+        "Trash2"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button onClick={() => handleDelete(label)} disabled={isPending && pendingId === label.id} className=\"p-1.5 text-slate-400 hover:text-red-600 transition-colors ",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/invoice-template/components/template-editor.tsx",
+      "line": 182,
+      "character": 17,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "`Add ${BLOCK_LABELS[type]}`",
+      "hasAriaLabel": false,
+      "icons": [
+        "Plus"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button key={type} type=\"button\" onClick={() => append(defaultBlockFor(type))} className=\"inline-flex items-center gap-1 px-2 py-1 text-xs bg-emerald-50 text-em",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/invoice-template/components/template-editor.tsx",
+      "line": 286,
+      "character": 9,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "`Remove ${BLOCK_LABELS[block.type]} block`",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "`Remove ${BLOCK_LABELS[block.type]} block`",
+      "icons": [
+        "X"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button type=\"button\" onClick={onRemove} className=\"text-red-600 hover:bg-red-50 rounded p-1\" title={`Remove ${BLOCK_LABELS[block.type]} block`} aria-label={`Re",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/pricing/components/pricing-form.tsx",
+      "line": 250,
+      "character": 17,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Remove surcharge",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Remove surcharge",
+      "icons": [
+        "X"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button type=\"button\" onClick={() => remove(index)} className=\"px-2 py-1 text-red-600 hover:bg-red-50 rounded transition-colors\" title=\"Remove surcharge\" aria-l",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/staff/components/invite-staff-form.tsx",
+      "line": 80,
+      "character": 13,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "copied ? \"Copied!\" : \"Copy password to clipboard\"",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "copied ? \"Copied\" : \"Copy password to clipboard\"",
+      "icons": [
+        "Check",
+        "Copy"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button onClick={handleCopyPassword} className=\"p-1.5 text-emerald-600 hover:bg-emerald-100 rounded transition-colors\" title={copied ? \"Copied!\" : \"Copy passwor",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/staff/components/staff-list.tsx",
+      "line": 137,
+      "character": 19,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "expandedId === member.id ? \"Collapse staff actions\" : \"Expand staff actions\"",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "expandedId === member.id ? \"Collapse staff actions\" : \"Expand staff actions\"",
+      "icons": [
+        "ChevronDown"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button onClick={() => setExpandedId(expandedId === member.id ? null : member.id)} disabled={isPending} className=\"inline-flex items-center gap-1 text-sm text-e",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/social/components/composer-form.tsx",
+      "line": 163,
+      "character": 21,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "`${isSelected ? 'Deselect' : 'Select'} ${account.display_name} (${account.platform})`",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "`${isSelected ? 'Deselect' : 'Select'} ${account.display_name} (${account.platform})`",
+      "icons": [
+        "PlatformIcon",
+        "Check"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button key={account.id} type=\"button\" onClick={() => toggleAccount(account.id)} title={`${isSelected ? 'Deselect' : 'Select'} ${account.display_name} (${accoun",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/social/components/live-post-preview.tsx",
+      "line": 40,
+      "character": 15,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "`Preview on ${plat}`",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "`Preview on ${plat}`",
+      "icons": [
+        "PlatformIcon"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button key={plat} type=\"button\" onClick={() => setSelectedPlatform(plat)} title={`Preview on ${plat}`} aria-label={`Preview on ${plat}`} className={`flex items",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/tasks/components/tasks-list.tsx",
+      "line": 58,
+      "character": 13,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "toggleLabel",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "toggleLabel",
+      "icons": [
+        "CheckCircle2"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button type=\"button\" onClick={() => handleToggle(task)} disabled={isPending && loadingId === task.id} title={toggleLabel} aria-label={toggleLabel} aria-pressed",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/workflows/[id]/logs/page.tsx",
+      "line": 43,
+      "character": 11,
+      "tagName": "Button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Back to workflows",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Back to workflows",
+      "icons": [
+        "ArrowLeft"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<Button variant=\"outline\" size=\"icon\" title=\"Back to workflows\" aria-label=\"Back to workflows\" > <ArrowLeft className=\"h-4 w-4\" /> </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/workflows/[id]/WorkflowBuilderForm.tsx",
+      "line": 206,
+      "character": 19,
+      "tagName": "Button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Remove condition",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Remove condition",
+      "icons": [
+        "Trash2"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<Button type=\"button\" variant=\"ghost\" size=\"icon\" onClick={() => removeCondition(index)} className=\"text-red-500 hover:text-red-700\" title=\"Remove condition\" ar",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/workflows/[id]/WorkflowBuilderForm.tsx",
+      "line": 292,
+      "character": 23,
+      "tagName": "Button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Move action up",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Move action up",
+      "icons": [
+        "ArrowUp"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<Button type=\"button\" variant=\"ghost\" size=\"icon\" disabled={index === 0} onClick={() => swapAction(index, index - 1)} title=\"Move action up\" aria-label=\"Move ac",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/workflows/[id]/WorkflowBuilderForm.tsx",
+      "line": 303,
+      "character": 23,
+      "tagName": "Button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Move action down",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Move action down",
+      "icons": [
+        "ArrowDown"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<Button type=\"button\" variant=\"ghost\" size=\"icon\" disabled={index === actionFields.length - 1} onClick={() => swapAction(index, index + 1)} title=\"Move action d",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/workflows/[id]/WorkflowBuilderForm.tsx",
+      "line": 314,
+      "character": 23,
+      "tagName": "Button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Remove action",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Remove action",
+      "icons": [
+        "Trash2"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<Button type=\"button\" variant=\"ghost\" size=\"icon\" className=\"text-red-500 hover:text-red-700 ml-2\" onClick={() => removeAction(index)} title=\"Remove action\" ari",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/super-admin/analytics/components/analytics-tabs.tsx",
+      "line": 28,
+      "character": 9,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [],
+      "rawJsx": "<button key={t.key} onClick={() => setTab(t.key)} className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${ activeTab === t.key ? 'bord",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/super-admin/announcements/components/announcement-dialog.tsx",
+      "line": 120,
+      "character": 15,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Close dialog",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Close dialog",
+      "icons": [
+        "X"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button onClick={close} className=\"text-slate-400 hover:text-slate-900 transition-colors\" title=\"Close dialog\" aria-label=\"Close dialog\" > <X size={20} /> </but",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/super-admin/announcements/components/announcement-list.tsx",
+      "line": 116,
+      "character": 25,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "`Edit announcement: ${a.title}`",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "`Edit announcement: ${a.title}`",
+      "icons": [
+        "Pencil"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button className=\"p-1.5 text-slate-400 hover:text-[var(--color-primary)] transition-colors\" title={`Edit announcement: ${a.title}`} aria-label={`Edit announcem",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/super-admin/announcements/components/announcement-list.tsx",
+      "line": 126,
+      "character": 23,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "`Close announcement now: ${a.title}`",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "`Close announcement now: ${a.title}`",
+      "icons": [
+        "XCircle"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button onClick={() => handleCloseNow(a.id)} disabled={isPending && pendingId === a.id} className=\"p-1.5 text-slate-400 hover:text-amber-600 transition-colors d",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/super-admin/announcements/components/announcement-list.tsx",
+      "line": 136,
+      "character": 21,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "`Delete announcement: ${a.title}`",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "`Delete announcement: ${a.title}`",
+      "icons": [
+        "Trash2"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button onClick={() => handleDelete(a.id)} disabled={isPending && pendingId === a.id} className=\"p-1.5 text-slate-400 hover:text-red-600 transition-colors disab",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/super-admin/components/create-tenant-dialog.tsx",
+      "line": 63,
+      "character": 15,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Close dialog",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Close dialog",
+      "icons": [
+        "X"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button onClick={resetState} className=\"text-slate-400 hover:text-slate-900 transition-colors\" title=\"Close dialog\" aria-label=\"Close dialog\" > <X size={20} /> ",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/super-admin/components/create-tenant-dialog.tsx",
+      "line": 88,
+      "character": 25,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Copy admin email",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Copy admin email",
+      "icons": [],
+      "visibleTexts": [],
+      "rawJsx": "<button onClick={() => navigator.clipboard.writeText(successData.adminEmail)} className=\"opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-slate-9",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/super-admin/components/create-tenant-dialog.tsx",
+      "line": 102,
+      "character": 25,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Copy admin password",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Copy admin password",
+      "icons": [],
+      "visibleTexts": [],
+      "rawJsx": "<button onClick={() => navigator.clipboard.writeText(successData.generatedPassword || '')} className=\"opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/components/ui/dialog.tsx",
+      "line": 66,
+      "character": 15,
+      "tagName": "Button",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [],
+      "rawJsx": "<Button variant=\"ghost\" className=\"absolute top-2 right-2\" size=\"icon-sm\" />",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/components/ui/dialog.tsx",
+      "line": 112,
+      "character": 40,
+      "tagName": "Button",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [],
+      "rawJsx": "<Button variant=\"outline\" />",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/modules/email-labels/components/label-chip.tsx",
+      "line": 61,
+      "character": 9,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": true,
+      "ariaLabelValue": "`Remove ${name} label`",
+      "icons": [
+        "X"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button type=\"button\" onClick={(e) => { e.stopPropagation() e.preventDefault() onRemove() }} className=\"shrink-0 ml-0.5 opacity-60 hover:opacity-100 transition-",
+      "isActionOrTrigger": true
+    }
+  ],
+  "partialOrMissing": [
+    {
+      "file": "src/app/office/email/components/thread-list.tsx",
+      "line": 250,
+      "character": 17,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Building2"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button key={m.id} onClick={() => setMailboxFilter(m.id)} className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-all whitespace-nowrap flex it",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/email/[threadId]/components/associate-thread.tsx",
+      "line": 171,
+      "character": 15,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Check"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button key={c.id} onClick={() => handleLinkContact(c.id)} className=\"w-full text-left px-2.5 py-1.5 hover:bg-slate-50 rounded-lg transition-colors group flex i",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/appearance/components/theme-picker.tsx",
+      "line": 54,
+      "character": 11,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2",
+        "Check",
+        "ThemePreview"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button key={t.value} type=\"button\" onClick={() => selectTheme(t.value)} disabled={isPending} className={`relative text-left rounded-lg border p-3 transition-co",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/billing/components/billing-panel.tsx",
+      "line": 180,
+      "character": 21,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button key={price.id} onClick={() => handleCheckout(price.stripe_price_id)} disabled={isPending} className=\"inline-flex items-center gap-2 px-3 py-1.5 bg-emera",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/invoice-template/components/template-editor.tsx",
+      "line": 182,
+      "character": 17,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "`Add ${BLOCK_LABELS[type]}`",
+      "hasAriaLabel": false,
+      "icons": [
+        "Plus"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button key={type} type=\"button\" onClick={() => append(defaultBlockFor(type))} className=\"inline-flex items-center gap-1 px-2 py-1 text-xs bg-emerald-50 text-em",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/super-admin/analytics/components/analytics-tabs.tsx",
+      "line": 28,
+      "character": 9,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [],
+      "rawJsx": "<button key={t.key} onClick={() => setTab(t.key)} className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${ activeTab === t.key ? 'bord",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/components/ui/dialog.tsx",
+      "line": 66,
+      "character": 15,
+      "tagName": "Button",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [],
+      "rawJsx": "<Button variant=\"ghost\" className=\"absolute top-2 right-2\" size=\"icon-sm\" />",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/components/ui/dialog.tsx",
+      "line": 112,
+      "character": 40,
+      "tagName": "Button",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [],
+      "rawJsx": "<Button variant=\"outline\" />",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/modules/email-labels/components/label-chip.tsx",
+      "line": 61,
+      "character": 9,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": true,
+      "ariaLabelValue": "`Remove ${name} label`",
+      "icons": [
+        "X"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button type=\"button\" onClick={(e) => { e.stopPropagation() e.preventDefault() onRemove() }} className=\"shrink-0 ml-0.5 opacity-60 hover:opacity-100 transition-",
+      "isActionOrTrigger": true
+    }
+  ],
+  "allRecords": [
+    {
+      "file": "src/app/crew/components/crew-jobs-list.tsx",
+      "line": 113,
+      "character": 9,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "RefreshCw"
+      ],
+      "visibleTexts": [
+        "Syncing...",
+        "Sync Now"
+      ],
+      "rawJsx": "<button onClick={() => syncData()} disabled={isSyncing} className=\"flex items-center space-x-1 text-sm text-blue-600 hover:text-blue-700 disabled:opacity-50\" > ",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/crew/components/storage-tester.tsx",
+      "line": 59,
+      "character": 9,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Save Data"
+      ],
+      "rawJsx": "<button onClick={handleSave} className=\"bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded font-medium transition-colors\" > Save Data </button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/crew/jobs/[id]/components/job-signoff.tsx",
+      "line": 97,
+      "character": 7,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Sign & Complete Job"
+      ],
+      "rawJsx": "<button onClick={handleSubmit} className=\"w-full mt-4 bg-blue-600 text-white font-bold py-3 px-4 rounded-md hover:bg-blue-700 transition-colors\" > Sign & Comple",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/crew/jobs/[id]/components/photo-capture.tsx",
+      "line": 65,
+      "character": 11,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Camera"
+      ],
+      "visibleTexts": [
+        "Take Photo"
+      ],
+      "rawJsx": "<button onClick={() => fileInputRef.current?.click()} disabled={isCapturing} className=\"w-full flex items-center justify-center space-x-2 bg-blue-600 hover:bg-b",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/crew/jobs/[id]/page.tsx",
+      "line": 99,
+      "character": 11,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "RefreshCw"
+      ],
+      "visibleTexts": [
+        "Syncing...",
+        "Sync Now"
+      ],
+      "rawJsx": "<button onClick={() => { syncData(); syncPhotos(); }} disabled={isSyncing || isPhotoSyncing} className=\"flex items-center space-x-1 text-sm text-blue-600 hover:",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/crew/page.tsx",
+      "line": 22,
+      "character": 11,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Log out"
+      ],
+      "rawJsx": "<button type=\"submit\" className=\"px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 rounded-md hover:bg-slate-200 transition-colors\"> Log out </button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/customer/page.tsx",
+      "line": 45,
+      "character": 11,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Sign Out"
+      ],
+      "rawJsx": "<button type=\"submit\" className=\"px-4 py-2 bg-slate-900 text-white rounded-md hover:bg-slate-800\"> Sign Out </button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/embed/lead-capture/[widgetKey]/components/capture-form.tsx",
+      "line": 160,
+      "character": 11,
+      "tagName": "Button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Sending Request...",
+        "Request a Quote"
+      ],
+      "rawJsx": "<Button type=\"submit\" className=\"w-full h-11 text-base font-semibold\" disabled={isSubmitting}> {isSubmitting ? 'Sending Request...' : 'Request a Quote'} </Butto",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/login/components/login-form.tsx",
+      "line": 65,
+      "character": 11,
+      "tagName": "Button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Signing in...",
+        "Sign in"
+      ],
+      "rawJsx": "<Button className=\"w-full font-semibold\" type=\"submit\" disabled={loading}> {loading ? 'Signing in...' : 'Sign in'} </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/clients/components/contacts-client.tsx",
+      "line": 254,
+      "character": 11,
+      "tagName": "Button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "ChevronLeft"
+      ],
+      "visibleTexts": [
+        "Previous"
+      ],
+      "rawJsx": "<Button variant=\"outline\" size=\"sm\" onClick={() => applyFilters(undefined, undefined, currentPage - 1)} disabled={currentPage <= 1 || isPending} > <ChevronLeft ",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/clients/components/contacts-client.tsx",
+      "line": 266,
+      "character": 11,
+      "tagName": "Button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "ChevronRight"
+      ],
+      "visibleTexts": [
+        "Next"
+      ],
+      "rawJsx": "<Button variant=\"outline\" size=\"sm\" onClick={() => applyFilters(undefined, undefined, currentPage + 1)} disabled={currentPage >= totalPages || isPending} > Next",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/clients/components/create-client-form.tsx",
+      "line": 215,
+      "character": 13,
+      "tagName": "Button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Cancel"
+      ],
+      "rawJsx": "<Button type=\"button\" variant=\"outline\" onClick={() => setOpen(false)} disabled={isSubmitting}> Cancel </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/clients/components/create-client-form.tsx",
+      "line": 218,
+      "character": 13,
+      "tagName": "Button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Saving...",
+        "Save Client"
+      ],
+      "rawJsx": "<Button type=\"submit\" disabled={isSubmitting} className=\"bg-emerald-600 hover:bg-emerald-700 text-white\"> {isSubmitting ? 'Saving...' : 'Save Client'} </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/clients/[id]/components/create-lead-form.tsx",
+      "line": 177,
+      "character": 13,
+      "tagName": "Button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Cancel"
+      ],
+      "rawJsx": "<Button type=\"button\" variant=\"outline\" onClick={() => setOpen(false)} disabled={isSubmitting}> Cancel </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/clients/[id]/components/create-lead-form.tsx",
+      "line": 180,
+      "character": 13,
+      "tagName": "Button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2"
+      ],
+      "visibleTexts": [
+        "Create Lead"
+      ],
+      "rawJsx": "<Button type=\"submit\" disabled={isSubmitting}> {isSubmitting && <Loader2 className=\"mr-2 h-4 w-4 animate-spin\" />} Create Lead </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/clients/[id]/components/edit-contact-form.tsx",
+      "line": 164,
+      "character": 13,
+      "tagName": "Button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Cancel"
+      ],
+      "rawJsx": "<Button type=\"button\" variant=\"outline\" onClick={() => setOpen(false)} disabled={isSubmitting}> Cancel </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/clients/[id]/components/edit-contact-form.tsx",
+      "line": 167,
+      "character": 13,
+      "tagName": "Button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2"
+      ],
+      "visibleTexts": [
+        "Save Changes"
+      ],
+      "rawJsx": "<Button type=\"submit\" disabled={isSubmitting}> {isSubmitting && <Loader2 className=\"mr-2 h-4 w-4 animate-spin\" />} Save Changes </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/clients/[id]/components/negotiated-rate-card.tsx",
+      "line": 104,
+      "character": 17,
+      "tagName": "Button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Cancel"
+      ],
+      "rawJsx": "<Button type=\"button\" variant=\"outline\" onClick={() => setOpen(false)} disabled={isSubmitting}> Cancel </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/clients/[id]/components/negotiated-rate-card.tsx",
+      "line": 107,
+      "character": 17,
+      "tagName": "Button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2"
+      ],
+      "visibleTexts": [
+        "Save"
+      ],
+      "rawJsx": "<Button type=\"submit\" disabled={isSubmitting}> {isSubmitting && <Loader2 className=\"mr-2 h-4 w-4 animate-spin\" />} Save </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/clients/[id]/components/negotiated-rate-card.tsx",
+      "line": 136,
+      "character": 15,
+      "tagName": "Button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2"
+      ],
+      "visibleTexts": [
+        "Deactivate"
+      ],
+      "rawJsx": "<Button variant=\"outline\" size=\"sm\" onClick={onDeactivate} disabled={isSubmitting}> {isSubmitting && <Loader2 className=\"mr-2 h-4 w-4 animate-spin\" />} Deactiva",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/components/announcement-banner-stack.tsx",
+      "line": 132,
+      "character": 13,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Dismiss announcement",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Dismiss announcement",
+      "icons": [
+        "X"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button onClick={() => handleDismiss(a.id)} disabled={isPending && dismissingId === a.id} className=\"shrink-0 opacity-70 hover:opacity-100 transition-opacity di",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/components/create-task-form.tsx",
+      "line": 125,
+      "character": 9,
+      "tagName": "Button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Creating...",
+        "Create Task"
+      ],
+      "rawJsx": "<Button type=\"submit\" disabled={isPending || !isValid}> {isPending ? 'Creating...' : 'Create Task'} </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/components/notification-bell.tsx",
+      "line": 205,
+      "character": 9,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Bell"
+      ],
+      "visibleTexts": [
+        "99+"
+      ],
+      "rawJsx": "<button onClick={() => setIsOpen(!isOpen)} className=\"relative p-2 text-slate-500 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 ro",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/components/notification-bell.tsx",
+      "line": 222,
+      "character": 17,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Check"
+      ],
+      "visibleTexts": [
+        "Mark all read"
+      ],
+      "rawJsx": "<button onClick={handleMarkAllRead} className=\"text-xs font-medium text-emerald-600 hover:text-emerald-700 flex items-center gap-1\" > <Check size={14} /> Mark a",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/components/notification-bell.tsx",
+      "line": 241,
+      "character": 23,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "short",
+        "numeric",
+        "numeric",
+        "2-digit"
+      ],
+      "rawJsx": "<button onClick={() => handleNotificationClick(notif)} className={`w-full text-left px-4 py-3 hover:bg-slate-50 transition-colors flex flex-col gap-1 ${!notif.r",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/components/notification-bell.tsx",
+      "line": 288,
+      "character": 15,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Dismiss notification",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Dismiss notification",
+      "icons": [
+        "X"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button onClick={() => dismissToast(alert.id)} className=\"ml-4 text-slate-400 hover:text-slate-600 transition-colors\" title=\"Dismiss notification\" aria-label=\"D",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/components/onboarding-reminder-banner.tsx",
+      "line": 49,
+      "character": 9,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Dismiss permanently",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Dismiss permanently",
+      "icons": [
+        "X"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button onClick={handleDismiss} disabled={isDismissing} className=\"text-blue-500 hover:text-blue-700 transition-colors p-1\" title=\"Dismiss permanently\" aria-lab",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/components/timeline-view.tsx",
+      "line": 60,
+      "character": 11,
+      "tagName": "TabsTrigger",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Add Note"
+      ],
+      "rawJsx": "<TabsTrigger value=\"note\">Add Note</TabsTrigger>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/components/timeline-view.tsx",
+      "line": 61,
+      "character": 11,
+      "tagName": "TabsTrigger",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Create Task"
+      ],
+      "rawJsx": "<TabsTrigger value=\"task\">Create Task</TabsTrigger>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/components/timeline-view.tsx",
+      "line": 74,
+      "character": 15,
+      "tagName": "Button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Saving...",
+        "Add Note"
+      ],
+      "rawJsx": "<Button size=\"sm\" onClick={handleAddNote} disabled={!noteContent.trim() || isPending} > {isPending ? 'Saving...' : 'Add Note'} </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/email/components/thread-list.tsx",
+      "line": 225,
+      "character": 15,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Clear search",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Clear search",
+      "icons": [
+        "X"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button onClick={() => setSearchQuery('')} className=\"absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5\" title=\"Clear search",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/email/components/thread-list.tsx",
+      "line": 239,
+      "character": 15,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "All Mailboxes"
+      ],
+      "rawJsx": "<button onClick={() => setMailboxFilter(null)} className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-all whitespace-nowrap ${ !activeMailboxI",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/email/components/thread-list.tsx",
+      "line": 250,
+      "character": 17,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Building2"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button key={m.id} onClick={() => setMailboxFilter(m.id)} className={`px-3 py-1.5 text-xs font-medium rounded-lg border transition-all whitespace-nowrap flex it",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/email/components/thread-list.tsx",
+      "line": 275,
+      "character": 19,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "`Filter by label: ${label.name}`",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "`Filter by label: ${label.name}`",
+      "icons": [
+        "LabelChip"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button key={label.id} onClick={() => toggleLabelFilter(label.id)} className={`transition-all rounded-full ${ isActive ? 'ring-2 ring-emerald-500/80 ring-offset",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/email/components/thread-list.tsx",
+      "line": 298,
+      "character": 15,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Reset filters"
+      ],
+      "rawJsx": "<button onClick={clearAllFilters} className=\"text-xs font-medium text-slate-500 hover:text-red-600 transition-colors ml-auto underline-offset-2 hover:underline\"",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/email/components/thread-list.tsx",
+      "line": 324,
+      "character": 13,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Clear all filters"
+      ],
+      "rawJsx": "<button onClick={clearAllFilters} className=\"mt-4 inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 border border-em",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/email/review-queue/components/label-suggestion-queue-item.tsx",
+      "line": 35,
+      "character": 9,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Check"
+      ],
+      "visibleTexts": [
+        "Apply label"
+      ],
+      "rawJsx": "<button onClick={handleApprove} disabled={isPending} className=\"flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-[var(--color-primary)] hover:bg-blue-",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/email/review-queue/components/label-suggestion-queue-item.tsx",
+      "line": 43,
+      "character": 9,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "X"
+      ],
+      "visibleTexts": [
+        "Dismiss"
+      ],
+      "rawJsx": "<button onClick={handleReject} disabled={isPending} className=\"flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/email/review-queue/components/queue-item.tsx",
+      "line": 79,
+      "character": 9,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2",
+        "Trash2"
+      ],
+      "visibleTexts": [
+        "Discard"
+      ],
+      "rawJsx": "<button onClick={handleDiscard} disabled={isPending} className=\"inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-300 text-slate-600 rou",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/email/review-queue/components/queue-item.tsx",
+      "line": 87,
+      "character": 9,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2",
+        "Check"
+      ],
+      "visibleTexts": [
+        "Approve &amp; Send"
+      ],
+      "rawJsx": "<button onClick={handleApprove} disabled={isPending || !body.trim()} className=\"inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white rounded t",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/email/[threadId]/components/ai-draft-review.tsx",
+      "line": 65,
+      "character": 9,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2",
+        "Trash2"
+      ],
+      "visibleTexts": [
+        "Discard"
+      ],
+      "rawJsx": "<button onClick={handleDiscard} disabled={isPending} className=\"inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-300 text-slate-600 rou",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/email/[threadId]/components/ai-draft-review.tsx",
+      "line": 73,
+      "character": 9,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2",
+        "Check"
+      ],
+      "visibleTexts": [
+        "Approve &amp; Send"
+      ],
+      "rawJsx": "<button onClick={handleApprove} disabled={isPending || !body.trim()} className=\"inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white rounded t",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/email/[threadId]/components/associate-thread.tsx",
+      "line": 85,
+      "character": 9,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Change"
+      ],
+      "rawJsx": "<button onClick={() => setIsOpen(true)} className=\"text-xs font-medium text-slate-500 hover:text-slate-800 hover:underline transition-colors\" > Change </button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/email/[threadId]/components/associate-thread.tsx",
+      "line": 97,
+      "character": 7,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Link2"
+      ],
+      "visibleTexts": [
+        "Associate with Lead / Client"
+      ],
+      "rawJsx": "<button onClick={() => setIsOpen(true)} className=\"inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-dashed border-slate-300 bg-slate-50/5",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/email/[threadId]/components/associate-thread.tsx",
+      "line": 111,
+      "character": 11,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Find Existing"
+      ],
+      "rawJsx": "<button onClick={() => setMode('search')} className={`text-xs font-semibold px-2.5 py-1 rounded-md transition-colors ${ mode === 'search' ? 'bg-slate-900 text-w",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/email/[threadId]/components/associate-thread.tsx",
+      "line": 119,
+      "character": 11,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Plus"
+      ],
+      "visibleTexts": [
+        "New Contact"
+      ],
+      "rawJsx": "<button onClick={() => setMode('create')} className={`text-xs font-semibold px-2.5 py-1 rounded-md transition-colors ${ mode === 'create' ? 'bg-slate-900 text-w",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/email/[threadId]/components/associate-thread.tsx",
+      "line": 129,
+      "character": 9,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Close associate panel",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Close associate panel",
+      "icons": [
+        "X"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button onClick={() => setIsOpen(false)} className=\"text-slate-400 hover:text-slate-600 p-1 rounded-md\" title=\"Close associate panel\" aria-label=\"Close associat",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/email/[threadId]/components/associate-thread.tsx",
+      "line": 171,
+      "character": 15,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Check"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button key={c.id} onClick={() => handleLinkContact(c.id)} className=\"w-full text-left px-2.5 py-1.5 hover:bg-slate-50 rounded-lg transition-colors group flex i",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/email/[threadId]/components/associate-thread.tsx",
+      "line": 187,
+      "character": 15,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "ArrowRight"
+      ],
+      "visibleTexts": [
+        "Lead:",
+        "stage"
+      ],
+      "rawJsx": "<button key={l.id} onClick={() => handleLinkLead(l.id)} className=\"w-full text-left px-2.5 py-1.5 hover:bg-slate-50 rounded-lg transition-colors group flex item",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/email/[threadId]/components/associate-thread.tsx",
+      "line": 225,
+      "character": 11,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2"
+      ],
+      "visibleTexts": [
+        "Create & Link Contact"
+      ],
+      "rawJsx": "<button type=\"submit\" disabled={isPending} className=\"w-full py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-semibold hover:bg-emerald-700 disabled:opa",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/email/[threadId]/components/reply-composer.tsx",
+      "line": 92,
+      "character": 11,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2",
+        "Send"
+      ],
+      "visibleTexts": [
+        "Sending...",
+        "Send Reply"
+      ],
+      "rawJsx": "<button onClick={handleSend} disabled={isPending || !body.trim()} className=\"inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg text-",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/email/[threadId]/components/thread-labels.tsx",
+      "line": 87,
+      "character": 9,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Plus"
+      ],
+      "visibleTexts": [
+        "Add label"
+      ],
+      "rawJsx": "<button type=\"button\" onClick={() => setIsOpen((v) => !v)} disabled={isPending} className=\"inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/email/[threadId]/components/thread-labels.tsx",
+      "line": 120,
+      "character": 21,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "`Apply label: ${label.name}`",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "`Apply label: ${label.name}`",
+      "icons": [
+        "LabelChip"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button key={label.id} onClick={() => handleAdd(label.id)} className=\"w-full flex items-center px-2.5 py-1.5 hover:bg-slate-50 rounded-lg transition-colors text",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/email/[threadId]/components/thread-labels.tsx",
+      "line": 132,
+      "character": 17,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Tag"
+      ],
+      "visibleTexts": [
+        "Create new custom label…"
+      ],
+      "rawJsx": "<button onClick={() => setShowCreateForm(true)} className=\"w-full text-left px-3 py-2 text-xs font-semibold text-emerald-700 hover:bg-emerald-50 border-t border",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/email/[threadId]/components/thread-labels.tsx",
+      "line": 161,
+      "character": 19,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Cancel"
+      ],
+      "rawJsx": "<button type=\"button\" onClick={() => setShowCreateForm(false)} className=\"flex-1 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg transitio",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/email/[threadId]/components/thread-labels.tsx",
+      "line": 168,
+      "character": 19,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2"
+      ],
+      "visibleTexts": [
+        "Create"
+      ],
+      "rawJsx": "<button type=\"submit\" disabled={isPending} className=\"flex-1 py-1 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg disabled:opaci",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/fleet/components/create-vehicle-form.tsx",
+      "line": 29,
+      "character": 7,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Add Vehicle"
+      ],
+      "rawJsx": "<button onClick={() => setOpen(true)} className=\"px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium\" > Add Vehicle </button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/fleet/components/create-vehicle-form.tsx",
+      "line": 85,
+      "character": 11,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Cancel"
+      ],
+      "rawJsx": "<button type=\"button\" onClick={() => setOpen(false)} className=\"px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-50 text-sm font-medium\" > C",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/fleet/components/create-vehicle-form.tsx",
+      "line": 92,
+      "character": 11,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Creating...",
+        "Create Vehicle"
+      ],
+      "rawJsx": "<button type=\"submit\" disabled={loading} className=\"px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium disabled:opacity-50\" > {loadi",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/fleet/[id]/components/document-upload-form.tsx",
+      "line": 71,
+      "character": 7,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Upload Document"
+      ],
+      "rawJsx": "<button onClick={() => setOpen(true)} className=\"px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium\" > Upload Document </button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/fleet/[id]/components/document-upload-form.tsx",
+      "line": 121,
+      "character": 11,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Cancel"
+      ],
+      "rawJsx": "<button type=\"button\" onClick={() => setOpen(false)} className=\"px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-50 text-sm font-medium\" > C",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/fleet/[id]/components/document-upload-form.tsx",
+      "line": 128,
+      "character": 11,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Uploading...",
+        "Upload"
+      ],
+      "rawJsx": "<button type=\"submit\" disabled={loading} className=\"px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium disabled:opacity-50\" > {loadi",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/fleet/[id]/components/edit-vehicle-form.tsx",
+      "line": 40,
+      "character": 7,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Edit Details"
+      ],
+      "rawJsx": "<button onClick={() => setOpen(true)} className=\"px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-50 text-sm font-medium\" > Edit Details </b",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/fleet/[id]/components/edit-vehicle-form.tsx",
+      "line": 107,
+      "character": 11,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Cancel"
+      ],
+      "rawJsx": "<button type=\"button\" onClick={() => setOpen(false)} className=\"px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-50 text-sm font-medium\" > C",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/fleet/[id]/components/edit-vehicle-form.tsx",
+      "line": 114,
+      "character": 11,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Saving...",
+        "Save Changes"
+      ],
+      "rawJsx": "<button type=\"submit\" disabled={loading} className=\"px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium disabled:opacity-50\" > {loadi",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/fleet/[id]/components/maintenance-log-form.tsx",
+      "line": 31,
+      "character": 7,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Log Maintenance"
+      ],
+      "rawJsx": "<button onClick={() => setOpen(true)} className=\"px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium\" > Log Maintenance </button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/fleet/[id]/components/maintenance-log-form.tsx",
+      "line": 103,
+      "character": 11,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Cancel"
+      ],
+      "rawJsx": "<button type=\"button\" onClick={() => setOpen(false)} className=\"px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-50 text-sm font-medium\" > C",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/fleet/[id]/components/maintenance-log-form.tsx",
+      "line": 110,
+      "character": 11,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Saving...",
+        "Save Record"
+      ],
+      "rawJsx": "<button type=\"submit\" disabled={loading} className=\"px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium disabled:opacity-50\" > {loadi",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/invoices/[id]/components/edit-draft-invoice-form.tsx",
+      "line": 124,
+      "character": 19,
+      "tagName": "Button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Remove line item",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Remove line item",
+      "icons": [
+        "Trash2"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<Button type=\"button\" variant=\"ghost\" size=\"icon\" onClick={() => remove(index)} disabled={fields.length === 1} title=\"Remove line item\" aria-label=\"Remove line ",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/invoices/[id]/components/edit-draft-invoice-form.tsx",
+      "line": 139,
+      "character": 13,
+      "tagName": "Button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Plus"
+      ],
+      "visibleTexts": [
+        "Add Line Item"
+      ],
+      "rawJsx": "<Button type=\"button\" variant=\"outline\" size=\"sm\" onClick={() => append({ description: '', quantity: 1, unit_price: 0, sort_order: fields.length })} className=\"",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/invoices/[id]/components/edit-draft-invoice-form.tsx",
+      "line": 172,
+      "character": 13,
+      "tagName": "Button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Cancel"
+      ],
+      "rawJsx": "<Button type=\"button\" variant=\"outline\" onClick={() => setOpen(false)} disabled={isSubmitting}> Cancel </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/invoices/[id]/components/edit-draft-invoice-form.tsx",
+      "line": 175,
+      "character": 13,
+      "tagName": "Button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2"
+      ],
+      "visibleTexts": [
+        "Save Changes"
+      ],
+      "rawJsx": "<Button type=\"submit\" disabled={isSubmitting}> {isSubmitting && <Loader2 className=\"mr-2 h-4 w-4 animate-spin\" />} Save Changes </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/invoices/[id]/page.tsx",
+      "line": 57,
+      "character": 11,
+      "tagName": "Button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "View Customer Portal"
+      ],
+      "rawJsx": "<Button variant=\"outline\" nativeButton={false} render={<Link href={`/customer/invoices/${invoice.id}`} target=\"_blank\" />} > View Customer Portal </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/invoices/[id]/page.tsx",
+      "line": 64,
+      "character": 11,
+      "tagName": "Button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Printer"
+      ],
+      "visibleTexts": [
+        "Print / Download PDF"
+      ],
+      "rawJsx": "<Button className=\"bg-emerald-600 hover:bg-emerald-700\" nativeButton={false} render={<Link href={`/print/invoices/${invoice.id}`} target=\"_blank\" />} > <Printer",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/jobs/components/manual-job-form.tsx",
+      "line": 170,
+      "character": 11,
+      "tagName": "Button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Plus"
+      ],
+      "visibleTexts": [
+        "Add Item"
+      ],
+      "rawJsx": "<Button type=\"button\" variant=\"outline\" size=\"sm\" onClick={() => append({ description: '', quantity: 1, unit_price: 0 })} disabled={isPending} > <Plus className",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/jobs/components/manual-job-form.tsx",
+      "line": 217,
+      "character": 13,
+      "tagName": "Button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Remove line item",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Remove line item",
+      "icons": [
+        "Trash2"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<Button type=\"button\" variant=\"ghost\" className=\"text-red-500 hover:text-red-700 hover:bg-red-50 px-2\" onClick={() => remove(index)} disabled={isPending || fiel",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/jobs/components/manual-job-form.tsx",
+      "line": 276,
+      "character": 9,
+      "tagName": "Button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Creating...",
+        "Create Job"
+      ],
+      "rawJsx": "<Button type=\"submit\" disabled={isPending || !isValid}> {isPending ? 'Creating...' : 'Create Job'} </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/jobs/confirmed/components/confirmed-bookings-table.tsx",
+      "line": 223,
+      "character": 11,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "All Bookings"
+      ],
+      "rawJsx": "<button type=\"button\" onClick={() => setTimeframe('all')} className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${ timeframe === 'all' ? 'bg-whi",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/jobs/confirmed/components/confirmed-bookings-table.tsx",
+      "line": 235,
+      "character": 11,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Upcoming Moves"
+      ],
+      "rawJsx": "<button type=\"button\" onClick={() => setTimeframe('upcoming')} className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${ timeframe === 'upcoming'",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/jobs/confirmed/components/confirmed-bookings-table.tsx",
+      "line": 247,
+      "character": 11,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "This Month"
+      ],
+      "rawJsx": "<button type=\"button\" onClick={() => setTimeframe('this_month')} className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${ timeframe === 'this_mo",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/jobs/confirmed/components/confirmed-bookings-table.tsx",
+      "line": 259,
+      "character": 11,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Past Moves"
+      ],
+      "rawJsx": "<button type=\"button\" onClick={() => setTimeframe('past')} className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${ timeframe === 'past' ? 'bg-w",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/jobs/[id]/components/completion-summary-card.tsx",
+      "line": 60,
+      "character": 11,
+      "tagName": "Button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2",
+        "RefreshCw"
+      ],
+      "visibleTexts": [
+        "Generate Summary"
+      ],
+      "rawJsx": "<Button onClick={handleRegenerate} disabled={isRegenerating} size=\"sm\"> {isRegenerating && <Loader2 className=\"mr-2 h-4 w-4 animate-spin\" />} <RefreshCw classNa",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/jobs/[id]/components/completion-summary-card.tsx",
+      "line": 83,
+      "character": 9,
+      "tagName": "Button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Regenerate completion summary",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Regenerate completion summary",
+      "icons": [
+        "Loader2",
+        "RefreshCw"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<Button onClick={handleRegenerate} disabled={isRegenerating} size=\"sm\" variant=\"outline\" title=\"Regenerate completion summary\" aria-label=\"Regenerate completion",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/jobs/[id]/components/edit-actual-times-form.tsx",
+      "line": 108,
+      "character": 13,
+      "tagName": "Button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Cancel"
+      ],
+      "rawJsx": "<Button type=\"button\" variant=\"outline\" onClick={() => setOpen(false)} disabled={isSubmitting}> Cancel </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/jobs/[id]/components/edit-actual-times-form.tsx",
+      "line": 111,
+      "character": 13,
+      "tagName": "Button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2"
+      ],
+      "visibleTexts": [
+        "Save"
+      ],
+      "rawJsx": "<Button type=\"submit\" disabled={isSubmitting}> {isSubmitting && <Loader2 className=\"mr-2 h-4 w-4 animate-spin\" />} Save </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/jobs/[id]/components/edit-job-form.tsx",
+      "line": 99,
+      "character": 13,
+      "tagName": "Button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Cancel"
+      ],
+      "rawJsx": "<Button type=\"button\" variant=\"outline\" onClick={() => setOpen(false)} disabled={isSubmitting}> Cancel </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/jobs/[id]/components/edit-job-form.tsx",
+      "line": 102,
+      "character": 13,
+      "tagName": "Button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2"
+      ],
+      "visibleTexts": [
+        "Save Changes"
+      ],
+      "rawJsx": "<Button type=\"submit\" disabled={isSubmitting}> {isSubmitting && <Loader2 className=\"mr-2 h-4 w-4 animate-spin\" />} Save Changes </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/layout.tsx",
+      "line": 114,
+      "character": 13,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Log Out"
+      ],
+      "rawJsx": "<button type=\"submit\" className=\"text-xs font-medium text-muted-foreground hover:text-red-600 dark:hover:text-red-400 transition-colors\">Log Out</button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/add-column-dialog.tsx",
+      "line": 97,
+      "character": 11,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Close dialog",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Close dialog",
+      "icons": [
+        "X"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button type=\"button\" onClick={handleClose} className=\"text-slate-400 hover:text-slate-600 rounded-lg p-1 transition-colors\" title=\"Close dialog\" aria-label=\"Cl",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/add-column-dialog.tsx",
+      "line": 153,
+      "character": 19,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "`Select color ${preset.label}`",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "`Select color ${preset.label}`",
+      "icons": [],
+      "visibleTexts": [],
+      "rawJsx": "<button key={preset.value} type=\"button\" title={`Select color ${preset.label}`} aria-label={`Select color ${preset.label}`} onClick={() => setValue('color', pre",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/add-column-dialog.tsx",
+      "line": 189,
+      "character": 13,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Cancel"
+      ],
+      "rawJsx": "<button type=\"button\" onClick={handleClose} disabled={isPending} className=\"px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 bg-white hover:bg-",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/add-column-dialog.tsx",
+      "line": 197,
+      "character": 13,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2",
+        "Plus"
+      ],
+      "visibleTexts": [
+        "Creating...",
+        "Create Column"
+      ],
+      "rawJsx": "<button type=\"submit\" disabled={isPending} className=\"flex items-center gap-2 px-5 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 active:bg",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/confirm-booking-form.tsx",
+      "line": 107,
+      "character": 11,
+      "tagName": "Button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Close"
+      ],
+      "rawJsx": "<Button type=\"button\" size=\"sm\" onClick={onSuccess} className=\"bg-slate-900 text-white\"> Close </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/confirm-booking-form.tsx",
+      "line": 236,
+      "character": 9,
+      "tagName": "Button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Cancel"
+      ],
+      "rawJsx": "<Button type=\"button\" variant=\"outline\" size=\"sm\" onClick={onCancel} disabled={isPending}> Cancel </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/confirm-booking-form.tsx",
+      "line": 239,
+      "character": 9,
+      "tagName": "Button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2",
+        "CheckCircle2"
+      ],
+      "visibleTexts": [
+        "Confirming…",
+        "Confirm Booking &amp; Create Job"
+      ],
+      "rawJsx": "<Button type=\"submit\" size=\"sm\" className=\"bg-indigo-600 hover:bg-indigo-700 text-white font-medium gap-1.5 shadow-sm\" disabled={isPending} > {isPending ? ( <> ",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/delete-column-dialog.tsx",
+      "line": 88,
+      "character": 11,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Close dialog",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Close dialog",
+      "icons": [
+        "X"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button type=\"button\" onClick={handleClose} className=\"text-slate-400 hover:text-slate-600 rounded-lg p-1 transition-colors\" title=\"Close dialog\" aria-label=\"Cl",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/delete-column-dialog.tsx",
+      "line": 178,
+      "character": 11,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Close",
+        "Cancel"
+      ],
+      "rawJsx": "<button type=\"button\" onClick={handleClose} disabled={isPending} className=\"px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 bg-white hover:bg-",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/delete-column-dialog.tsx",
+      "line": 188,
+      "character": 13,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2",
+        "Trash2"
+      ],
+      "visibleTexts": [
+        "Deleting...",
+        "Move Leads & Delete",
+        "Delete Column"
+      ],
+      "rawJsx": "<button type=\"button\" onClick={handleDelete} disabled={isPending || (activeLeadsCount > 0 && !fallbackStageId)} className=\"flex items-center gap-2 px-5 py-2 tex",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/edit-column-dialog.tsx",
+      "line": 107,
+      "character": 11,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Close dialog",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Close dialog",
+      "icons": [
+        "X"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button type=\"button\" onClick={handleClose} className=\"text-slate-400 hover:text-slate-600 rounded-lg p-1 transition-colors\" title=\"Close dialog\" aria-label=\"Cl",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/edit-column-dialog.tsx",
+      "line": 165,
+      "character": 19,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "`Select color ${preset.label}`",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "`Select color ${preset.label}`",
+      "icons": [],
+      "visibleTexts": [],
+      "rawJsx": "<button key={preset.value} type=\"button\" title={`Select color ${preset.label}`} aria-label={`Select color ${preset.label}`} onClick={() => setValue('color', pre",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/edit-column-dialog.tsx",
+      "line": 201,
+      "character": 13,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Cancel"
+      ],
+      "rawJsx": "<button type=\"button\" onClick={handleClose} disabled={isPending} className=\"px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 bg-white hover:bg-",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/edit-column-dialog.tsx",
+      "line": 209,
+      "character": 13,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2",
+        "Edit2"
+      ],
+      "visibleTexts": [
+        "Saving...",
+        "Save Changes"
+      ],
+      "rawJsx": "<button type=\"submit\" disabled={isPending} className=\"flex items-center gap-2 px-5 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 active:bg",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/follow-up-form.tsx",
+      "line": 141,
+      "character": 9,
+      "tagName": "Button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Cancel"
+      ],
+      "rawJsx": "<Button type=\"button\" variant=\"outline\" size=\"sm\" onClick={onCancel} disabled={isPending}> Cancel </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/follow-up-form.tsx",
+      "line": 144,
+      "character": 9,
+      "tagName": "Button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2",
+        "PhoneCall"
+      ],
+      "visibleTexts": [
+        "Logging…",
+        "Log Follow-Up"
+      ],
+      "rawJsx": "<Button type=\"submit\" size=\"sm\" className=\"bg-amber-600 hover:bg-amber-700 text-white font-medium gap-1.5 shadow-sm\" disabled={isPending} > {isPending ? ( <> <L",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/kanban-board.tsx",
+      "line": 227,
+      "character": 11,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Dismiss error",
+      "icons": [],
+      "visibleTexts": [
+        "Dismiss"
+      ],
+      "rawJsx": "<button onClick={() => setError(null)} className=\"text-red-500 hover:text-red-700 font-medium shrink-0\" aria-label=\"Dismiss error\" > Dismiss </button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/kanban-board.tsx",
+      "line": 276,
+      "character": 13,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Plus"
+      ],
+      "visibleTexts": [
+        "Add column"
+      ],
+      "rawJsx": "<button type=\"button\" onClick={() => setIsAddModalOpen(true)} className=\"w-full flex items-center justify-center gap-2 p-4 text-sm font-semibold text-slate-600 ",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/kanban-column.tsx",
+      "line": 124,
+      "character": 15,
+      "tagName": "DropdownMenuTrigger",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "`Options for ${stage.label}`",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "`Options for ${stage.label}`",
+      "icons": [
+        "MoreHorizontal"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<DropdownMenuTrigger className=\"p-1 rounded text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors focus:outline-none cursor-pointer\" title={`",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/lead-card.tsx",
+      "line": 213,
+      "character": 13,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Schedule Survey",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Schedule Survey",
+      "icons": [
+        "CalendarClock"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button type=\"button\" onClick={(e) => { e.stopPropagation() setActiveAction('schedule_survey') }} title=\"Schedule Survey\" aria-label=\"Schedule Survey\" className",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/lead-card.tsx",
+      "line": 226,
+      "character": 13,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Send Quote",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Send Quote",
+      "icons": [
+        "FileText"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button type=\"button\" onClick={(e) => { e.stopPropagation() setActiveAction('send_quote') }} title=\"Send Quote\" aria-label=\"Send Quote\" className=\"p-1 rounded-m",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/lead-card.tsx",
+      "line": 239,
+      "character": 13,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Log Follow-Up",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Log Follow-Up",
+      "icons": [
+        "PhoneCall"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button type=\"button\" onClick={(e) => { e.stopPropagation() setActiveAction('follow_up') }} title=\"Log Follow-Up\" aria-label=\"Log Follow-Up\" className=\"p-1 roun",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/lead-card.tsx",
+      "line": 252,
+      "character": 13,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Confirm Booking",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Confirm Booking",
+      "icons": [
+        "CheckCircle2"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button type=\"button\" onClick={(e) => { e.stopPropagation() setActiveAction('confirm_booking') }} title=\"Confirm Booking\" aria-label=\"Confirm Booking\" className",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/lead-card.tsx",
+      "line": 268,
+      "character": 13,
+      "tagName": "DropdownMenuTrigger",
+      "category": "icon-and-text",
+      "hasTitle": true,
+      "titleValue": "Quick Actions menu",
+      "hasAriaLabel": false,
+      "icons": [
+        "Zap",
+        "ChevronDown"
+      ],
+      "visibleTexts": [
+        "Actions"
+      ],
+      "rawJsx": "<DropdownMenuTrigger onClick={(e) => e.stopPropagation()} className=\"flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px] font-medium text-slate-500 hover:",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/schedule-survey-form.tsx",
+      "line": 197,
+      "character": 11,
+      "tagName": "Button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Close"
+      ],
+      "rawJsx": "<Button type=\"button\" size=\"sm\" onClick={onSuccess} className=\"bg-slate-900 text-white\"> Close </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/schedule-survey-form.tsx",
+      "line": 225,
+      "character": 13,
+      "tagName": "Button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2",
+        "Check"
+      ],
+      "visibleTexts": [
+        "Proceed Anyway (Override)"
+      ],
+      "rawJsx": "<Button type=\"button\" variant=\"outline\" size=\"sm\" className=\"text-xs h-7 border-amber-300 bg-white hover:bg-amber-100/50\" onClick={handleOverrideConflict} disab",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/schedule-survey-form.tsx",
+      "line": 240,
+      "character": 13,
+      "tagName": "Button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Change Time / Surveyor"
+      ],
+      "rawJsx": "<Button type=\"button\" variant=\"ghost\" size=\"sm\" className=\"text-xs h-7 text-amber-900 hover:bg-amber-100/50\" onClick={() => setConflictWarning(false)} > Change ",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/schedule-survey-form.tsx",
+      "line": 347,
+      "character": 9,
+      "tagName": "Button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Cancel"
+      ],
+      "rawJsx": "<Button type=\"button\" variant=\"outline\" size=\"sm\" onClick={onCancel} disabled={isPending} > Cancel </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/schedule-survey-form.tsx",
+      "line": 356,
+      "character": 9,
+      "tagName": "Button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2",
+        "CalendarClock"
+      ],
+      "visibleTexts": [
+        "Scheduling...",
+        "Schedule Survey Appointment"
+      ],
+      "rawJsx": "<Button type=\"submit\" size=\"sm\" className=\"bg-emerald-600 hover:bg-emerald-700 text-white font-medium gap-1.5 shadow-sm\" disabled={isPending} > {isPending ? ( <",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/send-quote-form.tsx",
+      "line": 216,
+      "character": 11,
+      "tagName": "Button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Plus"
+      ],
+      "visibleTexts": [
+        "New Quote"
+      ],
+      "rawJsx": "<Button type=\"button\" variant=\"outline\" size=\"sm\" onClick={handleCreateQuote} disabled={isActionPending} className=\"h-7 text-xs gap-1 border-slate-200 hover:bg-",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/send-quote-form.tsx",
+      "line": 243,
+      "character": 13,
+      "tagName": "Button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2",
+        "Plus"
+      ],
+      "visibleTexts": [
+        "Create Quote & Open Builder"
+      ],
+      "rawJsx": "<Button type=\"button\" size=\"sm\" onClick={handleCreateQuote} disabled={isActionPending} className=\"mt-2 bg-blue-600 hover:bg-blue-700 text-white gap-1.5 text-xs\"",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/send-quote-form.tsx",
+      "line": 294,
+      "character": 21,
+      "tagName": "Button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Send"
+      ],
+      "visibleTexts": [
+        "Resend Proposal",
+        "Send Proposal"
+      ],
+      "rawJsx": "<Button type=\"button\" size=\"sm\" data-testid={`send-quote-btn-${q.id}`} disabled={isActionPending} onClick={() => handleSendQuote(q.id)} className=\"flex-1 bg-blu",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/send-quote-form.tsx",
+      "line": 306,
+      "character": 21,
+      "tagName": "Button",
+      "category": "icon-and-text",
+      "hasTitle": true,
+      "titleValue": "Copy Public Proposal Link",
+      "hasAriaLabel": false,
+      "icons": [
+        "Check",
+        "Copy"
+      ],
+      "visibleTexts": [
+        "Copied",
+        "Link"
+      ],
+      "rawJsx": "<Button type=\"button\" variant=\"outline\" size=\"sm\" disabled={isActionPending} onClick={() => handleCopyLink(q.id)} className=\"text-xs h-7 gap-1 px-2 border-slate",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/send-quote-form.tsx",
+      "line": 328,
+      "character": 21,
+      "tagName": "Button",
+      "category": "icon-and-text",
+      "hasTitle": true,
+      "titleValue": "Open in Quote Workspace",
+      "hasAriaLabel": false,
+      "icons": [
+        "ExternalLink"
+      ],
+      "visibleTexts": [
+        "Builder"
+      ],
+      "rawJsx": "<Button type=\"button\" variant=\"outline\" size=\"sm\" disabled={isActionPending} onClick={() => { onSuccess() router.push(`/office/quotes/${q.id}`) }} className=\"te",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/components/send-quote-form.tsx",
+      "line": 353,
+      "character": 9,
+      "tagName": "Button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Close"
+      ],
+      "rawJsx": "<Button type=\"button\" variant=\"outline\" size=\"sm\" onClick={onCancel} disabled={isActionPending} className=\"text-xs h-8\" > Close </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/[id]/components/edit-lead-form.tsx",
+      "line": 190,
+      "character": 13,
+      "tagName": "Button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Cancel"
+      ],
+      "rawJsx": "<Button type=\"button\" variant=\"outline\" onClick={() => setOpen(false)} disabled={isSubmitting}> Cancel </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/[id]/components/edit-lead-form.tsx",
+      "line": 193,
+      "character": 13,
+      "tagName": "Button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2"
+      ],
+      "visibleTexts": [
+        "Save Changes"
+      ],
+      "rawJsx": "<Button type=\"submit\" disabled={isSubmitting}> {isSubmitting && <Loader2 className=\"mr-2 h-4 w-4 animate-spin\" />} Save Changes </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/[id]/components/lead-quick-actions-bar.tsx",
+      "line": 48,
+      "character": 11,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "label",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "label",
+      "icons": [
+        "Icon"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button key={type} type=\"button\" onClick={() => setActiveAction(type)} title={label} aria-label={label} className={`flex items-center gap-1.5 px-2 py-1 rounded-",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/leads/[id]/components/quotes-list.tsx",
+      "line": 57,
+      "character": 9,
+      "tagName": "Button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Plus"
+      ],
+      "visibleTexts": [
+        "New Quote"
+      ],
+      "rawJsx": "<Button size=\"sm\" onClick={handleCreateQuote} disabled={isPending}> <Plus className=\"h-4 w-4 mr-1\" /> New Quote </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/onboarding/components/wizard-client.tsx",
+      "line": 170,
+      "character": 17,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Skip for now"
+      ],
+      "rawJsx": "<button type=\"button\" onClick={handleSkip} disabled={isLoading} className=\"text-slate-400 hover:text-white transition-colors\"> Skip for now </button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/onboarding/components/wizard-client.tsx",
+      "line": 173,
+      "character": 17,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2"
+      ],
+      "visibleTexts": [
+        "Save & Continue"
+      ],
+      "rawJsx": "<button type=\"submit\" disabled={isLoading} className=\"bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md font-medium flex items-center gap-2\"> {isLoa",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/onboarding/components/wizard-client.tsx",
+      "line": 247,
+      "character": 17,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Skip for now"
+      ],
+      "rawJsx": "<button type=\"button\" onClick={handleSkip} disabled={isLoading} className=\"text-slate-400 hover:text-white transition-colors\"> Skip for now </button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/onboarding/components/wizard-client.tsx",
+      "line": 250,
+      "character": 17,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2"
+      ],
+      "visibleTexts": [
+        "Save & Continue"
+      ],
+      "rawJsx": "<button type=\"submit\" disabled={isLoading} className=\"bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md font-medium flex items-center gap-2\"> {isLoa",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/onboarding/components/wizard-client.tsx",
+      "line": 295,
+      "character": 15,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Skip for now"
+      ],
+      "rawJsx": "<button type=\"button\" onClick={handleSkip} disabled={isLoading} className=\"text-slate-400 hover:text-white transition-colors\"> Skip for now </button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/onboarding/components/wizard-client.tsx",
+      "line": 298,
+      "character": 15,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2"
+      ],
+      "visibleTexts": [
+        "Finish & Import Catalog"
+      ],
+      "rawJsx": "<button type=\"button\" onClick={handleInventorySubmit} disabled={isLoading} className=\"bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md font-medium ",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/quotes/[id]/components/route-summary.tsx",
+      "line": 158,
+      "character": 19,
+      "tagName": "Button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Cancel"
+      ],
+      "rawJsx": "<Button variant=\"ghost\" size=\"sm\" onClick={() => setIsEditing(false)}> Cancel </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/quotes/[id]/components/route-summary.tsx",
+      "line": 162,
+      "character": 17,
+      "tagName": "Button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Saving...",
+        "Save Route"
+      ],
+      "rawJsx": "<Button size=\"sm\" onClick={handleSave} disabled={isPending}> {isPending ? 'Saving...' : 'Save Route'} </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/quotes/[id]/components/route-summary.tsx",
+      "line": 194,
+      "character": 17,
+      "tagName": "Button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Edit"
+      ],
+      "rawJsx": "<Button variant=\"ghost\" size=\"sm\" onClick={() => setIsEditing(true)}> Edit </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/quotes/[id]/components/send-quote-button.tsx",
+      "line": 119,
+      "character": 13,
+      "tagName": "Button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2",
+        "Send"
+      ],
+      "visibleTexts": [
+        "Sending…",
+        "Send Quote &amp; Proposal"
+      ],
+      "rawJsx": "<Button onClick={handleSend} disabled={isPending || !hasPricing || !leadId} className=\"bg-blue-600 hover:bg-blue-700 text-white gap-1.5\" > {isPending ? ( <> <Lo",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/quotes/[id]/components/volume-calculator.tsx",
+      "line": 175,
+      "character": 29,
+      "tagName": "Button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "`Decrease quantity of ${item.name}`",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "`Decrease quantity of ${item.name}`",
+      "icons": [
+        "Minus"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<Button variant=\"outline\" size=\"icon\" className=\"h-7 w-7 rounded-full\" disabled={qty === 0 || !isDraft} onClick={() => updateQuantity(item, -1)} title={`Decreas",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/quotes/[id]/components/volume-calculator.tsx",
+      "line": 187,
+      "character": 29,
+      "tagName": "Button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "`Increase quantity of ${item.name}`",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "`Increase quantity of ${item.name}`",
+      "icons": [
+        "Plus"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<Button variant=\"outline\" size=\"icon\" className=\"h-7 w-7 rounded-full\" disabled={!isDraft} onClick={() => updateQuantity(item, 1)} title={`Increase quantity of ",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/quotes/[id]/components/volume-calculator.tsx",
+      "line": 273,
+      "character": 15,
+      "tagName": "Button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Save"
+      ],
+      "visibleTexts": [
+        "Saving...",
+        "Save Inventory"
+      ],
+      "rawJsx": "<Button className=\"w-full\" onClick={handleSave} disabled={isPending || !isDraft} > {isPending ? 'Saving...' : 'Save Inventory'} {!isPending && <Save className=\"",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/quotes/[id]/page.tsx",
+      "line": 90,
+      "character": 11,
+      "tagName": "Link",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Back to lead",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Back to lead",
+      "icons": [
+        "ArrowLeft"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<Link href={`/office/leads/${quote.lead_id}`} className=\"p-2 -ml-2 rounded-full hover:bg-slate-100 text-slate-500 transition-colors\" title=\"Back to lead\" aria-l",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/scheduling/components/date-navigator.tsx",
+      "line": 57,
+      "character": 9,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Week"
+      ],
+      "rawJsx": "<button onClick={() => handleRangeChange('week')} className={`px-3 py-1.5 text-sm font-medium rounded-sm transition-colors ${ range === 'week' ? 'bg-slate-900 t",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/scheduling/components/date-navigator.tsx",
+      "line": 65,
+      "character": 9,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Day"
+      ],
+      "rawJsx": "<button onClick={() => handleRangeChange('day')} className={`px-3 py-1.5 text-sm font-medium rounded-sm transition-colors ${ range === 'day' ? 'bg-slate-900 tex",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/scheduling/components/date-navigator.tsx",
+      "line": 76,
+      "character": 9,
+      "tagName": "Button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Today"
+      ],
+      "rawJsx": "<Button variant=\"outline\" size=\"sm\" onClick={handleToday}> Today </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/scheduling/components/date-navigator.tsx",
+      "line": 80,
+      "character": 11,
+      "tagName": "Button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Previous period",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Previous period",
+      "icons": [
+        "ChevronLeft"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<Button variant=\"outline\" size=\"icon\" className=\"h-8 w-8\" onClick={handlePrev} title=\"Previous period\" aria-label=\"Previous period\" > <ChevronLeft className=\"h-",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/scheduling/components/date-navigator.tsx",
+      "line": 90,
+      "character": 11,
+      "tagName": "Button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Next period",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Next period",
+      "icons": [
+        "ChevronRight"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<Button variant=\"outline\" size=\"icon\" className=\"h-8 w-8\" onClick={handleNext} title=\"Next period\" aria-label=\"Next period\" > <ChevronRight className=\"h-4 w-4\" ",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/scheduling/components/scheduling-board.tsx",
+      "line": 111,
+      "character": 11,
+      "tagName": "Button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Previous day",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Previous day",
+      "icons": [
+        "ChevronLeft"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<Button variant=\"outline\" size=\"icon\" onClick={() => navigateDay(-1)} title=\"Previous day\" aria-label=\"Previous day\" > <ChevronLeft className=\"h-4 w-4\" /> </But",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/scheduling/components/scheduling-board.tsx",
+      "line": 124,
+      "character": 11,
+      "tagName": "Button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Next day",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Next day",
+      "icons": [
+        "ChevronRight"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<Button variant=\"outline\" size=\"icon\" onClick={() => navigateDay(1)} title=\"Next day\" aria-label=\"Next day\" > <ChevronRight className=\"h-4 w-4\" /> </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/scheduling/components/unified-creation-modal.tsx",
+      "line": 128,
+      "character": 28,
+      "tagName": "Button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Save Anyway"
+      ],
+      "rawJsx": "<Button size=\"sm\" variant=\"destructive\" onClick={() => handleCreateAppointment(true)} disabled={loading}> Save Anyway </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/scheduling/components/unified-creation-modal.tsx",
+      "line": 131,
+      "character": 28,
+      "tagName": "Button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Cancel"
+      ],
+      "rawJsx": "<Button size=\"sm\" variant=\"outline\" onClick={() => setConflictWarning(false)}> Cancel </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/scheduling/components/unified-creation-modal.tsx",
+      "line": 144,
+      "character": 20,
+      "tagName": "Button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Save Appointment"
+      ],
+      "rawJsx": "<Button onClick={() => handleCreateAppointment(false)} disabled={loading} className=\"w-full\"> Save Appointment </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/scheduling/components/unified-detail-modal.tsx",
+      "line": 159,
+      "character": 11,
+      "tagName": "Button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Close"
+      ],
+      "rawJsx": "<Button variant=\"outline\" onClick={onClose}>Close</Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/scheduling/page.tsx",
+      "line": 92,
+      "character": 15,
+      "tagName": "TabsTrigger",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Calendar"
+      ],
+      "rawJsx": "<TabsTrigger value=\"calendar\">Calendar</TabsTrigger>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/scheduling/page.tsx",
+      "line": 93,
+      "character": 15,
+      "tagName": "TabsTrigger",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "List"
+      ],
+      "rawJsx": "<TabsTrigger value=\"list\">List</TabsTrigger>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/scheduling/page.tsx",
+      "line": 94,
+      "character": 15,
+      "tagName": "TabsTrigger",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Dispatch Board"
+      ],
+      "rawJsx": "<TabsTrigger value=\"dispatch\">Dispatch Board</TabsTrigger>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/ai-assistant/components/mode-selector.tsx",
+      "line": 103,
+      "character": 9,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2",
+        "Check"
+      ],
+      "visibleTexts": [
+        "Save"
+      ],
+      "rawJsx": "<button onClick={handleSave} disabled={isPending || selected === currentMode} className=\"inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white roun",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/appearance/components/theme-picker.tsx",
+      "line": 54,
+      "character": 11,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2",
+        "Check",
+        "ThemePreview"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button key={t.value} type=\"button\" onClick={() => selectTheme(t.value)} disabled={isPending} className={`relative text-left rounded-lg border p-3 transition-co",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/billing/components/billing-panel.tsx",
+      "line": 158,
+      "character": 11,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2",
+        "ExternalLink"
+      ],
+      "visibleTexts": [
+        "portal",
+        "Manage Billing"
+      ],
+      "rawJsx": "<button onClick={handlePortal} disabled={isPending} className=\"inline-flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium h",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/billing/components/billing-panel.tsx",
+      "line": 180,
+      "character": 21,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button key={price.id} onClick={() => handleCheckout(price.stripe_price_id)} disabled={isPending} className=\"inline-flex items-center gap-2 px-3 py-1.5 bg-emera",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/branding/components/branding-form.tsx",
+      "line": 308,
+      "character": 9,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Saving...",
+        "Save Branding Settings"
+      ],
+      "rawJsx": "<button type=\"submit\" disabled={isPending} className=\"w-full px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 disabled:opacity-50",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/brands/components/brand-form.tsx",
+      "line": 226,
+      "character": 13,
+      "tagName": "Button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Cancel"
+      ],
+      "rawJsx": "<Button type=\"button\" variant=\"outline\" onClick={() => setOpen(false)} disabled={isPending}> Cancel </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/brands/components/brand-form.tsx",
+      "line": 229,
+      "character": 13,
+      "tagName": "Button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2"
+      ],
+      "visibleTexts": [
+        "Save Changes",
+        "Create Brand"
+      ],
+      "rawJsx": "<Button type=\"submit\" disabled={isPending}> {isPending && <Loader2 className=\"mr-2 h-4 w-4 animate-spin\" />} {isEdit ? 'Save Changes' : 'Create Brand'} </Button",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/email-labels/components/label-form-dialog.tsx",
+      "line": 64,
+      "character": 9,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Plus"
+      ],
+      "visibleTexts": [
+        "New Label"
+      ],
+      "rawJsx": "<button onClick={() => setIsOpen(true)} className=\"flex items-center gap-2 bg-[var(--color-primary)] hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medi",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/email-labels/components/label-form-dialog.tsx",
+      "line": 78,
+      "character": 15,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Close dialog",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Close dialog",
+      "icons": [
+        "X"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button onClick={close} className=\"text-slate-400 hover:text-slate-900 transition-colors\" title=\"Close dialog\" aria-label=\"Close dialog\" > <X size={20} /> </but",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/email-labels/components/label-form-dialog.tsx",
+      "line": 116,
+      "character": 17,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Cancel"
+      ],
+      "rawJsx": "<button type=\"button\" onClick={close} className=\"px-4 py-2 text-slate-600 hover:text-slate-900 font-medium transition-colors text-sm\"> Cancel </button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/email-labels/components/label-form-dialog.tsx",
+      "line": 119,
+      "character": 17,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2"
+      ],
+      "visibleTexts": [
+        "Save Changes",
+        "Create Label"
+      ],
+      "rawJsx": "<button type=\"submit\" disabled={isPending} className=\"bg-[var(--color-primary)] hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors ",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/email-labels/components/label-list.tsx",
+      "line": 81,
+      "character": 23,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "`Edit label: ${label.name}`",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "`Edit label: ${label.name}`",
+      "icons": [
+        "Pencil"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button className=\"p-1.5 text-slate-400 hover:text-[var(--color-primary)] transition-colors\" title={`Edit label: ${label.name}`} aria-label={`Edit label: ${labe",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/email-labels/components/label-list.tsx",
+      "line": 91,
+      "character": 21,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "`Delete label: ${label.name}`",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "`Delete label: ${label.name}`",
+      "icons": [
+        "Trash2"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button onClick={() => handleDelete(label)} disabled={isPending && pendingId === label.id} className=\"p-1.5 text-slate-400 hover:text-red-600 transition-colors ",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/inventory/components/create-inventory-form.tsx",
+      "line": 110,
+      "character": 17,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Saving...",
+        "Save"
+      ],
+      "rawJsx": "<button type=\"submit\" disabled={isPending} className=\"inline-flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-base fon",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/inventory/components/create-inventory-form.tsx",
+      "line": 117,
+      "character": 17,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Cancel"
+      ],
+      "rawJsx": "<button type=\"button\" onClick={onClose} className=\"mt-3 inline-flex w-full justify-center rounded-md border border-slate-300 bg-white px-4 py-2 text-base font-m",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/inventory/components/edit-inventory-form.tsx",
+      "line": 119,
+      "character": 17,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Saving...",
+        "Save"
+      ],
+      "rawJsx": "<button type=\"submit\" disabled={isPending} className=\"inline-flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-base fon",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/inventory/components/edit-inventory-form.tsx",
+      "line": 126,
+      "character": 17,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Cancel"
+      ],
+      "rawJsx": "<button type=\"button\" onClick={onClose} className=\"mt-3 inline-flex w-full justify-center rounded-md border border-slate-300 bg-white px-4 py-2 text-base font-m",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/inventory/components/inventory-list.tsx",
+      "line": 32,
+      "character": 11,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Add item"
+      ],
+      "rawJsx": "<button type=\"button\" onClick={() => setIsCreateOpen(true)} className=\"block rounded-md bg-blue-600 px-3 py-2 text-center text-sm font-semibold text-white shado",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/inventory/components/inventory-list.tsx",
+      "line": 70,
+      "character": 21,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Edit"
+      ],
+      "rawJsx": "<button onClick={() => setEditingItem(item)} className=\"text-blue-600 hover:text-blue-900 mr-4\" > Edit<span className=\"sr-only\">, {item.name}</span> </button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/inventory/components/inventory-list.tsx",
+      "line": 76,
+      "character": 21,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Delete"
+      ],
+      "rawJsx": "<button onClick={async () => { if (confirm(`Are you sure you want to delete ${item.name}?`)) { await deleteInventoryAction(item.id) } }} className=\"text-red-600",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/invoice-template/components/template-editor.tsx",
+      "line": 182,
+      "character": 17,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "`Add ${BLOCK_LABELS[type]}`",
+      "hasAriaLabel": false,
+      "icons": [
+        "Plus"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button key={type} type=\"button\" onClick={() => append(defaultBlockFor(type))} className=\"inline-flex items-center gap-1 px-2 py-1 text-xs bg-emerald-50 text-em",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/invoice-template/components/template-editor.tsx",
+      "line": 216,
+      "character": 11,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Saving...",
+        "Save Invoice Template"
+      ],
+      "rawJsx": "<button type=\"submit\" disabled={isPending} className=\"w-full px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 disabled:opacity-50",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/invoice-template/components/template-editor.tsx",
+      "line": 286,
+      "character": 9,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "`Remove ${BLOCK_LABELS[block.type]} block`",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "`Remove ${BLOCK_LABELS[block.type]} block`",
+      "icons": [
+        "X"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button type=\"button\" onClick={onRemove} className=\"text-red-600 hover:bg-red-50 rounded p-1\" title={`Remove ${BLOCK_LABELS[block.type]} block`} aria-label={`Re",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/mailboxes/components/connect-imap-form.tsx",
+      "line": 101,
+      "character": 7,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2"
+      ],
+      "visibleTexts": [
+        "Connect via IMAP"
+      ],
+      "rawJsx": "<button type=\"submit\" disabled={isPending} className=\"inline-flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm font-medium hover:",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/mailboxes/components/mailbox-list.tsx",
+      "line": 78,
+      "character": 17,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2"
+      ],
+      "visibleTexts": [
+        "Disconnect"
+      ],
+      "rawJsx": "<button onClick={() => handleDisconnect(mailbox.id)} disabled={isPending && pendingId === mailbox.id} className=\"px-3 py-1.5 text-xs font-medium text-slate-600 ",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/pricing/components/pricing-form.tsx",
+      "line": 207,
+      "character": 11,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Plus"
+      ],
+      "visibleTexts": [
+        "Add Surcharge"
+      ],
+      "rawJsx": "<button type=\"button\" onClick={() => append({ key: '', label: '', amount: 0, type: 'fixed' })} className=\"inline-flex items-center gap-1 px-3 py-1 text-sm bg-em",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/pricing/components/pricing-form.tsx",
+      "line": 250,
+      "character": 17,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Remove surcharge",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Remove surcharge",
+      "icons": [
+        "X"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button type=\"button\" onClick={() => remove(index)} className=\"px-2 py-1 text-red-600 hover:bg-red-50 rounded transition-colors\" title=\"Remove surcharge\" aria-l",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/pricing/components/pricing-form.tsx",
+      "line": 266,
+      "character": 7,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Saving...",
+        "Save Pricing Settings"
+      ],
+      "rawJsx": "<button type=\"submit\" disabled={isPending} className=\"w-full px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 disabled:opacity-50",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/staff/components/invite-staff-form.tsx",
+      "line": 80,
+      "character": 13,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "copied ? \"Copied!\" : \"Copy password to clipboard\"",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "copied ? \"Copied\" : \"Copy password to clipboard\"",
+      "icons": [
+        "Check",
+        "Copy"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button onClick={handleCopyPassword} className=\"p-1.5 text-emerald-600 hover:bg-emerald-100 rounded transition-colors\" title={copied ? \"Copied!\" : \"Copy passwor",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/staff/components/invite-staff-form.tsx",
+      "line": 137,
+      "character": 11,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Inviting...",
+        "Invite Staff Member"
+      ],
+      "rawJsx": "<button type=\"submit\" disabled={isPending} className=\"w-full px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium text-sm hover:bg-emerald-700 disabled:op",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/staff/components/staff-list.tsx",
+      "line": 137,
+      "character": 19,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "expandedId === member.id ? \"Collapse staff actions\" : \"Expand staff actions\"",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "expandedId === member.id ? \"Collapse staff actions\" : \"Expand staff actions\"",
+      "icons": [
+        "ChevronDown"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button onClick={() => setExpandedId(expandedId === member.id ? null : member.id)} disabled={isPending} className=\"inline-flex items-center gap-1 text-sm text-e",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/staff/components/staff-list.tsx",
+      "line": 149,
+      "character": 25,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Deactivate"
+      ],
+      "rawJsx": "<button onClick={() => handleDeactivate(member.id)} disabled={isPending} className=\"block w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounde",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/staff/components/staff-list.tsx",
+      "line": 158,
+      "character": 25,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Reactivate"
+      ],
+      "rawJsx": "<button onClick={() => handleReactivate(member.id)} disabled={isPending} className=\"block w-full text-left px-3 py-2 text-sm text-emerald-600 hover:bg-emerald-5",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/web-widget/components/web-widget-settings-client.tsx",
+      "line": 74,
+      "character": 13,
+      "tagName": "Button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Copied!",
+        "Copy Code"
+      ],
+      "rawJsx": "<Button size=\"sm\" variant=\"secondary\" onClick={handleCopy} className=\"bg-white/10 hover:bg-white/20 text-white border-none\" > {copied ? 'Copied!' : 'Copy Code'}",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/settings/web-widget/components/web-widget-settings-client.tsx",
+      "line": 92,
+      "character": 9,
+      "tagName": "Button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Regenerating...",
+        "Regenerate Key"
+      ],
+      "rawJsx": "<Button variant=\"destructive\" onClick={handleRegenerate} disabled={isRegenerating} > {isRegenerating ? 'Regenerating...' : 'Regenerate Key'} </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/social/components/cancel-button.tsx",
+      "line": 23,
+      "character": 7,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2",
+        "Ban"
+      ],
+      "visibleTexts": [
+        "Cancelling...",
+        "Cancel Post"
+      ],
+      "rawJsx": "<button type=\"button\" onClick={(e) => { e.stopPropagation() setError(null) startTransition(async () => { const result = await cancelScheduledPostAction(postId) ",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/social/components/composer-form.tsx",
+      "line": 147,
+      "character": 19,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Select all"
+      ],
+      "rawJsx": "<button type=\"button\" onClick={selectAllAccounts} className=\"text-xs font-medium text-emerald-600 hover:text-emerald-700 transition-colors cursor-pointer\" > Sel",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/social/components/composer-form.tsx",
+      "line": 163,
+      "character": 21,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "`${isSelected ? 'Deselect' : 'Select'} ${account.display_name} (${account.platform})`",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "`${isSelected ? 'Deselect' : 'Select'} ${account.display_name} (${account.platform})`",
+      "icons": [
+        "PlatformIcon",
+        "Check"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button key={account.id} type=\"button\" onClick={() => toggleAccount(account.id)} title={`${isSelected ? 'Deselect' : 'Select'} ${account.display_name} (${accoun",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/social/components/composer-form.tsx",
+      "line": 241,
+      "character": 17,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Send"
+      ],
+      "visibleTexts": [
+        "Publish Now"
+      ],
+      "rawJsx": "<button type=\"button\" onClick={() => setValue('scheduleMode', 'now')} className={`flex items-center justify-center gap-2 py-2 px-3 rounded-md text-xs font-semib",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/social/components/composer-form.tsx",
+      "line": 254,
+      "character": 17,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Calendar"
+      ],
+      "visibleTexts": [
+        "Schedule Later"
+      ],
+      "rawJsx": "<button type=\"button\" onClick={() => setValue('scheduleMode', 'later')} className={`flex items-center justify-center gap-2 py-2 px-3 rounded-md text-xs font-sem",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/social/components/composer-form.tsx",
+      "line": 288,
+      "character": 15,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "RotateCcw"
+      ],
+      "visibleTexts": [
+        "Reset"
+      ],
+      "rawJsx": "<button type=\"button\" onClick={() => { setLiveText('') reset({ content: '', accountIds: accounts.length > 0 ? [accounts[0].id] : [], scheduleMode: 'now', schedu",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/social/components/composer-form.tsx",
+      "line": 306,
+      "character": 15,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2",
+        "Send",
+        "Calendar"
+      ],
+      "visibleTexts": [
+        "now",
+        "Publishing...",
+        "Scheduling...",
+        "now",
+        "Publish Immediately",
+        "Schedule Post"
+      ],
+      "rawJsx": "<button type=\"submit\" disabled={isPending} className=\"inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-emerald-600 text-white rounded-lg text-sm fon",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/social/components/live-post-preview.tsx",
+      "line": 40,
+      "character": 15,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "`Preview on ${plat}`",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "`Preview on ${plat}`",
+      "icons": [
+        "PlatformIcon"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button key={plat} type=\"button\" onClick={() => setSelectedPlatform(plat)} title={`Preview on ${plat}`} aria-label={`Preview on ${plat}`} className={`flex items",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/social/components/live-post-preview.tsx",
+      "line": 94,
+      "character": 15,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "ThumbsUp"
+      ],
+      "visibleTexts": [
+        "Like"
+      ],
+      "rawJsx": "<button type=\"button\" className=\"flex-1 py-1.5 flex items-center justify-center gap-1.5 hover:bg-slate-50 rounded font-medium text-slate-600\"> <ThumbsUp classNa",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/social/components/live-post-preview.tsx",
+      "line": 97,
+      "character": 15,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "MessageSquare"
+      ],
+      "visibleTexts": [
+        "Comment"
+      ],
+      "rawJsx": "<button type=\"button\" className=\"flex-1 py-1.5 flex items-center justify-center gap-1.5 hover:bg-slate-50 rounded font-medium text-slate-600\"> <MessageSquare cl",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/social/components/live-post-preview.tsx",
+      "line": 100,
+      "character": 15,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Share2"
+      ],
+      "visibleTexts": [
+        "Share"
+      ],
+      "rawJsx": "<button type=\"button\" className=\"flex-1 py-1.5 flex items-center justify-center gap-1.5 hover:bg-slate-50 rounded font-medium text-slate-600\"> <Share2 className",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/social/components/live-post-preview.tsx",
+      "line": 135,
+      "character": 15,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "ThumbsUp"
+      ],
+      "visibleTexts": [
+        "Like"
+      ],
+      "rawJsx": "<button type=\"button\" className=\"flex-1 py-1.5 flex items-center justify-center gap-1.5 hover:bg-slate-50 rounded font-medium text-slate-600\"> <ThumbsUp classNa",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/social/components/live-post-preview.tsx",
+      "line": 138,
+      "character": 15,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "MessageSquare"
+      ],
+      "visibleTexts": [
+        "Comment"
+      ],
+      "rawJsx": "<button type=\"button\" className=\"flex-1 py-1.5 flex items-center justify-center gap-1.5 hover:bg-slate-50 rounded font-medium text-slate-600\"> <MessageSquare cl",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/social/components/live-post-preview.tsx",
+      "line": 141,
+      "character": 15,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Repeat2"
+      ],
+      "visibleTexts": [
+        "Repost"
+      ],
+      "rawJsx": "<button type=\"button\" className=\"flex-1 py-1.5 flex items-center justify-center gap-1.5 hover:bg-slate-50 rounded font-medium text-slate-600\"> <Repeat2 classNam",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/social/components/live-post-preview.tsx",
+      "line": 144,
+      "character": 15,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Send"
+      ],
+      "visibleTexts": [
+        "Send"
+      ],
+      "rawJsx": "<button type=\"button\" className=\"flex-1 py-1.5 flex items-center justify-center gap-1.5 hover:bg-slate-50 rounded font-medium text-slate-600\"> <Send className=\"",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/social/components/social-history-list.tsx",
+      "line": 60,
+      "character": 11,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Layers"
+      ],
+      "visibleTexts": [
+        "All Posts"
+      ],
+      "rawJsx": "<button type=\"button\" onClick={() => setActiveTab('all')} className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-a",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/social/components/social-history-list.tsx",
+      "line": 80,
+      "character": 11,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Clock"
+      ],
+      "visibleTexts": [
+        "Scheduled Queue"
+      ],
+      "rawJsx": "<button type=\"button\" onClick={() => setActiveTab('pending')} className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transiti",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/social/components/social-history-list.tsx",
+      "line": 100,
+      "character": 11,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "CheckCircle2"
+      ],
+      "visibleTexts": [
+        "Published"
+      ],
+      "rawJsx": "<button type=\"button\" onClick={() => setActiveTab('published')} className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transi",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/social/components/social-history-list.tsx",
+      "line": 121,
+      "character": 13,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "AlertTriangle"
+      ],
+      "visibleTexts": [
+        "Issues"
+      ],
+      "rawJsx": "<button type=\"button\" onClick={() => setActiveTab('issues')} className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transitio",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/social/components/social-post-item.tsx",
+      "line": 182,
+      "character": 13,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Details &rarr;"
+      ],
+      "rawJsx": "<button type=\"button\" onClick={() => setIsOpen(true)} className=\"text-xs font-semibold text-slate-600 hover:text-slate-900 group-hover:text-emerald-700 transiti",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/social/page.tsx",
+      "line": 144,
+      "character": 13,
+      "tagName": "DropdownMenuTrigger",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Plus",
+        "ChevronDown"
+      ],
+      "visibleTexts": [
+        "Connect Channel"
+      ],
+      "rawJsx": "<DropdownMenuTrigger className=\"inline-flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded-lg shadow-xs t",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/storage/crates/new/components/crate-form.tsx",
+      "line": 71,
+      "character": 7,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Creating...",
+        "Create crate"
+      ],
+      "rawJsx": "<button type=\"submit\" disabled={isPending} className=\"w-full px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 disabled:opacity-50",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/storage/crates/[id]/components/crate-associate-panel.tsx",
+      "line": 70,
+      "character": 13,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "&times;"
+      ],
+      "rawJsx": "<button onClick={unlinkContact} disabled={isPending} className=\"text-blue-400 hover:text-blue-700\"> &times; </button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/storage/crates/[id]/components/crate-associate-panel.tsx",
+      "line": 83,
+      "character": 13,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "&times;"
+      ],
+      "rawJsx": "<button onClick={unlinkJob} disabled={isPending} className=\"text-blue-500 hover:text-blue-700\"> &times; </button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/storage/crates/[id]/components/crate-associate-panel.tsx",
+      "line": 93,
+      "character": 9,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "+ Link to a contact or job"
+      ],
+      "rawJsx": "<button onClick={() => setIsOpen(true)} className=\"text-xs text-emerald-600 hover:underline\"> + Link to a contact or job </button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/storage/crates/[id]/components/crate-associate-panel.tsx",
+      "line": 112,
+      "character": 15,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Contact"
+      ],
+      "rawJsx": "<button key={c.id} onClick={() => linkContact(c.id)} className=\"w-full text-left px-2 py-1.5 text-sm hover:bg-slate-50 rounded flex items-center justify-between",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/storage/crates/[id]/components/crate-associate-panel.tsx",
+      "line": 122,
+      "character": 17,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "no date",
+        "Job"
+      ],
+      "rawJsx": "<button key={j.id} onClick={() => linkJob(j.id)} className=\"w-full text-left px-2 py-1.5 text-sm hover:bg-slate-50 rounded flex items-center justify-between\"> <",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/storage/crates/[id]/components/crate-associate-panel.tsx",
+      "line": 134,
+      "character": 11,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Close"
+      ],
+      "rawJsx": "<button onClick={() => setIsOpen(false)} className=\"text-xs text-slate-500 hover:text-slate-800 mt-2\"> Close </button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/storage/crates/[id]/components/crate-status-control.tsx",
+      "line": 64,
+      "character": 11,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Override status"
+      ],
+      "rawJsx": "<button onClick={() => setOverrideOpen(true)} className=\"text-xs text-slate-500 hover:text-slate-800 underline\"> Override status </button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/storage/crates/[id]/components/crate-status-control.tsx",
+      "line": 69,
+      "character": 11,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Cancel override"
+      ],
+      "rawJsx": "<button onClick={() => setOverrideOpen(false)} className=\"text-xs text-slate-500 hover:text-slate-800\"> Cancel override </button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/storage/units/components/create-unit-form.tsx",
+      "line": 76,
+      "character": 9,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Adding...",
+        "Add unit"
+      ],
+      "rawJsx": "<button type=\"submit\" disabled={isPending} className=\"px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 disabled:opacity-5",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/storage/units/components/unit-row.tsx",
+      "line": 45,
+      "character": 11,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Edit"
+      ],
+      "rawJsx": "<button onClick={(e) => { e.stopPropagation() setIsEditing(true) }} className=\"text-blue-600 hover:text-blue-900 relative z-10\" > Edit </button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/storage/units/components/unit-row.tsx",
+      "line": 72,
+      "character": 13,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Saving...",
+        "Save"
+      ],
+      "rawJsx": "<button disabled={isPending} onClick={() => { setError(null) startTransition(async () => { const formData = new FormData() formData.append('unitNumber', unitNum",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/storage/units/components/unit-row.tsx",
+      "line": 94,
+      "character": 13,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Cancel"
+      ],
+      "rawJsx": "<button onClick={() => setIsEditing(false)} className=\"px-3 py-1.5 text-slate-600 text-xs font-medium hover:text-slate-900\"> Cancel </button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/tasks/components/tasks-list.tsx",
+      "line": 58,
+      "character": 13,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "toggleLabel",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "toggleLabel",
+      "icons": [
+        "CheckCircle2"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button type=\"button\" onClick={() => handleToggle(task)} disabled={isPending && loadingId === task.id} title={toggleLabel} aria-label={toggleLabel} aria-pressed",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/workflows/page.tsx",
+      "line": 43,
+      "character": 13,
+      "tagName": "Button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Plus"
+      ],
+      "visibleTexts": [
+        "New Workflow"
+      ],
+      "rawJsx": "<Button> <Plus className=\"h-4 w-4 mr-2\" /> New Workflow </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/workflows/[id]/logs/page.tsx",
+      "line": 43,
+      "character": 11,
+      "tagName": "Button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Back to workflows",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Back to workflows",
+      "icons": [
+        "ArrowLeft"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<Button variant=\"outline\" size=\"icon\" title=\"Back to workflows\" aria-label=\"Back to workflows\" > <ArrowLeft className=\"h-4 w-4\" /> </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/workflows/[id]/WorkflowBuilderForm.tsx",
+      "line": 187,
+      "character": 15,
+      "tagName": "Button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Plus"
+      ],
+      "visibleTexts": [
+        "Add Condition"
+      ],
+      "rawJsx": "<Button type=\"button\" variant=\"outline\" size=\"sm\" onClick={() => appendCondition({ field: '', value: '' })}> <Plus className=\"h-4 w-4 mr-2\" /> Add Condition </B",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/workflows/[id]/WorkflowBuilderForm.tsx",
+      "line": 206,
+      "character": 19,
+      "tagName": "Button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Remove condition",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Remove condition",
+      "icons": [
+        "Trash2"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<Button type=\"button\" variant=\"ghost\" size=\"icon\" onClick={() => removeCondition(index)} className=\"text-red-500 hover:text-red-700\" title=\"Remove condition\" ar",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/workflows/[id]/WorkflowBuilderForm.tsx",
+      "line": 232,
+      "character": 13,
+      "tagName": "Button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Plus"
+      ],
+      "visibleTexts": [
+        "Add Action"
+      ],
+      "rawJsx": "<Button type=\"button\" variant=\"outline\" onClick={() => appendAction({ action_type: 'create_task', action_config: { title: 'New Task' } })} > <Plus className=\"h-",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/workflows/[id]/WorkflowBuilderForm.tsx",
+      "line": 292,
+      "character": 23,
+      "tagName": "Button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Move action up",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Move action up",
+      "icons": [
+        "ArrowUp"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<Button type=\"button\" variant=\"ghost\" size=\"icon\" disabled={index === 0} onClick={() => swapAction(index, index - 1)} title=\"Move action up\" aria-label=\"Move ac",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/workflows/[id]/WorkflowBuilderForm.tsx",
+      "line": 303,
+      "character": 23,
+      "tagName": "Button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Move action down",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Move action down",
+      "icons": [
+        "ArrowDown"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<Button type=\"button\" variant=\"ghost\" size=\"icon\" disabled={index === actionFields.length - 1} onClick={() => swapAction(index, index + 1)} title=\"Move action d",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/workflows/[id]/WorkflowBuilderForm.tsx",
+      "line": 314,
+      "character": 23,
+      "tagName": "Button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Remove action",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Remove action",
+      "icons": [
+        "Trash2"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<Button type=\"button\" variant=\"ghost\" size=\"icon\" className=\"text-red-500 hover:text-red-700 ml-2\" onClick={() => removeAction(index)} title=\"Remove action\" ari",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/workflows/[id]/WorkflowBuilderForm.tsx",
+      "line": 542,
+      "character": 9,
+      "tagName": "Button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Cancel"
+      ],
+      "rawJsx": "<Button type=\"button\" variant=\"outline\" onClick={() => router.push('/office/workflows')} disabled={isSaving} > Cancel </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/office/workflows/[id]/WorkflowBuilderForm.tsx",
+      "line": 550,
+      "character": 9,
+      "tagName": "Button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Save"
+      ],
+      "visibleTexts": [
+        "Saving...",
+        "Save Workflow"
+      ],
+      "rawJsx": "<Button type=\"submit\" disabled={isSaving}> {isSaving ? 'Saving...' : ( <> <Save className=\"h-4 w-4 mr-2\" /> Save Workflow </> )} </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/page.tsx",
+      "line": 49,
+      "character": 11,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Sign Out"
+      ],
+      "rawJsx": "<button type=\"submit\" className=\"px-4 py-2 bg-slate-900 text-white rounded-md hover:bg-slate-800\"> Sign Out </button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/print/invoice-template-preview/page.tsx",
+      "line": 60,
+      "character": 11,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Printer"
+      ],
+      "visibleTexts": [
+        "Print / Save as PDF"
+      ],
+      "rawJsx": "<button id=\"print-btn\" type=\"button\" className=\"inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors bg-emerald-600 text-whi",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/print/invoices/[id]/page.tsx",
+      "line": 43,
+      "character": 11,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Printer"
+      ],
+      "visibleTexts": [
+        "Print / Save as PDF"
+      ],
+      "rawJsx": "<button id=\"print-btn\" type=\"button\" className=\"inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors bg-emerald-600 text-whi",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/print/jobs/[id]/page.tsx",
+      "line": 43,
+      "character": 11,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Printer"
+      ],
+      "visibleTexts": [
+        "Print Document"
+      ],
+      "rawJsx": "<button id=\"print-btn\" type=\"button\" className=\"inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors bg-emerald-600 text-whi",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/proposal/[token]/components/acceptance-flow.tsx",
+      "line": 101,
+      "character": 11,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Processing...",
+        "Sign & Proceed to Payment",
+        "Accept Quote"
+      ],
+      "rawJsx": "<button type=\"submit\" disabled={isSubmitting} style={{ width: '100%', backgroundColor: isSubmitting ? '#9ca3af' : primaryColor, color: 'white', padding: '12px',",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/proposal/[token]/components/acceptance-flow.tsx",
+      "line": 174,
+      "character": 7,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Processing...",
+        "Pay Deposit"
+      ],
+      "rawJsx": "<button type=\"submit\" disabled={isProcessing || !stripe || !elements} style={{ width: '100%', backgroundColor: isProcessing ? '#9ca3af' : primaryColor, color: '",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/signup/components/signup-form.tsx",
+      "line": 130,
+      "character": 11,
+      "tagName": "Button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Creating account...",
+        "Create account"
+      ],
+      "rawJsx": "<Button className=\"w-full font-semibold\" type=\"submit\" disabled={loading}> {loading ? 'Creating account...' : 'Create account'} </Button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/super-admin/analytics/components/analytics-tabs.tsx",
+      "line": 28,
+      "character": 9,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [],
+      "rawJsx": "<button key={t.key} onClick={() => setTab(t.key)} className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${ activeTab === t.key ? 'bord",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/super-admin/analytics/components/growth-range-toggle.tsx",
+      "line": 20,
+      "character": 9,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "mo"
+      ],
+      "rawJsx": "<button key={m} onClick={() => setMonths(m)} className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${ activeMonths === m ? 'bg-slate-900 text",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/super-admin/announcements/components/announcement-dialog.tsx",
+      "line": 104,
+      "character": 9,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Plus"
+      ],
+      "visibleTexts": [
+        "New Announcement"
+      ],
+      "rawJsx": "<button onClick={() => setIsOpen(true)} className=\"flex items-center gap-2 bg-[var(--color-primary)] hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medi",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/super-admin/announcements/components/announcement-dialog.tsx",
+      "line": 120,
+      "character": 15,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Close dialog",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Close dialog",
+      "icons": [
+        "X"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button onClick={close} className=\"text-slate-400 hover:text-slate-900 transition-colors\" title=\"Close dialog\" aria-label=\"Close dialog\" > <X size={20} /> </but",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/super-admin/announcements/components/announcement-dialog.tsx",
+      "line": 236,
+      "character": 17,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Cancel"
+      ],
+      "rawJsx": "<button type=\"button\" onClick={close} className=\"px-4 py-2 text-slate-600 hover:text-slate-900 font-medium transition-colors\"> Cancel </button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/super-admin/announcements/components/announcement-dialog.tsx",
+      "line": 239,
+      "character": 17,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2"
+      ],
+      "visibleTexts": [
+        "Save Changes",
+        "Create Announcement"
+      ],
+      "rawJsx": "<button type=\"submit\" disabled={isPending} className=\"bg-[var(--color-primary)] hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors ",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/super-admin/announcements/components/announcement-list.tsx",
+      "line": 116,
+      "character": 25,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "`Edit announcement: ${a.title}`",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "`Edit announcement: ${a.title}`",
+      "icons": [
+        "Pencil"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button className=\"p-1.5 text-slate-400 hover:text-[var(--color-primary)] transition-colors\" title={`Edit announcement: ${a.title}`} aria-label={`Edit announcem",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/super-admin/announcements/components/announcement-list.tsx",
+      "line": 126,
+      "character": 23,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "`Close announcement now: ${a.title}`",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "`Close announcement now: ${a.title}`",
+      "icons": [
+        "XCircle"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button onClick={() => handleCloseNow(a.id)} disabled={isPending && pendingId === a.id} className=\"p-1.5 text-slate-400 hover:text-amber-600 transition-colors d",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/super-admin/announcements/components/announcement-list.tsx",
+      "line": 136,
+      "character": 21,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "`Delete announcement: ${a.title}`",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "`Delete announcement: ${a.title}`",
+      "icons": [
+        "Trash2"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button onClick={() => handleDelete(a.id)} disabled={isPending && pendingId === a.id} className=\"p-1.5 text-slate-400 hover:text-red-600 transition-colors disab",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/super-admin/components/create-tenant-dialog.tsx",
+      "line": 48,
+      "character": 7,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Plus"
+      ],
+      "visibleTexts": [
+        "Create Tenant"
+      ],
+      "rawJsx": "<button onClick={() => setIsOpen(true)} className=\"flex items-center gap-2 bg-[var(--color-primary)] hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medi",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/super-admin/components/create-tenant-dialog.tsx",
+      "line": 63,
+      "character": 15,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Close dialog",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Close dialog",
+      "icons": [
+        "X"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button onClick={resetState} className=\"text-slate-400 hover:text-slate-900 transition-colors\" title=\"Close dialog\" aria-label=\"Close dialog\" > <X size={20} /> ",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/super-admin/components/create-tenant-dialog.tsx",
+      "line": 88,
+      "character": 25,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Copy admin email",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Copy admin email",
+      "icons": [],
+      "visibleTexts": [],
+      "rawJsx": "<button onClick={() => navigator.clipboard.writeText(successData.adminEmail)} className=\"opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-slate-9",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/super-admin/components/create-tenant-dialog.tsx",
+      "line": 102,
+      "character": 25,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": true,
+      "titleValue": "Copy admin password",
+      "hasAriaLabel": true,
+      "ariaLabelValue": "Copy admin password",
+      "icons": [],
+      "visibleTexts": [],
+      "rawJsx": "<button onClick={() => navigator.clipboard.writeText(successData.generatedPassword || '')} className=\"opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/super-admin/components/create-tenant-dialog.tsx",
+      "line": 115,
+      "character": 17,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Done"
+      ],
+      "rawJsx": "<button onClick={resetState} className=\"w-full bg-[var(--color-primary)] hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/super-admin/components/create-tenant-dialog.tsx",
+      "line": 176,
+      "character": 19,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Cancel"
+      ],
+      "rawJsx": "<button type=\"button\" onClick={resetState} className=\"px-4 py-2 text-slate-600 hover:text-slate-900 font-medium transition-colors\" > Cancel </button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/super-admin/components/create-tenant-dialog.tsx",
+      "line": 183,
+      "character": 19,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2"
+      ],
+      "visibleTexts": [
+        "Create Workspace"
+      ],
+      "rawJsx": "<button type=\"submit\" disabled={isLoading} className=\"bg-[var(--color-primary)] hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors ",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/super-admin/components/sync-stripe-plans-button.tsx",
+      "line": 28,
+      "character": 7,
+      "tagName": "button",
+      "category": "icon-and-text",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [
+        "Loader2",
+        "RefreshCw"
+      ],
+      "visibleTexts": [
+        "Sync Stripe Plans"
+      ],
+      "rawJsx": "<button onClick={handleClick} disabled={isLoading} className=\"flex items-center gap-2 bg-white border border-slate-300 hover:bg-slate-50 disabled:opacity-50 tex",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/super-admin/components/tenant-actions.tsx",
+      "line": 45,
+      "character": 9,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Reactivating...",
+        "Reactivate"
+      ],
+      "rawJsx": "<button type=\"submit\" disabled={loading} className=\"text-emerald-600 hover:text-emerald-700 text-sm font-medium transition-colors\" > {loading ? 'Reactivating...",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/super-admin/components/tenant-actions.tsx",
+      "line": 58,
+      "character": 7,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Suspend"
+      ],
+      "rawJsx": "<button onClick={() => setIsOpen(true)} className=\"border-2 border-[var(--color-destructive)] text-[var(--color-destructive)] bg-transparent hover:bg-red-50 hov",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/super-admin/components/tenant-actions.tsx",
+      "line": 95,
+      "character": 17,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Cancel"
+      ],
+      "rawJsx": "<button type=\"button\" onClick={() => setIsOpen(false)} disabled={loading} className=\"px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 transitio",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/super-admin/components/tenant-actions.tsx",
+      "line": 103,
+      "character": 17,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Suspending...",
+        "Confirm Suspension"
+      ],
+      "rawJsx": "<button type=\"submit\" disabled={loading} className=\"px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded transition-colors disabled:opac",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/app/super-admin/layout.tsx",
+      "line": 31,
+      "character": 15,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Log Out"
+      ],
+      "rawJsx": "<button type=\"submit\" className=\"text-sm font-medium text-slate-500 hover:text-red-600 transition-colors\"> Log Out </button>",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/components/ui/dialog.tsx",
+      "line": 66,
+      "character": 15,
+      "tagName": "Button",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [],
+      "rawJsx": "<Button variant=\"ghost\" className=\"absolute top-2 right-2\" size=\"icon-sm\" />",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/components/ui/dialog.tsx",
+      "line": 112,
+      "character": 40,
+      "tagName": "Button",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [],
+      "rawJsx": "<Button variant=\"outline\" />",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/components/ui/signature-capture.tsx",
+      "line": 53,
+      "character": 11,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "Clear Signature"
+      ],
+      "rawJsx": "<button type=\"button\" onClick={() => sigCanvas.current?.clear()} className=\"bg-transparent border-none text-slate-500 text-xs mt-2 cursor-pointer p-0 hover:text",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/modules/analytics/components/growth-range-toggle.tsx",
+      "line": 20,
+      "character": 9,
+      "tagName": "button",
+      "category": "text-labeled",
+      "hasTitle": false,
+      "hasAriaLabel": false,
+      "icons": [],
+      "visibleTexts": [
+        "mo"
+      ],
+      "rawJsx": "<button key={m} onClick={() => setMonths(m)} className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${ activeMonths === m ? 'bg-slate-900 text",
+      "isActionOrTrigger": true
+    },
+    {
+      "file": "src/modules/email-labels/components/label-chip.tsx",
+      "line": 61,
+      "character": 9,
+      "tagName": "button",
+      "category": "icon-only",
+      "hasTitle": false,
+      "hasAriaLabel": true,
+      "ariaLabelValue": "`Remove ${name} label`",
+      "icons": [
+        "X"
+      ],
+      "visibleTexts": [],
+      "rawJsx": "<button type=\"button\" onClick={(e) => { e.stopPropagation() e.preventDefault() onRemove() }} className=\"shrink-0 ml-0.5 opacity-60 hover:opacity-100 transition-",
+      "isActionOrTrigger": true
+    }
+  ]
+}
