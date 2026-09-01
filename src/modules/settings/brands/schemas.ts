@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { optionalUkPostcodeSchema } from '@/lib/postcode-validation'
 
 // The identity fields a brand carries. This exact key set is what
 // internal_create_invoice_snapshot() writes into invoices.brand_snapshot
@@ -36,7 +37,7 @@ export const brandFormSchema = z.object({
   address_line_2: z.string().nullable().optional(),
   address_city: z.string().nullable().optional(),
   address_county: z.string().nullable().optional(),
-  address_postcode: z.string().nullable().optional(),
+  address_postcode: optionalUkPostcodeSchema,
   address_country: z.string().nullable().optional(),
   vat_number: z.string().nullable().optional(),
   bank_details: z.string().nullable().optional(),

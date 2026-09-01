@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { ukPostcodeSchema, optionalUkPostcodeSchema } from '@/lib/postcode-validation'
 
 // ============================================================================
 // CONTACTS
@@ -15,7 +16,7 @@ export const insertContactSchema = z.object({
   first_name: z.string().min(1, 'First name is required'),
   last_name: z.string().optional().nullable(),
   company_name: z.string().optional().nullable(),
-  email: z.string().email('Invalid email address').optional().nullable(),
+  email: z.string().email('Invalid email address').optional().nullable().or(z.literal('')),
   phone: z.string().optional().nullable(),
   alt_phone: z.string().optional().nullable(),
   notes: z.string().optional().nullable(),
@@ -37,7 +38,7 @@ export const insertAddressSchema = z.object({
   line_2: z.string().optional().nullable(),
   city: z.string().min(1, 'City is required'),
   county: z.string().optional().nullable(),
-  postcode: z.string().min(1, 'Postcode is required'),
+  postcode: ukPostcodeSchema,
   country: z.string().default('GB'),
   lat: z.number().optional().nullable(),
   lng: z.number().optional().nullable(),
@@ -91,9 +92,9 @@ export const createClientFormSchema = z.object({
   
   // Addresses (Optional)
   origin_city: z.string().optional().nullable(),
-  origin_postcode: z.string().optional().nullable(),
+  origin_postcode: optionalUkPostcodeSchema,
   destination_city: z.string().optional().nullable(),
-  destination_postcode: z.string().optional().nullable(),
+  destination_postcode: optionalUkPostcodeSchema,
   
   // Quote
   quote_amount: z.number().optional().nullable(),

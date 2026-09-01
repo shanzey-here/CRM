@@ -78,7 +78,7 @@ export function CaptureForm({ widgetKey, tenantName }: CaptureFormProps) {
         </div>
       )}
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 flex-1 overflow-y-auto pr-2 custom-scrollbar">
+      <form noValidate onSubmit={handleSubmit(onSubmit)} className="space-y-5 flex-1 overflow-y-auto pr-2 custom-scrollbar">
         {/* Honeypot Field - Visually Hidden */}
         <div className="hidden" aria-hidden="true">
           <label htmlFor="website_url">Website URL (Leave blank)</label>
@@ -119,6 +119,9 @@ export function CaptureForm({ widgetKey, tenantName }: CaptureFormProps) {
             <div className="space-y-1.5">
               <Label htmlFor="origin_postcode" className="text-xs">Postcode</Label>
               <Input id="origin_postcode" placeholder="E1 6AN" {...register('origin_postcode')} />
+              {errors.origin_postcode && (
+                <p className="text-xs text-red-500">{errors.origin_postcode.message}</p>
+              )}
             </div>
           </div>
           
@@ -131,6 +134,9 @@ export function CaptureForm({ widgetKey, tenantName }: CaptureFormProps) {
             <div className="space-y-1.5">
               <Label htmlFor="destination_postcode" className="text-xs">Postcode</Label>
               <Input id="destination_postcode" placeholder="M1 1AD" {...register('destination_postcode')} />
+              {errors.destination_postcode && (
+                <p className="text-xs text-red-500">{errors.destination_postcode.message}</p>
+              )}
             </div>
           </div>
         </div>

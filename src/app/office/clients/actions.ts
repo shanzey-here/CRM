@@ -102,6 +102,7 @@ import { createContact, createAddress } from '@/modules/clients/server/repositor
 import { createLead } from '@/modules/leads/server/repository'
 import { createQuote } from '@/modules/quotes/server/repository'
 import { createClientFormSchema, type CreateClientFormInput } from '@/modules/clients/schemas'
+import { validateUkPostcode } from '@/lib/postcode-validation'
 
 export async function createClientCore(
   supabase: any,
@@ -118,6 +119,23 @@ export async function createClientCore(
   }
 
   const data = parseResult.data
+
+  // Live UK postcode existence validation
+  if (data.origin_postcode && data.origin_postcode.trim() !== '') {
+    const validRes = await validateUkPostcode(data.origin_postcode)
+    if (!validRes.valid) {
+      return { error: `Origin postcode: ${validRes.error}` }
+    }
+    data.origin_postcode = validRes.normalized || data.origin_postcode
+  }
+
+  if (data.destination_postcode && data.destination_postcode.trim() !== '') {
+    const validRes = await validateUkPostcode(data.destination_postcode)
+    if (!validRes.valid) {
+      return { error: `Destination postcode: ${validRes.error}` }
+    }
+    data.destination_postcode = validRes.normalized || data.destination_postcode
+  }
 
   // Single resolution point for the one shared lead-creation path (manual
   // entry passes no brandId when the tenant has just one brand; the widget

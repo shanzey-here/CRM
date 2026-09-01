@@ -113,7 +113,7 @@ export function ConfirmBookingForm({ lead, onSuccess, onCancel }: ConfirmBooking
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-1">
+    <form noValidate onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-1">
       {serverError && (
         <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-xs text-red-700 flex items-start gap-2">
           <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
