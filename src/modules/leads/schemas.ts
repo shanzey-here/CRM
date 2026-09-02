@@ -20,6 +20,9 @@ export const leadStageEnum = z.enum([
 // what the quote's own snapshotted price is for.
 export const leadPriorityEnum = z.enum(['low', 'medium', 'high'])
 
+// Matches the widget's optional Packing of boxes service radio field.
+export const leadPackingPreferenceEnum = z.enum(['none', 'kitchen_fragile', 'full'])
+
 export const insertLeadSchema = z.object({
   contact_id: z.string().uuid('A valid contact is required'),
   // Optional at the form/payload layer: a tenant with only one brand never
@@ -30,6 +33,16 @@ export const insertLeadSchema = z.object({
   stage: leadStageEnum.default('inquiry'),
   source: z.string().optional().nullable(),
   preferred_move_date: z.string().optional().nullable(),
+  // Free-typed HH:MM (24h) from the widget's native <input type="time">;
+  // genuinely arbitrary, not restricted to preset slots. Optional — most
+  // internal lead-creation paths don't collect this.
+  preferred_move_time: z
+    .string()
+    .regex(/^\d{2}:\d{2}$/, 'Enter a valid time')
+    .optional()
+    .nullable()
+    .or(z.literal('')),
+  packing_preference: leadPackingPreferenceEnum.optional().nullable(),
   origin_address_id: z.string().uuid().optional().nullable(),
   destination_address_id: z.string().uuid().optional().nullable(),
   estimated_volume: z.number().optional().nullable(),

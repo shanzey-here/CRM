@@ -133,6 +133,7 @@ export type Database = {
           lng: number | null
           parking_notes: string | null
           postcode: string
+          property_type: string | null
           tenant_id: string
           updated_at: string | null
         }
@@ -151,6 +152,7 @@ export type Database = {
           lng?: number | null
           parking_notes?: string | null
           postcode: string
+          property_type?: string | null
           tenant_id: string
           updated_at?: string | null
         }
@@ -169,6 +171,7 @@ export type Database = {
           lng?: number | null
           parking_notes?: string | null
           postcode?: string
+          property_type?: string | null
           tenant_id?: string
           updated_at?: string | null
         }
@@ -489,6 +492,7 @@ export type Database = {
           address_line_2: string | null
           address_postcode: string | null
           bank_details: string | null
+          color: string | null
           created_at: string
           email: string | null
           id: string
@@ -511,6 +515,7 @@ export type Database = {
           address_line_2?: string | null
           address_postcode?: string | null
           bank_details?: string | null
+          color?: string | null
           created_at?: string
           email?: string | null
           id?: string
@@ -533,6 +538,7 @@ export type Database = {
           address_line_2?: string | null
           address_postcode?: string | null
           bank_details?: string | null
+          color?: string | null
           created_at?: string
           email?: string | null
           id?: string
@@ -728,6 +734,7 @@ export type Database = {
             | null
           stripe_customer_id: string | null
           tenant_id: string
+          title: string | null
           type: Database["public"]["Enums"]["contact_type"]
           updated_at: string | null
           updated_by: string | null
@@ -752,6 +759,7 @@ export type Database = {
             | null
           stripe_customer_id?: string | null
           tenant_id: string
+          title?: string | null
           type?: Database["public"]["Enums"]["contact_type"]
           updated_at?: string | null
           updated_by?: string | null
@@ -776,6 +784,7 @@ export type Database = {
             | null
           stripe_customer_id?: string | null
           tenant_id?: string
+          title?: string | null
           type?: Database["public"]["Enums"]["contact_type"]
           updated_at?: string | null
           updated_by?: string | null
@@ -1947,10 +1956,12 @@ export type Database = {
           is_archived: boolean
           notes: string | null
           origin_address_id: string | null
+          packing_preference: string | null
           preferred_move_date: string | null
+          preferred_move_time: string | null
           priority: Database["public"]["Enums"]["priority_level"]
           source: string | null
-          stage: Database["public"]["Enums"]["lead_stage"]
+          stage: Database["public"]["Enums"]["lead_stage"] | null
           stage_id: string
           tenant_id: string
           updated_at: string | null
@@ -1970,11 +1981,13 @@ export type Database = {
           is_archived?: boolean
           notes?: string | null
           origin_address_id?: string | null
+          packing_preference?: string | null
           preferred_move_date?: string | null
+          preferred_move_time?: string | null
           priority?: Database["public"]["Enums"]["priority_level"]
           source?: string | null
-          stage?: Database["public"]["Enums"]["lead_stage"]
-          stage_id?: string
+          stage?: Database["public"]["Enums"]["lead_stage"] | null
+          stage_id: string
           tenant_id: string
           updated_at?: string | null
           updated_by?: string | null
@@ -1993,10 +2006,12 @@ export type Database = {
           is_archived?: boolean
           notes?: string | null
           origin_address_id?: string | null
+          packing_preference?: string | null
           preferred_move_date?: string | null
+          preferred_move_time?: string | null
           priority?: Database["public"]["Enums"]["priority_level"]
           source?: string | null
-          stage?: Database["public"]["Enums"]["lead_stage"]
+          stage?: Database["public"]["Enums"]["lead_stage"] | null
           stage_id?: string
           tenant_id?: string
           updated_at?: string | null
@@ -2043,6 +2058,13 @@ export type Database = {
             columns: ["origin_address_id", "tenant_id"]
             isOneToOne: false
             referencedRelation: "addresses"
+            referencedColumns: ["id", "tenant_id"]
+          },
+          {
+            foreignKeyName: "leads_stage_id_fkey"
+            columns: ["stage_id", "tenant_id"]
+            isOneToOne: false
+            referencedRelation: "pipeline_stages"
             referencedColumns: ["id", "tenant_id"]
           },
           {
@@ -2330,6 +2352,53 @@ export type Database = {
           },
           {
             foreignKeyName: "payments_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pipeline_stages: {
+        Row: {
+          color: string | null
+          created_at: string
+          id: string
+          is_hidden_by_default: boolean
+          is_system: boolean
+          key: string | null
+          name: string
+          position: number
+          tenant_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          is_hidden_by_default?: boolean
+          is_system?: boolean
+          key?: string | null
+          name: string
+          position: number
+          tenant_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          is_hidden_by_default?: boolean
+          is_system?: boolean
+          key?: string | null
+          name?: string
+          position?: number
+          tenant_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pipeline_stages_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -4155,7 +4224,14 @@ export type Database = {
         | "tyre_change"
         | "inspection"
         | "other"
-      workflow_action_type: "create_task" | "update_lead_stage" | "delay" | "send_email" | "send_sms" | "notify_staff" | "condition"
+      workflow_action_type:
+        | "create_task"
+        | "update_lead_stage"
+        | "delay"
+        | "send_email"
+        | "send_sms"
+        | "notify_staff"
+        | "condition"
       workflow_execution_status: "pending" | "success" | "partial" | "failed"
       workflow_trigger_event_type:
         | "lead.created"
@@ -4189,12 +4265,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -4218,11 +4294,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -4243,11 +4319,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -4268,11 +4344,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -4285,11 +4361,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -4404,7 +4480,15 @@ export const Constants = {
         "inspection",
         "other",
       ],
-      workflow_action_type: ["create_task", "update_lead_stage", "delay", "send_email", "send_sms", "notify_staff", "condition"],
+      workflow_action_type: [
+        "create_task",
+        "update_lead_stage",
+        "delay",
+        "send_email",
+        "send_sms",
+        "notify_staff",
+        "condition",
+      ],
       workflow_execution_status: ["pending", "success", "partial", "failed"],
       workflow_trigger_event_type: [
         "lead.created",

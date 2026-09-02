@@ -31,6 +31,15 @@ export type BrandIdentity = z.infer<typeof brandIdentitySchema>
 export const brandFormSchema = z.object({
   name: z.string().min(1, 'Brand name is required'),
   logo_url: z.string().url().nullable().optional().or(z.literal('')),
+  // Widget accent color. Same hex-only pattern already used for pipeline
+  // stage colors (createCustomStageSchema) — no reason to invent a second
+  // color format in this codebase.
+  color: z
+    .string()
+    .regex(/^#[0-9a-fA-F]{6}$/, 'Must be a valid 6-character hex color code (e.g. #3B82F6)')
+    .nullable()
+    .optional()
+    .or(z.literal('')),
   email: z.string().email().nullable().optional().or(z.literal('')),
   phone: z.string().nullable().optional(),
   address_line_1: z.string().nullable().optional(),

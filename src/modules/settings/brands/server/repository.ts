@@ -63,6 +63,7 @@ export async function createBrand(
       tenant_id: tenantId,
       name: input.name,
       logo_url: input.logo_url || null,
+      color: input.color || null,
       email: input.email || null,
       phone: input.phone || null,
       address_line_1: input.address_line_1 || null,
@@ -93,6 +94,7 @@ export async function updateBrand(
     .update({
       name: input.name,
       logo_url: input.logo_url || null,
+      color: input.color || null,
       email: input.email || null,
       phone: input.phone || null,
       address_line_1: input.address_line_1 || null,

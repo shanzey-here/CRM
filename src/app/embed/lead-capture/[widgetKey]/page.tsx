@@ -20,7 +20,7 @@ export default async function LeadCapturePage({ params }: PageProps) {
   // identity to show here, not the tenant's internal name.
   const { data: brand, error } = await supabase
     .from('brands')
-    .select('id, name')
+    .select('id, name, color')
     .eq('public_widget_key', widgetKey)
     .single()
 
@@ -32,7 +32,7 @@ export default async function LeadCapturePage({ params }: PageProps) {
   return (
     <div className="min-h-screen bg-transparent p-4 flex flex-col">
       <div className="max-w-2xl w-full mx-auto flex-1 flex flex-col">
-        <CaptureForm widgetKey={widgetKey} tenantName={brand.name} />
+        <CaptureForm widgetKey={widgetKey} tenantName={brand.name} brandColor={brand.color || '#111827'} />
       </div>
     </div>
   )
