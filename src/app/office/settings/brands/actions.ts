@@ -27,6 +27,7 @@ function formDataToBrandInput(formData: FormData) {
   return {
     name: formData.get('name') as string,
     logo_url: (formData.get('logo_url') as string) || null,
+    color: (formData.get('color') as string) || null,
     email: (formData.get('email') as string) || null,
     phone: (formData.get('phone') as string) || null,
     address_line_1: (formData.get('address_line_1') as string) || null,

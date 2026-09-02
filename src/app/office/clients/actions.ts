@@ -151,6 +151,7 @@ export async function createClientCore(
 
   // 1. Create the Contact
   const { data: contact, error: contactErr } = await createContact(supabase, tenantId, {
+    title: data.title,
     first_name: data.first_name,
     last_name: data.last_name,
     email: data.email,
@@ -167,34 +168,41 @@ export async function createClientCore(
   // 2. If Lead details are provided (any of the optional fields), create a Lead
   const hasLeadData = forceCreateLead || !!(
     data.source ||
-    data.preferred_move_date || 
-    data.estimated_hours || 
-    data.estimated_crew_size || 
+    data.preferred_move_date ||
+    data.estimated_hours ||
+    data.estimated_crew_size ||
     data.notes ||
     data.quote_amount ||
     data.origin_city || data.origin_postcode ||
     data.destination_city || data.destination_postcode
   )
-  
+
   if (hasLeadData) {
     let origin_address_id: string | null = null
     let destination_address_id: string | null = null
 
-    // 2a. Create Addresses if provided
+    // 2a. Create Addresses if provided. house_number/property_type are new,
+    // additive fields the widget always sends; the manual Create Client form
+    // still only asks for city+postcode, so both stay optional and fall back
+    // to the pre-existing '-' placeholder / null exactly as before.
     if (data.origin_city || data.origin_postcode) {
       const { data: originData } = await createAddress(supabase, tenantId, {
-        line_1: '-', // Form doesn't ask for it, but it's required in schema
+        line_1: data.origin_house_number || '-',
         city: data.origin_city || '-',
-        postcode: data.origin_postcode || '-'
+        postcode: data.origin_postcode || '-',
+        country: 'GB',
+        property_type: data.origin_property_type || null,
       })
       if (originData) origin_address_id = originData.id
     }
 
     if (data.destination_city || data.destination_postcode) {
       const { data: destData } = await createAddress(supabase, tenantId, {
-        line_1: '-',
+        line_1: data.destination_house_number || '-',
         city: data.destination_city || '-',
-        postcode: data.destination_postcode || '-'
+        postcode: data.destination_postcode || '-',
+        country: 'GB',
+        property_type: data.destination_property_type || null,
       })
       if (destData) destination_address_id = destData.id
     }
@@ -211,6 +219,8 @@ export async function createClientCore(
       // end-to-end widget testing during Part 3 verification — pre-existing
       // gap, not introduced by brand threading.
       preferred_move_date: data.preferred_move_date || null,
+      preferred_move_time: data.preferred_move_time || null,
+      packing_preference: data.packing_preference || null,
       estimated_hours: data.estimated_hours,
       estimated_crew_size: data.estimated_crew_size,
       notes: data.notes,

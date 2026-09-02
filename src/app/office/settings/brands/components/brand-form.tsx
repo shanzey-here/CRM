@@ -25,6 +25,7 @@ function toDefaults(brand?: Brand | null): BrandFormInput {
   return {
     name: brand?.name || '',
     logo_url: brand?.logo_url || '',
+    color: brand?.color || '#111827',
     email: brand?.email || '',
     phone: brand?.phone || '',
     address_line_1: brand?.address_line_1 || '',
@@ -52,11 +53,14 @@ export function BrandForm({ brand }: { brand?: Brand }) {
     register,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors },
   } = useForm<BrandFormInput>({
     resolver: zodResolver(brandFormSchema),
     defaultValues: toDefaults(brand),
   })
+
+  const colorValue = watch('color') || '#111827'
 
   // Same real upload mechanism Branding uses (uploadLogoFile, same
   // tenant-logos bucket) — for a new brand (no id yet) this stages the
@@ -169,6 +173,21 @@ export function BrandForm({ brand }: { brand?: Brand }) {
             </div>
             <input type="hidden" {...register('logo_url')} />
             {errors.logo_url && <p className="text-sm text-red-500">{errors.logo_url.message}</p>}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="color">Brand Color</Label>
+            <p className="text-xs text-slate-500 -mt-1">Used as the accent color on this brand's Web Widget quote form.</p>
+            <div className="flex items-center gap-2">
+              <input
+                id="color"
+                type="color"
+                {...register('color')}
+                className="h-9 w-12 rounded border border-slate-200 p-0.5 cursor-pointer"
+              />
+              <span className="text-sm text-slate-600 font-mono">{colorValue}</span>
+            </div>
+            {errors.color && <p className="text-sm text-red-500">{errors.color.message}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
