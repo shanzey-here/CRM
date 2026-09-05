@@ -62,7 +62,9 @@ export default async function LeadsPage() {
       created_at,
       updated_at,
       is_archived,
-      contact:contacts(first_name, last_name, email, phone, company_name)
+      contact:contacts(first_name, last_name, email, phone, company_name),
+      origin_address:addresses!leads_origin_address_fk(city, postcode),
+      destination_address:addresses!leads_destination_address_fk(city, postcode)
     `)
     .eq('tenant_id', tenantId)
     .eq('is_archived', false)

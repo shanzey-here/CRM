@@ -98,12 +98,17 @@ function formatDate(dateStr: string | null): string {
   })
 }
 
-// Displays an address summary — in practice the lead row stores address IDs
-// not the full address text; this is a placeholder until address lookup is added
-// as a join in a future enhancement.
-function AddressPreview({ leadId, type }: { leadId: string; type: 'origin' | 'destination' }) {
-  // TODO: once joined address data is passed in, render actual street/city
-  return <span className="text-slate-400 italic text-xs">{type === 'origin' ? 'Origin' : 'Destination'} TBC</span>
+type AddressPreviewData = { city: string; postcode: string } | null
+
+// Displays a short city/postcode summary from the joined address row (see
+// origin_address/destination_address in the Kanban query, office/leads/page.tsx).
+// Falls back to a plain label when no address has been captured yet.
+function AddressPreview({ address, type }: { address?: AddressPreviewData | AddressPreviewData[]; type: 'origin' | 'destination' }) {
+  const a = Array.isArray(address) ? address[0] : address
+  if (!a) {
+    return <span className="text-slate-400 italic">{type === 'origin' ? 'Origin' : 'Destination'} TBC</span>
+  }
+  return <span>{a.city}</span>
 }
 
 export function LeadCard({ lead, isDragOverlay = false, isPending = false }: LeadCardProps) {
@@ -165,9 +170,9 @@ export function LeadCard({ lead, isDragOverlay = false, isPending = false }: Lea
         <div className="flex items-center gap-1 mt-1.5 text-xs text-slate-500">
           <MapPin className="h-3 w-3 shrink-0" />
           <span className="truncate">
-            <AddressPreview leadId={lead.id} type="origin" />
+            <AddressPreview address={lead.origin_address} type="origin" />
             {' → '}
-            <AddressPreview leadId={lead.id} type="destination" />
+            <AddressPreview address={lead.destination_address} type="destination" />
           </span>
         </div>
 

@@ -274,6 +274,11 @@ export async function logFollowUpAction(
     const { error: taskError } = await createTask(supabase, tenantId, {
       lead_id: leadId,
       contact_id: lead.contact_id,
+      // Real gap found during data-flow verification: this reminder task
+      // never set an assignee, so it was invisible to any user-scoped task
+      // view. The person logging the follow-up is the one who should be
+      // reminded to do it again.
+      assigned_to: user.id,
       title: `Follow up with ${contactName}`,
       description: `Reminder from follow-up logged ${new Date().toLocaleDateString('en-GB')}: ${note}`,
       due_date: dueIso,

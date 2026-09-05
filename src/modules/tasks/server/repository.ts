@@ -69,7 +69,7 @@ export async function getPendingTasks(
 ) {
   const { data, error } = await supabase
     .from('tasks')
-    .select('*')
+    .select('*, assignee:users!tasks_assigned_to_fkey(full_name)')
     .eq('tenant_id', tenantId)
     .eq('status', 'pending')
     .order('due_date', { ascending: true, nullsFirst: false })

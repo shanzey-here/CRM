@@ -13,8 +13,18 @@ export type LeadContact = {
   company_name?: string | null
 }
 
+export type LeadAddressPreview = {
+  city: string
+  postcode: string
+} | null
+
 export type LeadWithContact = Lead & {
   contact?: LeadContact | LeadContact[] | null
+  // Only present when the caller's query explicitly joins these (the Kanban
+  // board query does; getLeadById does not, since the lead detail page
+  // already fetches the full address separately).
+  origin_address?: LeadAddressPreview | LeadAddressPreview[]
+  destination_address?: LeadAddressPreview | LeadAddressPreview[]
 }
 
 export interface PaginationOptions {

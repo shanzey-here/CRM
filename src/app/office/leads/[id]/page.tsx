@@ -82,6 +82,27 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
   const { getTenantStaff } = await import('@/modules/users/server/repository')
   const { data: tenantStaff } = await getTenantStaff(supabase, tenantId)
 
+  // 8a. Fetch the most recent survey appointment for this lead's contact.
+  // Appointments key off contact_id (not lead_id — see modules/appointments
+  // schema), so this is scoped the same way Schedule Survey itself creates
+  // it. Real gap found during data-flow verification: Schedule Survey wrote
+  // a real appointment row with surveyor/time/notes, but the lead detail
+  // page never displayed any of it — only a generic "moved to Survey
+  // Scheduled" activity-timeline entry. This surfaces it directly, reusing
+  // the same Card pattern as every other section on this page.
+  const { data: surveyAppointment } = await supabase
+    .from('appointments')
+    .select('id, title, description, start_time, end_time, assigned_to, status')
+    .eq('tenant_id', tenantId)
+    .eq('contact_id', lead.contact_id)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  const surveyor = surveyAppointment?.assigned_to
+    ? tenantStaff?.find((s) => s.id === surveyAppointment.assigned_to)
+    : null
+
   // 8. Determine stage badge + control
   const stageConfig = KANBAN_STAGES.find((s) => s.id === lead.stage)
   const isEditableStage = KANBAN_STAGES.some((s) => s.id === lead.stage)
@@ -96,7 +117,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
         <div className="flex-1">
           <div className="flex items-center gap-3">
             <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
-              {contact.first_name} {contact.last_name || ''}
+              {(contact as any).title ? `${(contact as any).title} ` : ''}{contact.first_name} {contact.last_name || ''}
             </h1>
             {stageConfig && (
               <Badge style={{ backgroundColor: stageConfig.color, color: 'white' }}>
@@ -122,7 +143,15 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
         </div>
 
         <div className="flex items-center gap-2">
-          <LeadQuickActionsBar lead={{ ...lead, contact }} tenantStaff={tenantStaff || []} />
+          <LeadQuickActionsBar
+            lead={{
+              ...lead,
+              contact,
+              origin_address: originAddress ? { city: originAddress.city, postcode: originAddress.postcode } : null,
+              destination_address: destinationAddress ? { city: destinationAddress.city, postcode: destinationAddress.postcode } : null,
+            }}
+            tenantStaff={tenantStaff || []}
+          />
           <StageControl leadId={lead.id} currentStage={lead.stage} isEditable={isEditableStage} lead={{ ...lead, contact }} />
           <EditLeadForm lead={lead} tenantStaff={tenantStaff || []} />
         </div>
@@ -217,6 +246,16 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
                   <p className="text-xs font-semibold text-slate-500 uppercase">Preferred Move Date</p>
                   <p className="text-sm text-slate-700 mt-1">
                     {new Date(lead.preferred_move_date).toLocaleDateString()}
+                    {(lead as any).preferred_move_time && ` at ${(lead as any).preferred_move_time.slice(0, 5)}`}
+                  </p>
+                </div>
+              )}
+
+              {(lead as any).packing_preference && (
+                <div>
+                  <p className="text-xs font-semibold text-slate-500 uppercase">Packing Service</p>
+                  <p className="text-sm text-slate-700 mt-1 capitalize">
+                    {(lead as any).packing_preference.replace(/_/g, ' ')}
                   </p>
                 </div>
               )}
@@ -251,6 +290,41 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
               </div>
             </CardContent>
           </Card>
+
+          {/* Survey Appointment Card — only rendered when one exists */}
+          {surveyAppointment && (
+            <Card className="shadow-sm border-slate-200">
+              <CardHeader className="bg-slate-50/50 pb-4">
+                <CardTitle className="text-lg">Survey Appointment</CardTitle>
+                <CardDescription className="capitalize">{surveyAppointment.status}</CardDescription>
+              </CardHeader>
+              <CardContent className="pt-4 space-y-3">
+                <div className="flex items-start gap-3">
+                  <Calendar className="h-5 w-5 text-slate-400 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-medium text-slate-900">
+                      {new Date(surveyAppointment.start_time).toLocaleString(undefined, {
+                        dateStyle: 'medium',
+                        timeStyle: 'short',
+                      })}
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      until {new Date(surveyAppointment.end_time).toLocaleTimeString(undefined, { timeStyle: 'short' })}
+                    </p>
+                  </div>
+                </div>
+                {surveyor && (
+                  <div className="flex items-center gap-2">
+                    <User className="h-4 w-4 text-slate-400" />
+                    <p className="text-sm text-slate-700">{surveyor.full_name}</p>
+                  </div>
+                )}
+                {surveyAppointment.description && (
+                  <p className="text-sm text-slate-600 whitespace-pre-wrap">{surveyAppointment.description}</p>
+                )}
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Right Column: Addresses & Notes & Activity */}
@@ -267,9 +341,16 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
                   <div className="p-4 rounded-lg border border-slate-100 bg-slate-50 flex gap-3">
                     <MapPin className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
                     <div>
-                      <Badge variant="outline" className="mb-2 text-xs uppercase font-semibold text-slate-500">
-                        Origin
-                      </Badge>
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge variant="outline" className="text-xs uppercase font-semibold text-slate-500">
+                          Origin
+                        </Badge>
+                        {(originAddress as any).property_type && (
+                          <Badge variant="outline" className="text-xs capitalize font-semibold text-emerald-700 bg-emerald-50 border-emerald-200">
+                            {(originAddress as any).property_type}
+                          </Badge>
+                        )}
+                      </div>
                       <p className="text-sm font-medium text-slate-900">{originAddress.line_1}</p>
                       {originAddress.line_2 && <p className="text-sm text-slate-600">{originAddress.line_2}</p>}
                       <p className="text-sm text-slate-600">
@@ -288,9 +369,16 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
                   <div className="p-4 rounded-lg border border-slate-100 bg-slate-50 flex gap-3">
                     <MapPin className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
                     <div>
-                      <Badge variant="outline" className="mb-2 text-xs uppercase font-semibold text-slate-500">
-                        Destination
-                      </Badge>
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge variant="outline" className="text-xs uppercase font-semibold text-slate-500">
+                          Destination
+                        </Badge>
+                        {(destinationAddress as any).property_type && (
+                          <Badge variant="outline" className="text-xs capitalize font-semibold text-blue-700 bg-blue-50 border-blue-200">
+                            {(destinationAddress as any).property_type}
+                          </Badge>
+                        )}
+                      </div>
                       <p className="text-sm font-medium text-slate-900">{destinationAddress.line_1}</p>
                       {destinationAddress.line_2 && <p className="text-sm text-slate-600">{destinationAddress.line_2}</p>}
                       <p className="text-sm text-slate-600">

@@ -135,6 +135,10 @@ export function LeadQuickActionModals({
   const contactName = getContactDisplayName(lead.contact)
   const contact = Array.isArray(lead.contact) ? lead.contact[0] : lead.contact
   const currentStageConfig = KANBAN_STAGES.find((s) => s.id === lead.stage)
+  const originAddr = Array.isArray(lead.origin_address) ? lead.origin_address[0] : lead.origin_address
+  const destinationAddr = Array.isArray(lead.destination_address) ? lead.destination_address[0] : lead.destination_address
+  const originCity = originAddr?.city
+  const destinationCity = destinationAddr?.city
 
   return (
     <Dialog
@@ -231,7 +235,7 @@ export function LeadQuickActionModals({
               <span className="text-slate-400 block text-[11px] mt-1.5">Route</span>
               <span className="text-slate-600 flex items-center gap-1 text-[11px]">
                 <MapPin className="h-3 w-3 shrink-0 text-slate-400" />
-                Origin → Destination TBC
+                {originCity || 'Origin TBC'} → {destinationCity || 'Destination TBC'}
               </span>
             </div>
           </div>
