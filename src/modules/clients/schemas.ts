@@ -2,6 +2,19 @@ import { z } from 'zod'
 import { ukPostcodeSchema, optionalUkPostcodeSchema } from '@/lib/postcode-validation'
 import { leadPackingPreferenceEnum } from '@/modules/leads/schemas'
 
+// Real gap found during data-flow verification: a number input registered
+// with react-hook-form's `valueAsNumber: true` produces NaN (not undefined)
+// when left blank. z.number() rejects NaN, so an OPTIONAL numeric field left
+// blank failed validation with zero visible feedback (these fields have no
+// inline error UI) — the Create Client form silently refused to submit
+// whenever "Quoted Amount" was left empty, the normal case for a fresh lead.
+// Normalizing here, before validation, fixes it at the one shared schema
+// rather than patching each form's onSubmit after the fact.
+const optionalNumber = z.preprocess(
+  (val) => (val === '' || val === undefined || (typeof val === 'number' && isNaN(val)) ? null : val),
+  z.number().optional().nullable()
+)
+
 // ============================================================================
 // CONTACTS
 // ============================================================================
@@ -103,8 +116,8 @@ export const createClientFormSchema = z.object({
     .nullable()
     .or(z.literal('')),
   packing_preference: leadPackingPreferenceEnum.optional().nullable(),
-  estimated_hours: z.number().optional().nullable(),
-  estimated_crew_size: z.number().optional().nullable(),
+  estimated_hours: optionalNumber,
+  estimated_crew_size: optionalNumber,
   source: z.string().optional().nullable(),
   notes: z.string().optional().nullable(),
 
@@ -122,7 +135,7 @@ export const createClientFormSchema = z.object({
   destination_property_type: addressPropertyTypeEnum.optional().nullable(),
 
   // Quote
-  quote_amount: z.number().optional().nullable(),
+  quote_amount: optionalNumber,
 })
 
 export type CreateClientFormInput = z.infer<typeof createClientFormSchema>

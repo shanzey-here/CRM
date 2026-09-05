@@ -22,7 +22,7 @@ export async function getUnifiedCalendarData(
   // 1. Fetch Jobs and their Assignments (filtered by date range)
   const { data: jobs, error: jobsErr } = await supabase
     .from('jobs')
-    .select('*, job_crew_assignments(user_id, scheduled_start, scheduled_end)')
+    .select('*, job_crew_assignments(user_id, scheduled_start, scheduled_end), contact:contacts(first_name, last_name, company_name)')
     .eq('tenant_id', tenantId)
     .gte('move_date', startDate.split('T')[0])
     .lte('move_date', endDate.split('T')[0])
@@ -75,10 +75,15 @@ export async function getUnifiedCalendarData(
       }
 
       if (start_time) {
+        const c = job.contact
+        const nameParts = [c?.first_name, c?.last_name].map((s: string | null) => s?.trim()).filter(Boolean)
+        const contactName = nameParts.length > 0 ? nameParts.join(' ') : c?.company_name?.trim()
+        const title = contactName ? `${contactName} — Job` : `Job #${job.id.substring(0, 8)}`
+
         events.push({
           id: job.id,
           type: 'job',
-          title: `Job #${job.id.substring(0,8)}`, // We can replace with actual contact name if joined
+          title,
           start_time,
           end_time: end_time || undefined,
           status: job.status,

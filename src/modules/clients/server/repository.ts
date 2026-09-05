@@ -41,7 +41,7 @@ export async function getContacts(
         id, stage, preferred_move_date, source, assigned_to, estimated_hours, estimated_crew_size, updated_at,
         origin_address:addresses!leads_origin_address_fk(city, postcode),
         destination_address:addresses!leads_destination_address_fk(city, postcode),
-        quotes ( final_price, total_price, status )
+        quotes ( final_price, total_price, status, created_at )
       )
     `, { count: 'exact' })
     .eq('tenant_id', tenantId) // Explicit tenant scoping
@@ -63,8 +63,8 @@ export async function getContacts(
 
   const { data, count, error } = await query
   
-  // Sort leads in memory to ensure 'updated_at DESC' is strictly applied 
-  // to pick the most recently active lead, as PostgREST nested ordering 
+  // Sort leads in memory to ensure 'updated_at DESC' is strictly applied
+  // to pick the most recently active lead, as PostgREST nested ordering
   // can sometimes be tricky syntax-wise: .order('updated_at', { foreignTable: 'leads', ascending: false })
   if (data) {
     data.forEach((contact: any) => {
@@ -73,6 +73,18 @@ export async function getContacts(
           const dateA = a.updated_at ? new Date(a.updated_at).getTime() : 0
           const dateB = b.updated_at ? new Date(b.updated_at).getTime() : 0
           return dateB - dateA
+        })
+        // Same reasoning, one level deeper: a lead with multiple quotes (a
+        // re-quote) must show the LATEST quote's price on the Clients page,
+        // not whatever order PostgREST happens to return nested rows in.
+        contact.leads.forEach((lead: any) => {
+          if (lead.quotes && Array.isArray(lead.quotes)) {
+            lead.quotes.sort((a: any, b: any) => {
+              const dateA = a.created_at ? new Date(a.created_at).getTime() : 0
+              const dateB = b.created_at ? new Date(b.created_at).getTime() : 0
+              return dateB - dateA
+            })
+          }
         })
       }
     })

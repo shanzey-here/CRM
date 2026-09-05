@@ -146,7 +146,11 @@ async function TasksWidget({ tenantId, adminSupabase }: { tenantId: string, admi
         <div key={task.id} className="flex justify-between items-center text-sm border-b border-border pb-2 last:border-0">
           <div>
             <p className="font-medium text-foreground">{task.title}</p>
-            {task.due_date && <p className="text-xs text-muted-foreground">Due: {format(new Date(task.due_date), 'MMM d')}</p>}
+            <p className="text-xs text-muted-foreground">
+              {task.due_date && `Due: ${format(new Date(task.due_date), 'MMM d')}`}
+              {task.due_date && (task as any).assignee?.full_name && ' · '}
+              {(task as any).assignee?.full_name && `Assigned: ${(task as any).assignee.full_name}`}
+            </p>
           </div>
           <span className="bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950 dark:text-amber-400 dark:border-amber-900 text-xs px-2.5 py-0.5 rounded-md font-medium">
             {task.status}

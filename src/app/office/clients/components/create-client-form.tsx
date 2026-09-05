@@ -61,10 +61,8 @@ export function CreateClientForm() {
     setIsSubmitting(true)
     setErrorMsg(null)
 
-    // Normalize empty strings to null for nullable numbers
-    if (data.estimated_hours === '' as any || isNaN(data.estimated_hours as any)) data.estimated_hours = null
-    if (data.estimated_crew_size === '' as any || isNaN(data.estimated_crew_size as any)) data.estimated_crew_size = null
-    if (data.quote_amount === '' as any || isNaN(data.quote_amount as any)) data.quote_amount = null
+    // Normalize empty strings to null (estimated_hours/estimated_crew_size/
+    // quote_amount are handled by the shared schema's preprocess now).
     if (data.email === '') data.email = null
     if (data.origin_city === '') data.origin_city = null
     if (data.origin_postcode === '') data.origin_postcode = null
