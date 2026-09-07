@@ -5,6 +5,8 @@ import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { revalidatePath } from 'next/cache'
 import { stripe } from '@/modules/payments/server/stripe'
 
+import { createTenantSchema, type CreateTenantInput } from '@/modules/tenants/schemas'
+
 export async function getTenants() {
   const supabase = await createClient()
   
@@ -14,10 +16,10 @@ export async function getTenants() {
     throw new Error('Unauthorized: Super Admin access required')
   }
 
-  // 2. Fetch Tenants
+  // 2. Fetch Tenants with full subscription and plan information
   const { data, error } = await supabase
     .from('tenants')
-    .select('*, tenant_subscriptions(*)')
+    .select('*, tenant_subscriptions(*, saas_prices(*, saas_plans(*)))')
     .order('created_at', { ascending: false })
 
   if (error) {
@@ -27,7 +29,7 @@ export async function getTenants() {
   return data
 }
 
-export async function createTenant(formData: FormData) {
+export async function createTenant(input: CreateTenantInput | FormData) {
   const supabase = await createClient()
 
   // 1. Strict Server-Side Guard
@@ -36,21 +38,38 @@ export async function createTenant(formData: FormData) {
     throw new Error('Unauthorized: Super Admin access required')
   }
 
-  // 2. Validation
-  const name = formData.get('name') as string
-  const slug = formData.get('slug') as string
-  const adminEmail = formData.get('adminEmail') as string
-  const adminFullName = formData.get('adminFullName') as string
-
-  if (!name || name.trim() === '') return { error: 'Name is required' }
-  if (!slug || slug.trim() === '') return { error: 'Slug is required' }
-  if (!adminEmail || adminEmail.trim() === '') return { error: 'Admin Email is required' }
-  if (!adminFullName || adminFullName.trim() === '') return { error: 'Admin Full Name is required' }
-
-  // Basic slug format validation
-  if (!/^[a-z0-9-]+$/.test(slug)) {
-    return { error: 'Slug can only contain lowercase letters, numbers, and hyphens' }
+  // 2. Parse & Normalize Input
+  let rawData: Record<string, unknown>
+  if (input instanceof FormData) {
+    rawData = {
+      name: input.get('name'),
+      slug: input.get('slug'),
+      adminEmail: input.get('adminEmail'),
+      adminFullName: input.get('adminFullName') || input.get('adminName') || input.get('fullName'),
+    }
+  } else {
+    rawData = { ...input }
   }
+
+  // Resilient fallback for adminFullName if omitted or empty
+  if (!rawData.adminFullName || typeof rawData.adminFullName !== 'string' || !rawData.adminFullName.trim()) {
+    if (typeof rawData.adminEmail === 'string' && rawData.adminEmail.includes('@')) {
+      const userPart = rawData.adminEmail.split('@')[0].replace(/[._-]/g, ' ')
+      rawData.adminFullName = userPart.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+    } else if (typeof rawData.name === 'string' && rawData.name.trim()) {
+      rawData.adminFullName = `${rawData.name.trim()} Admin`
+    } else {
+      rawData.adminFullName = 'Workspace Admin'
+    }
+  }
+
+  const parsed = createTenantSchema.safeParse(rawData)
+  if (!parsed.success) {
+    const firstError = parsed.error.issues[0]?.message || 'Invalid input data'
+    return { error: firstError }
+  }
+
+  const { name, slug, adminEmail, adminFullName } = parsed.data
 
   // 3. Uniqueness Check
   const { data: existing, error: checkError } = await supabase
@@ -197,7 +216,12 @@ export async function suspendTenantAction(tenantId: string, reason: string) {
   const serviceClient = createServiceRoleClient()
   const { error } = await serviceClient
     .from('tenant_subscriptions')
-    .update({ manually_suspended: true, suspension_reason: reason.trim() })
+    .update({
+      status: 'suspended',
+      manually_suspended: true,
+      suspension_reason: reason.trim(),
+      updated_at: new Date().toISOString(),
+    })
     .eq('tenant_id', tenantId)
 
   if (error) {
@@ -218,7 +242,12 @@ export async function reactivateTenantAction(tenantId: string) {
   const serviceClient = createServiceRoleClient()
   const { error } = await serviceClient
     .from('tenant_subscriptions')
-    .update({ manually_suspended: false, suspension_reason: null })
+    .update({
+      status: 'active',
+      manually_suspended: false,
+      suspension_reason: null,
+      updated_at: new Date().toISOString(),
+    })
     .eq('tenant_id', tenantId)
 
   if (error) {
